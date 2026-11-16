@@ -1,0 +1,314 @@
+# Design Decisions Log
+
+## Quran PWA
+
+**Versi:** 1.0
+**Tanggal dibuat:** 2026-11-12
+
+Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama. Satu keputusan = satu baris di tabel ringkasan + (bila perlu) satu entri rinci.
+
+**Status:** `Diusulkan` · `Diputuskan` · `Ditunda` · `Terbuka` · `Diganti`
+
+---
+
+## Ringkasan
+
+| ID    | Keputusan                                                                                | Status     | Tanggal    | Ditinjau ulang bila                                        |
+| ----- | ---------------------------------------------------------------------------------------- | ---------- | ---------- | ---------------------------------------------------------- |
+| D-001 | PWA local-first, tanpa backend dan tanpa akun untuk Release 1                            | Diputuskan | 2026-11-12 | Sinkronisasi antar perangkat dibutuhkan                    |
+| D-002 | Teks Arab dari Tanzil (Uthmani v1.1), ditampilkan tanpa perubahan                        | Diputuskan | 2026-11-12 | Ada sumber yang lebih sesuai dan berlisensi jelas          |
+| D-003 | Terjemahan Indonesia                                                                     | Ditunda    | 2026-11-12 | Lisensi/izin dikonfirmasi (Kemenag atau terjemahan Tanzil) |
+| D-004 | Alat desain: FigCraft                                                                    | Diputuskan | 2026-11-12 | Alat tidak memadai untuk kebutuhan desain                  |
+| D-005 | Varian Reader: A (mobile) dan C (desktop) sebagai dugaan awal                            | Diusulkan  | 2026-11-12 | Hasil evaluasi B di `DESIGN-TEST-PLAN.md`                  |
+| D-006 | Font Arab                                                                                | Ditunda    | 2026-11-12 | Hasil uji A di `DESIGN-TEST-PLAN.md`                       |
+| D-007 | Tema Terang dan Gelap di Release 1; tema "warm" ditunda                                  | Diputuskan | 2026-11-12 | Uji pembaca menunjukkan kebutuhan                          |
+| D-008 | Mode mushaf per halaman ditunda                                                          | Ditunda    | 2026-11-12 | Ada sumber tata letak halaman terverifikasi                |
+| D-009 | Sapaan antarmuka memakai "Anda"                                                          | Diusulkan  | 2026-11-12 | Uji pembaca                                                |
+| D-010 | Istilah UI: "Penanda" untuk bookmark, "Ayat" untuk ayah                                  | Diusulkan  | 2026-11-12 | Uji pembaca                                                |
+| D-011 | Navigasi mobile: Beranda · Quran · Penanda · Pengaturan; pencarian di Beranda dan Indeks | Diusulkan  | 2026-11-12 | Hasil uji kegunaan tugas 5                                 |
+| D-012 | Penanganan basmalah pada data sumber                                                     | Terbuka    | 2026-11-15 | Pilih opsi tampilan setelah data diperiksa                 |
+| D-013 | Gaya nomor ayat (Arab-Indic atau Latin)                                                  | Terbuka    | 2026-11-12 | Hasil uji A dan B                                          |
+| D-014 | Perpindahan perangkat lewat ekspor/impor penanda (berkas JSON)                           | Diputuskan | 2026-11-12 | Akun dan sinkronisasi dibangun                             |
+| D-015 | Pemicu aksi ayat di Reader kontinu: "..." hanya pada ayat terpilih                       | Diputuskan | 2026-11-13 | Uji kegunaan: tombol tidak ditemukan atau tak dipakai      |
+| D-016 | Target sentuh 44x44 px lewat padding, bukan memperbesar gambar                           | Diputuskan | 2026-11-13 | CSS tidak dapat mencapai 44 px tanpa menggeser tata letak  |
+| D-017 | Atribusi Tanzil "Teks Arab: Tanzil (CC BY 3.0)" di setiap varian Reader                  | Diputuskan | 2026-11-13 | Pemilik lisensi meminta bentuk atribusi lain               |
+| D-018 | Set ikon: Lucide (ISC), grid 24, stroke 2, warna lewat variabel                          | Diputuskan | 2026-11-14 | Ada glyph yang tidak tersedia atau rendering bermasalah    |
+| D-019 | Ikon terisi menandakan keadaan aktif/tersimpan, garis untuk aksi                         | Diputuskan | 2026-11-14 | Uji kegunaan: state tidak terbaca                          |
+| D-020 | Nama latin surah: transliterasi Tanzil atau daftar Indonesia                             | Terbuka    | 2026-11-15 | Daftar nama Indonesia terverifikasi tersedia               |
+| D-021 | Rute kanonis `/surah`; rute lama `/quran*` dialihkan                                     | Diputuskan | 2026-11-15 | Struktur informasi berubah                                 |
+| D-022 | Arti nama surah dalam bahasa Inggris tidak ditampilkan; baris memakai Makkiyah/Madaniyah | Diputuskan | 2026-11-15 | Uji pembaca meminta arti nama                              |
+| D-023 | Tema: Dexie sebagai sumber setelah hidrasi; `localStorage` hanya cadangan awal                | Diputuskan | 2026-11-15 | Alur hidrasi tema berubah                                  |
+| D-030 | PWA: app shell precache, data berversi, pembaruan tanpa muat ulang paksa                  | Diputuskan | 2026-11-16 | Strategi cache atau alur pembaruan berubah                 |
+| D-031 | Unduhan data offline otomatis setelah idle, dengan progres dan penanganan kuota            | Diputuskan | 2026-11-16 | Kuota, kebijakan data saver, atau alur unduhan berubah      |
+| D-032 | Hasil pencarian Arab menampilkan teks ayat utuh dari `ar/*.json`, bukan cuplikan           | Diputuskan | 2026-11-16 | Aturan tampilan teks Arab berubah                          |
+| D-033 | Indeks pencarian Arab: referensi + teks ternormalisasi, dimuat malas                       | Diputuskan | 2026-11-16 | Format indeks atau algoritme pencarian berubah             |
+| D-024 | Deep link ayat: `/surah/:surah/:ayah` kanonis; `?ayah=N` tetap didukung                  | Diputuskan | 2026-11-15 | Pola rute berubah                                          |
+| D-025 | Posisi baca tidak ditimpa gulir programatik; pembaruan setelah interaksi pengguna        | Diputuskan | 2026-11-15 | Semantik posisi baca berubah                               |
+| D-026 | Menu aksi ayat membuka ke atas bila ruang bawah tidak cukup, di luar containment kartu    | Diputuskan | 2026-11-15 | Menu diganti portal atau bottom sheet                      |
+| D-027 | "Lompat ke" memakai dialog native dengan tab Surah & Ayat dan Juz                         | Diputuskan | 2026-11-15 | S06 diubah menjadi sheet penuh atau ditambah pencarian      |
+| D-028 | Ekspor/impor penanda bersifat aditif; hapus data lokal menghapus Dexie dan tema tersimpan  | Diputuskan | 2026-11-15 | Format cadangan berubah atau akun ditambahkan               |
+| D-029 | "Bagikan ayat" hanya tampil bila Web Share API tersedia; teks Arab disertakan verbatim    | Diputuskan | 2026-11-15 | Perlu tautan berbagi khusus atau berbagi tanpa teks Arab    |
+
+---
+
+## Entri rinci
+
+### D-001 — PWA local-first, tanpa backend
+
+- **Konteks:** teks Qur'an statis; Release 1 tidak memerlukan akun atau sinkronisasi.
+- **Keputusan:** semua data referensi dibundel di aplikasi; data pengguna disimpan lokal.
+- **Alasan:** lebih cepat, offline otomatis, tanpa biaya server, risiko operasional lebih kecil.
+- **Dampak desain:** tidak ada layar login; perlu ekspor/impor penanda; perlu state offline dan penyiapan data.
+
+### D-002 — Sumber teks Arab
+
+- **Keputusan:** Tanzil Uthmani v1.1 (CC BY 3.0).
+- **Syarat:** tampilkan atribusi; teks tidak boleh diubah; normalisasi untuk pencarian dilakukan di indeks terpisah.
+- **Catatan:** baca syarat lengkap di tanzil.net sebelum rilis publik.
+
+### D-003 — Terjemahan Indonesia
+
+- **Status:** ditunda sampai lisensi jelas.
+- **Opsi:** (1) izin tertulis dari Kemenag/LPMQ, (2) terjemahan dari katalog Tanzil setelah syaratnya diperiksa.
+- **Larangan:** jangan memakai hasil _scrape_ tidak resmi sebagai data final.
+- **Dampak desain:** teks atribusi terjemahan di S10 memakai placeholder sampai ditetapkan.
+
+### D-005 — Varian Reader
+
+- **Dugaan awal:** A untuk mobile, C untuk desktop.
+- **Cara memutuskan:** rubrik B di `DESIGN-TEST-PLAN.md`.
+- **Hasil:** _(diisi setelah evaluasi)_
+
+### D-006 — Font Arab
+
+- **Kandidat:** Amiri Quran, Scheherazade New, Noto Naskh Arabic.
+- **Cara memutuskan:** uji A di `DESIGN-TEST-PLAN.md`.
+- **Hasil:** _(diisi setelah uji)_
+
+### D-012 — Basmalah
+
+- **Masalah:** pada sebagian berkas teks, basmalah bisa ikut tertulis di awal ayat pertama sebuah surah (kecuali Al-Fatihah dan At-Taubah). Perlu dicek pada berkas yang diunduh.
+- **Temuan (2026-11-15, Tanzil Uthmani v1.1):** basmalah menyatu di awal ayat 1 pada 113 surah. 111 surah memakai bentuk yang sama persis dengan 1:1; surah 95 dan 97 memakai bentuk dengan shadda pada ba; surah 9 tidak memiliki basmalah; pada surah 1 basmalah adalah ayat 1 itu sendiri. Rincian di `data/source/SOURCES.md` §4.
+- **Dampak pada build:** `build-data` menyalin teks apa adanya dan tidak memotong basmalah. Header basmalah di `SurahHeader` belum dapat diisi tanpa memilih opsi (b) atau (c).
+- **Pertanyaan:** bagaimana menampilkan basmalah sebagai header tanpa mengubah teks sumber?
+- **Opsi:** (a) tampilkan teks apa adanya, (b) pisahkan di lapisan tampilan tanpa mengubah data tersimpan, (c) pakai sumber yang memisahkan basmalah secara eksplisit.
+- **Keputusan:** _(diisi setelah verifikasi data; perlu peninjauan orang yang berkompeten)_
+
+### D-015 — Pemicu aksi ayat di Reader kontinu (varian B)
+
+- **Tanggal:** 2026-11-13
+- **Status:** Diputuskan
+- **Konteks:** Varian B menampilkan ayat sebagai aliran kontinu tanpa kartu, sehingga tidak ada tempat tetap untuk aksi ayat (tandai, salin). Rubrik B2 menilai kemudahan membuka aksi ayat.
+- **Opsi yang dipertimbangkan:** (a) tekan lama pada ayat, (b) tombol "..." di ujung setiap ayat, (c) tombol "..." hanya pada ayat terpilih.
+- **Keputusan:** Opsi (c). Mengetuk ayat membuatnya terpilih (latar `color.surface-raised`, garis `color.accent` 2 px, radius 8); bar aksi 44 px muncul tepat di bawah ayat dengan tombol "..." 44×44 di ujung ayat (sisi kiri pada teks RTL) dan label "Aksi ayat N".
+- **Alasan:** pilihan (a) tidak ditemukan pengguna baru dan tidak terlihat oleh pembaca layar; pilihan (b) menambah satu ikon per ayat pada tampilan yang tujuannya bersih.
+- **Dampak:** tiga state baru di setiap varian Reader: diam → ayat terpilih → sheet aksi (S04). Batal dengan mengetuk area lain atau menggulir. Pembaca layar mengumumkan "Ayat N dari M, QS. …, terpilih" dan tombol aksi sebagai kontrol terpisah. Berlaku juga di desktop (S03-A).
+- **Ditinjau ulang bila:** uji kegunaan menunjukkan pengguna tidak menemukan tombol, atau ayat terpilih tidak pernah dipakai.
+- **Bukti:** `figcraft/Quranku.figcraft`, frame `S03-B · ayat terpilih` dan `S03-A · desktop (ayat terpilih)`.
+
+### D-016 — Target sentuh 44×44 px dengan padding
+
+- **Tanggal:** 2026-11-13
+- **Status:** Diputuskan
+- **Konteks:** Audit kanvas menemukan kontrol di bawah 44 px: segmented 34–40, `Switch` 26, ikon aksi baris 20, tautan teks "Tutup"/"Lihat semua" 20, tombol +/- stepper 12×24.
+- **Keputusan:** kontrol yang terlihat kecil tidak diperbesar gambarnya; area sentuh dinaikkan ke 44×44 lewat padding atau pembungkus transparan. Kontrol yang memang berbentuk baris (baris pengaturan, tab, tombol) dinaikkan tingginya ke 44–48.
+- **Alasan:** menjaga kepadatan visual sambil memenuhi target 44×44 di `AGENTS.md`.
+- **Dampak:** `Switch` memakai toggle seluruh baris 48 px; segmen tema memakai padding 44 di dalam track 48; tombol +/- memakai area 44 di dalam stepper 116; tautan teks mendapat padding vertikal 44. Tidak ada perubahan token warna atau tipografi.
+- **Ditinjau ulang bila:** implementasi CSS tidak bisa mencapai 44 px tanpa menggeser tata letak.
+- **Bukti:** frame `S01 · Fokus & urutan baca`; temuan audit aksesibilitas 2026-11-13.
+
+### D-017 — Atribusi Tanzil di semua varian Reader
+
+- **Tanggal:** 2026-11-13
+- **Status:** Diputuskan
+- **Konteks:** `CONTENT-RULES.md` mewajibkan atribusi Tanzil tampil; sebelumnya hanya ada di S10 dan footer Reader A.
+- **Keputusan:** setiap varian Reader (A, B, C, 320 px, 200%) menampilkan satu baris footer "Teks Arab: Tanzil (CC BY 3.0)" dengan tautan "Sumber & Atribusi" menuju S10, di akhir konten surah.
+- **Alasan:** kewajiban lisensi harus terlihat tanpa membuka Pengaturan.
+- **Dampak:** menambah 40 px di akhir konten; tidak mengubah teks Arab. Teks atribusi memakai string persis dari `CONTENT-RULES.md`.
+- **Ditinjau ulang bila:** pemilik lisensi meminta bentuk atribusi lain.
+- **Bukti:** footer di `S03 · Reader A`; halaman `S10 · Sumber & Atribusi`.
+
+### D-018 — Set ikon: Lucide
+
+- **Tanggal:** 2026-11-14
+- **Status:** Diputuskan
+- **Konteks:** kanvas memakai 11 glyph gambar tangan dalam 283 salinan; grid tidak seragam (16×12, 18×18, 20×20, 24×24), stroke 1.6–1.8, dan beberapa bentuk tidak konsisten dengan labelnya.
+- **Opsi yang dipertimbangkan:** (a) Lucide (ISC), (b) Hugeicons free (MIT), (c) tetap gambar tangan dan hanya merapikan grid.
+- **Keputusan:** Lucide, grid 24, ukuran tampilan 20–24 px mengikuti konteks komponen. Stroke 2 pada grid 24 dan diskalakan proporsional (2 × ukuran/24, minimum 1,5); cap dan join `round`. Warna ikon selalu lewat variabel tema, tidak pernah hex mentah. Geometri diganti di tempat dengan `node.set path` sehingga binding, posisi, dan urutan layer tidak berubah.
+- **Alasan:** satu bahasa bentuk, lisensi ISC yang jelas, dukungan `fill` untuk keadaan aktif, dan penggantian tanpa risiko tata letak.
+- **Dampak:** seluruh ikon di 46 frame dan 11 komponen diganti di tempat; salinan di dalam instance ikut berubah otomatis, sehingga posisi, binding warna, dan urutan layer tidak berubah. Nama layer menjadi `icon/lucide/<glyph>`. Glyph yang dipakai: search, arrow-right, arrow-left, house, book-open, bookmark, sliders-horizontal, chevron-left, chevron-right, chevron-down, x, copy, link-2, share. Strip referensi 14 glyph ada di halaman `Components` (`Ikon · Lucide`). Notis lisensi ISC disertakan saat scaffold aplikasi.
+- **Ditinjau ulang bila:** ada glyph yang tidak tersedia di Lucide atau renderingnya bermasalah di perangkat uji.
+- **Bukti:** `S01 · Beranda`, `S03 · Reader A`, `S04 · Sheet Aksi Ayat`, halaman `Components`.
+
+### D-019 — Ikon terisi untuk keadaan aktif
+
+- **Tanggal:** 2026-11-14
+- **Status:** Diputuskan
+- **Konteks:** tab navigasi aktif dan status terpenanda sebelumnya hanya dibedakan warna. `ACCESSIBILITY-CHECKLIST.md` dan `SCREEN-SPECS.md` melarang informasi disampaikan hanya lewat warna.
+- **Keputusan:** ikon terisi menandakan keadaan aktif atau tersimpan; ikon garis menandakan aksi atau keadaan tidak aktif. Di `BottomNav` dan `SideNav` desktop, ikon tab aktif memakai `fill` variabel aksen selain warna teks. Tombol penanda pada `AyahCard` tetap garis karena merupakan aksi, bukan status; setelah alur penanda dibangun, keadaan tersimpan memakai `bookmark` terisi.
+- **Alasan:** bentuk terisi terbaca tanpa membedakan warna dan tetap jelas pada mode Gelap.
+- **Dampak:** seluruh ikon tab aktif di `BottomNav` (8 frame) dan `SideNav` desktop kini terisi; tidak ada perubahan ukuran atau tata letak. Aturan ini menjadi acuan saat membuat state "tersimpan" di Reader.
+- **Ditinjau ulang bila:** uji kegunaan menunjukkan pengguna tidak membedakan keadaan terisi dan garis.
+- **Bukti:** `S01 · Beranda`, `S02 · Indeks Surah`, `S07 · Penanda (gelap)`, `S03-A · desktop`.
+
+### D-020 — Nama latin surah
+
+- **Tanggal:** 2026-11-15
+- **Status:** Terbuka
+- **Konteks:** `surahs.json` v1 memakai `nameLatin` dari metadata Tanzil (mis. "Al-Kahf", "Al-Faatiha"), sedangkan desain dan `CONTENT-RULES.md` memakai transliterasi Indonesia (mis. "Al-Kahfi", "Al-Fatihah").
+- **Opsi yang dipertimbangkan:** (a) tampilkan `nameLatin` Tanzil apa adanya, (b) tambahkan tabel nama Indonesia terkurasi di lapisan data atau UI, (c) ganti sumber metadata.
+- **Keputusan:** _(diisi setelah daftar nama terverifikasi tersedia)_
+- **Dampak:** sampai diputuskan, UI memakai `nameLatin` Tanzil atau memetakan sendiri; ejaan Indonesia tidak boleh dikarang.
+- **Ditinjau ulang bila:** daftar nama Indonesia resmi/terverifikasi tersedia.
+
+### D-021 — Rute kanonis `/surah`
+
+- **Tanggal:** 2026-11-15
+- **Status:** Diputuskan
+- **Konteks:** `ARCHITECTURE.md` menyebut `/quran`, sedangkan implementasi dan label navigasi memakai "Quran" sebagai nama fitur, bukan bagian URL.
+- **Opsi yang dipertimbangkan:** (a) pertahankan `/quran`, (b) pindah ke `/surah`, (c) dukung keduanya tanpa pengalihan.
+- **Keputusan:** rute kanonis adalah `/surah`, `/surah/:surah`, dan `/surah/:surah/:ayah`. Rute lama `/quran`, `/quran/:surah`, dan `/quran/:surah/:ayah` dialihkan dengan mempertahankan query. `/sumber` dialihkan ke `/pengaturan/sumber`.
+- **Alasan:** URL menyebut objek yang dibuka (surah), konsisten dengan istilah "Indeks Surah", dan menghindari dua URL setara untuk konten yang sama.
+- **Dampak:** tautan dalam, pengujian navigasi, dan tabel rute `ARCHITECTURE.md` memakai bentuk `/surah`; tautan lama tetap berfungsi.
+- **Ditinjau ulang bila:** struktur informasi atau istilah navigasi berubah.
+
+### D-022 — Arti nama surah berbahasa Inggris tidak ditampilkan
+
+- **Tanggal:** 2026-11-15
+- **Status:** Diputuskan
+- **Konteks:** metadata Tanzil menyediakan `nameEnglish` (mis. "The Cave"). Antarmuka berbahasa Indonesia dan belum ada daftar arti nama yang terkurasi.
+- **Keputusan:** `nameEnglish` tetap tersimpan di data tetapi tidak dirender. Baris surah menampilkan `Makkiyah`/`Madaniyah` dan jumlah ayat dari metadata yang tervalidasi.
+- **Alasan:** menghindari campuran bahasa dan terjemahan arti nama yang belum ditinjau.
+- **Dampak:** `SurahRow`, `SurahHeader`, dan hasil pencarian tidak menampilkan arti bahasa Inggris. Pencarian tetap mengenali nama Latin, nama Arab, dan nomor surah.
+- **Ditinjau ulang bila:** uji pembaca menunjukkan kebutuhan arti nama atau tersedia daftar arti yang terverifikasi.
+
+### D-023 — Tema: Dexie sebagai sumber, `localStorage` sebagai cadangan awal
+
+- **Tanggal:** 2026-11-15
+- **Status:** Diputuskan
+- **Konteks:** tema harus tetap diingat antar kunjungan dan tersedia sebelum basis data siap.
+- **Keputusan:** preferensi `light`, `dark`, atau `system` disimpan di Dexie (`settings` kunci `theme`) setelah hidrasi. `localStorage` dengan kunci `quranku.theme` hanya menjadi nilai awal sebelum Dexie terbaca. Pilihan `system` mengikuti `prefers-color-scheme`. Nilai lain diabaikan dan dianggap `system`.
+- **Alasan:** tidak ada kedipan tema saat muat awal, sementara seluruh data pengguna tetap berada di perangkat dan satu sumber kebenaran tersedia setelah hidrasi.
+- **Dampak:** `ThemeProvider` membaca `localStorage`, lalu menimpa dengan nilai Dexie bila ada, dan menulis perubahan ke Dexie. `localStorage` tidak dihapus agar pembacaan awal tetap cepat.
+- **Ditinjau ulang bila:** alur hidrasi tema atau skema pengaturan berubah.
+
+### D-024 — Deep link ayat
+
+- **Tanggal:** 2026-11-15
+- **Status:** Diputuskan
+- **Konteks:** tautan juz dan tautan lama memakai `?ayah=N`; bentuk path lebih mudah dibagikan dan dibaca.
+- **Keputusan:** bentuk kanonis tautan ayat adalah `/surah/:surah/:ayah`. Parameter `?ayah=N` tetap didukung. Ayat yang dituju digulir ke tengah layar dan diberi label "Ayat dituju". Nomor di luar rentang menampilkan pemberitahuan yang dapat ditutup tanpa memblokir bacaan.
+- **Alasan:** kompatibilitas dengan tautan yang sudah ada tanpa mengorbankan URL yang jelas.
+- **Dampak:** `ReaderPage` membaca path lalu query; `JuzRow` memakai bentuk query; pengujian mencakup kedua bentuk dan nomor tidak valid.
+- **Ditinjau ulang bila:** pola rute atau perilaku gulir berubah.
+
+### D-025 — Posisi baca tidak ditimpa gulir programatik
+
+- **Tanggal:** 2026-11-15
+- **Status:** Diputuskan
+- **Konteks:** deep link menggulir ayat tujuan ke tengah layar. Pendeteksi posisi membaca memilih ayat teratas yang masih terlihat, sehingga ayat sebelum tujuan (mis. 9 saat tujuan 10) langsung tersimpan dan kartu "Lanjutkan membaca" menunjuk ayat yang salah.
+- **Keputusan:** posisi awal disimpan dari ayat tujuan deep link (atau ayat 1). Pembaruan berbasis gulir hanya aktif setelah pengguna berinteraksi lewat `wheel`, `touchmove`, `pointerdown`, atau `keydown`. Gulir programatik dan pemulihan posisi tidak mengubah posisi tersimpan.
+- **Alasan:** kartu "Lanjutkan membaca" harus menunjuk ayat yang dibuka pengguna, bukan ayat yang kebetulan berada di ambang atas setelah gulir otomatis.
+- **Dampak:** `ReaderPage` menyimpan penanda interaksi di `useRef`; pengujian E2E memastikan deep link `18:10` menghasilkan posisi `18:10`. Gulir dengan scrollbar tetap terdeteksi lewat `pointerdown`.
+- **Ditinjau ulang bila:** semantik posisi baca berubah atau ada metode gulir asistif yang perlu dilacak.
+
+### D-026 — Menu aksi ayat membuka ke atas bila ruang bawah tidak cukup
+
+- **Tanggal:** 2026-11-15
+- **Status:** Diputuskan
+- **Konteks:** menu aksi berada di dalam kartu ayat. Pada 320 px dan ayat panjang, menu terbuka ke bawah melewati batas viewport; `content-visibility: auto` pada kartu juga memotong menu sehingga sebagian aksi tidak dapat diketuk.
+- **Keputusan:** kartu yang terpilih memakai `content-visibility: visible` dan dinaikkan di atas kartu berikutnya. Menu mengukur ruang di bawah pemicu dan membuka ke atas bila ujung bawahnya akan melewati viewport. Menu diberi `max-height` dan dapat digulir.
+- **Alasan:** seluruh aksi (penanda, salin referensi, salin ayat) harus terjangkau pada layar 320 px tanpa mengubah struktur sheet S04.
+- **Dampak:** `AyahCard` menyimpan `menuPlacement`; CSS menyediakan varian `.menuTop`. Pengujian E2E penanda berjalan pada desktop dan Pixel 5.
+- **Ditinjau ulang bila:** menu diganti portal, popover, atau bottom sheet sesuai S04.
+
+### D-027 — "Lompat ke" memakai dialog dengan pilihan surah/ayat dan awal juz
+
+- **Tanggal:** 2026-11-15
+- **Status:** Diputuskan
+- **Konteks:** S06 membutuhkan perpindahan cepat tanpa meninggalkan Reader. Daftar 114 surah dan 30 juz harus tetap ringkas di layar 320 px serta dapat dioperasikan dengan papan ketik.
+- **Keputusan:** "Lompat ke" membuka `<dialog>` native dengan tab **Surah & Ayat** dan **Juz**. Tab Surah & Ayat memakai pemilih surah dan kolom nomor ayat; nomor kosong membuka awal surah. Nomor di luar rentang menampilkan pesan inline "Surah ini memiliki N ayat." tanpa menutup dialog. Tab Juz memuat daftar juz secara malas dan membuka ayat awal juz yang dipilih.
+- **Alasan:** dialog native memberi pengurungan fokus dan tombol Escape tanpa pustaka tambahan; pemilih menghindari daftar panjang dan kesalahan ketik.
+- **Dampak:** `JumpToDialog` memakai `useJuz` dengan pemuatan malas; navigasi memakai bentuk kanonis `/surah/:surah/:ayah`; pengujian unit dan E2E mencakup rentang tidak valid, awal surah, awal juz, dan penutupan dialog.
+- **Ditinjau ulang bila:** S06 diubah menjadi sheet penuh atau pencarian nomor surah ditambahkan.
+
+### D-028 — Ekspor/impor penanda bersifat aditif
+
+- **Tanggal:** 2026-11-15
+- **Status:** Diputuskan
+- **Konteks:** pengguna perlu memindahkan penanda ke perangkat lain tanpa akun. Impor yang menimpa data dapat menghapus penanda yang dibuat setelah ekspor.
+- **Keputusan:** ekspor menghasilkan JSON `quran-pwa` versi 1 berisi penanda, posisi baca, dan pengaturan. Impor memvalidasi seluruh berkas, menambahkan penanda yang belum ada, melewati duplikat, dan melaporkan jumlah diimpor/dilewati. Posisi baca hanya dipulihkan bila perangkat belum punya posisi. Pengaturan yang dikenal (`theme`, `reader.arabicSize`) hanya diisi bila belum ada. Berkas tidak valid ditolak tanpa mengubah data.
+- **Alasan:** impor tidak boleh menghapus data lokal, sementara migrasi perangkat tetap membawa posisi dan preferensi bila perangkat tujuan masih kosong.
+- **Dampak:** `src/lib/db/backup.ts` menangani format dan transaksi Dexie; Pengaturan menyediakan ekspor, impor, dan "Hapus data lokal" dengan dialog konfirmasi. Hapus data membersihkan tabel Dexie dan kunci `localStorage` tema, lalu tema kembali ke `system`.
+- **Ditinjau ulang bila:** format cadangan berubah, pengaturan baru perlu ikut dipulihkan, atau akun dan sinkronisasi ditambahkan.
+
+### D-029 — Berbagi ayat lewat Web Share API
+
+- **Tanggal:** 2026-11-15
+- **Status:** Diputuskan
+- **Konteks:** S04 meminta aksi bagikan bila perangkat mendukung. Tidak semua peramban menyediakan `navigator.share`, dan teks Arab harus tetap utuh saat dibagikan.
+- **Keputusan:** aksi "Bagikan ayat" hanya dirender bila `navigator.share` tersedia. Muatannya memakai teks ayat Arab verbatim, referensi, atribusi Tanzil, dan URL kanonis `/surah/:surah/:ayah`. Pembatalan oleh pengguna tidak menampilkan galat; kegagalan lain menampilkan "Tidak dapat membagikan. Coba lagi."
+- **Alasan:** memakai lembar berbagi bawaan perangkat tanpa menambah dependensi atau mengirim data ke layanan pihak ketiga. Teks Arab tidak diringkas atau dinormalisasi.
+- **Dampak:** `AyahCard` memeriksa ketersediaan API saat render; pengujian unit dan E2E meniru `navigator.share` dan memastikan muatan berisi teks verbatim.
+- **Ditinjau ulang bila:** diperlukan tautan berbagi yang dapat dipratinjau, atau aksi berbagi harus tersedia tanpa Web Share API.
+
+### D-030 — Strategi cache PWA dan pembaruan tanpa muat ulang paksa
+
+- **Tanggal:** 2026-11-16
+- **Status:** Diputuskan
+- **Konteks:** Release 1 harus dapat dipasang dan dibuka tanpa jaringan, tanpa backend. Teks Al-Qur'an tidak boleh berubah, dan pembaruan tidak boleh menghilangkan posisi baca.
+- **Opsi yang dipertimbangkan:** (a) precache seluruh data saat instalasi, (b) cache saat dibaca saja, (c) precache app shell + unduhan data di latar dengan progres, (d) memaksa muat ulang saat versi baru tersedia.
+- **Keputusan:** memakai `vite-plugin-pwa` dengan `registerType: "prompt"` dan `injectRegister: null`. App shell (HTML/JS/CSS/font/ikon) di-precache Workbox. Data Quran memakai cache berversi `quranku-data-v1` dengan strategi `CacheFirst` untuk `ar/*.json` dan `search/*.json`. Pembaruan hanya menampilkan pemberitahuan "Versi baru tersedia."; pengguna memilih **Muat ulang**, tidak ada reload paksa. Cache data lama dihapus saat aplikasi mulai.
+- **Alasan:** app shell kecil dapat diprecache saat instalasi, sedangkan seluruh data Quran (~1,6 MB teks + indeks) lebih baik diunduh di latar agar kunjungan pertama tetap cepat. Prompt pembaruan menjaga posisi baca dan kontrol pengguna.
+- **Dampak (desain, konten, teknis):** `vite.config.ts` mengatur manifest, ikon, precache, dan runtime caching. `PwaUpdatePrompt` menampilkan pembaruan dan status siap offline. `clearOldDataCaches` mencegah data usang. E2E `pwa.spec.ts` memeriksa manifest, service worker, dan precache; `offline.spec.ts` memeriksa pemakaian data tanpa jaringan.
+- **Ditinjau ulang bila:** dataset naik versi besar, strategi cache berubah, atau diperlukan pembaruan otomatis di latar.
+
+### D-031 — Unduhan data offline otomatis dengan progres dan penanganan kuota
+
+- **Tanggal:** 2026-11-16
+- **Status:** Diputuskan
+- **Konteks:** Pengguna perlu membaca seluruh Al-Qur'an tanpa jaringan, tetapi mengunduh 119 berkas pada kunjungan pertama tidak boleh menghambat interaksi atau menghabiskan kuota tanpa kendali.
+- **Opsi yang dipertimbangkan:** (a) unduh semua saat instalasi, (b) hanya cache saat surah dibuka, (c) unduh di latar setelah idle dengan progres dan opsi hapus, (d) ajukan dialog izin unduhan.
+- **Keputusan:** `OfflineProvider` memeriksa cache saat mulai, lalu memulai unduhan otomatis setelah `requestIdleCallback` (atau timeout 800 ms) bila perangkat online dan tidak mengaktifkan `Save-Data`. Unduhan memakai Cache API langsung dari halaman, konkurensi 3, dan melaporkan progres lewat banner S11 serta baris Pengaturan. Pengguna dapat mengunduh ulang, mencoba lagi, atau menghapus salinan offline. Kuota penuh dan kegagalan jaringan memiliki pesan terpisah.
+- **Alasan:** unduhan di latar memberi pengalaman baca yang langsung dapat dipakai, sementara progres dan opsi hapus menjaga kendali serta ruang penyimpanan pengguna. Cache API langsung memudahkan pelaporan progres dan pembersihan.
+- **Dampak (desain, konten, teknis):** `src/features/offline/cache.ts`, `OfflineProvider`, `OfflineSetupBanner`, dan baris data offline di Pengaturan. Setelah pengguna menghapus salinan, unduhan otomatis tidak langsung berjalan lagi pada sesi itu. E2E menunggu 119 berkas masuk cache sebelum menguji mode offline.
+- **Ditinjau ulang bila:** ukuran dataset berubah drastis, kuota perangkat menjadi masalah umum, atau diperlukan unduhan selektif per juz/surah.
+
+### D-032 — Hasil pencarian Arab menampilkan teks ayat utuh
+
+- **Tanggal:** 2026-11-16
+- **Status:** Diputuskan
+- **Konteks:** S08 menyebut "cuplikan dengan kata cocok ditandai", tetapi aturan proyek melarang memotong atau mengubah teks Arab. Indeks pencarian juga tidak menyimpan teks asli agar tidak ada salinan kedua yang dapat menyimpang.
+- **Opsi yang dipertimbangkan:** (a) menampilkan cuplikan yang dipotong, (b) menampilkan teks ayat utuh dari `ar/*.json`, (c) menyimpan teks asli di indeks pencarian.
+- **Keputusan:** setiap hasil menampilkan referensi `QS. Nama Surah surah:ayat` dan **teks ayat utuh** yang dibaca dari `ar/XXX.json`. Kata yang cocok ditandai dengan `<mark>` berdasarkan pemetaan posisi ke teks asli. Hasil dibatasi 20 teratas dengan catatan bila batas tercapai. Mode terjemahan tidak ditampilkan sampai D-003 diputuskan.
+- **Alasan:** memenuhi aturan verbatim dan menghindari duplikasi teks di berkas pencarian. Pemetaan sorotan memungkinkan penanda visual tanpa mengubah karakter.
+- **Dampak (desain, konten, teknis):** `SearchResultRow` memuat teks per surah lewat `loadSurahText` (di-cache), `ArabicText` menerima `highlightRanges`, dan `findHighlightRanges` memetakan posisi ternormalisasi kembali ke teks asli. Teks hasil selalu identik dengan Reader; diuji di unit dan E2E.
+- **Ditinjau ulang bila:** aturan tampilan teks berubah atau diperlukan pratinjau lintas ayat.
+
+### D-033 — Indeks pencarian Arab yang ringkas dan dimuat malas
+
+- **Tanggal:** 2026-11-16
+- **Status:** Diputuskan
+- **Konteks:** Pencarian Arab harus bekerja tanpa backend dan tanpa memuat seluruh teks Quran di muatan awal.
+- **Opsi yang dipertimbangkan:** (a) memindai `ar/*.json` saat mencari, (b) indeks berisi teks asli + ternormalisasi, (c) indeks berisi referensi + teks ternormalisasi saja.
+- **Keputusan:** `scripts/build-data.mjs` menghasilkan `public/data/v1/search/arabic.json` berisi `[surah, ayah, normalizedText]` untuk 6.236 ayat (sekitar 775 KB). Indeks dimuat malas hanya saat mode **Arab** aktif dan kueri minimal dua karakter. Pencocokan mewajibkan semua kata kueri muncul; peringkat memberi bobot pada kecocokan persis, awalan, frasa, dan jumlah kemunculan. Normalisasi hanya untuk pencarian dan dijelaskan di `docs/SEARCH-NORMALIZATION.md`.
+- **Alasan:** memindai 114 berkas per kueri terlalu lambat dan boros; menyimpan teks asli menggandakan data dan berisiko menyimpang. Referensi + teks ternormalisasi menjaga indeks kecil dan teks tampilan tetap satu sumber.
+- **Dampak (desain, konten, teknis):** `scripts/build-data.mjs` dan `verify-output.mjs` memakai `src/lib/search/normalize.mjs` yang sama dengan aplikasi. `loadSearchIndex` memvalidasi jumlah entri dan versi. `searchAyahs` diuji untuk harakat, multi-kata, batas hasil, dan kueri terlalu pendek.
+- **Ditinjau ulang bila:** diperlukan pencarian terjemahan (D-003), pencarian akar kata, atau ukuran indeks melewati anggaran.
+
+---
+
+## Templat entri baru
+
+```
+### D-0XX — Judul keputusan
+- **Tanggal:**
+- **Status:** Diusulkan / Diputuskan / Ditunda / Diganti
+- **Konteks:**
+- **Opsi yang dipertimbangkan:**
+- **Keputusan:**
+- **Alasan:**
+- **Dampak (desain, konten, teknis):**
+- **Ditinjau ulang bila:**
+- **Bukti:** (tautan ke hasil uji, tangkapan layar, dsb.)
+```

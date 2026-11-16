@@ -1,0 +1,326 @@
+# Architecture
+
+## Quran PWA
+
+**Versi:** 1.0
+**Tanggal:** 2026-11-12
+
+---
+
+## 1. Keputusan inti
+
+| Keputusan       | Pilihan                                             | Alasan                                                                        |
+| --------------- | --------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Bentuk aplikasi | PWA (satu aplikasi web)                             | Teks Qur'an statis; PWA dapat dipasang di Android dan iOS tanpa toko aplikasi |
+| Backend         | **Tidak ada**                                       | Tidak ada akun atau sinkronisasi di Release 1                                 |
+| Data Quran      | Dibundel sebagai JSON statis, dihasilkan saat build | Cepat, offline otomatis, tanpa biaya server                                   |
+| Data pengguna   | IndexedDB di perangkat                              | Privat secara bawaan                                                          |
+| Hosting         | Cloudflare Pages (statis)                           | Bandwidth tanpa batas pada paket gratis untuk aset statis                     |
+| Monorepo        | Tidak (satu project)                                | Tidak ada lebih dari satu aplikasi                                            |
+
+Yang **tidak** dipakai di Release 1: Express, PostgreSQL, Drizzle, autentikasi, OpenAPI, Docker/Nginx, Turborepo, Expo/React Native, Redis, GraphQL.
+
+## 2. Tech stack
+
+| Lapisan       | Pilihan                                                                                                 |
+| ------------- | ------------------------------------------------------------------------------------------------------- |
+| Bahasa        | TypeScript                                                                                              |
+| UI            | React + Vite                                                                                            |
+| Router        | React Router (mode SPA)                                                                                 |
+| PWA           | `vite-plugin-pwa` (Workbox)                                                                             |
+| Data pengguna | Dexie (pembungkus IndexedDB)                                                                            |
+| Pencarian     | MiniSearch atau FlexSearch (di klien)                                                                   |
+| Gaya          | CSS variables dari `docs/design/DESIGN-TOKENS.md` + CSS Modules (Tailwind boleh jika dipilih eksplisit) |
+| Tes           | Vitest (unit), Playwright (E2E, termasuk mode offline), axe-core (aksesibilitas)                        |
+| Kualitas      | ESLint, Prettier, `tsc --noEmit`, Lighthouse CI                                                         |
+| CI/CD         | GitHub Actions → Cloudflare Pages                                                                       |
+| Manajer paket | pnpm                                                                                                    |
+
+Pilihan di atas adalah titik awal. Ubah lewat `docs/design/DESIGN-DECISIONS.md` atau catatan keputusan teknis, bukan secara diam-diam.
+
+## 3. Struktur repositori
+
+```text
+quran-pwa/
+├── AGENTS.md
+├── opencode.json
+├── README.md
+├── docs/                     # dokumen produk, arsitektur, desain
+├── data/
+│   └── source/               # berkas mentah Tanzil (tidak diubah, tidak dikirim ke pengguna)
+├── scripts/                  # build-data, validate-data
+├── public/
+│   ├── data/                 # DIHASILKAN oleh build-data (jangan edit manual)
+│   ├── fonts/                # font self-hosted + berkas lisensinya
+│   └── icons/                # ikon PWA
+├── src/
+│   ├── app/                  # root, router, penyedia konteks
+│   ├── routes/               # halaman (Beranda, Surah, Reader, Cari, Penanda, Pengaturan, Sumber)
+│   ├── features/
+│   │   ├── quran/            # muat data, navigasi surah/ayat/juz
+│   │   ├── bookmarks/
+│   │   ├── search/
+│   │   ├── settings/
+│   │   └── offline/          # status jaringan, penyiapan offline, pembaruan
+│   ├── components/ui/        # komponen dasar (lihat COMPONENT-INVENTORY)
+│   ├── lib/
+│   │   ├── db/               # skema Dexie
+│   │   ├── data/             # klien data statis (fetch, cache, validasi)
+│   │   ├── arabic/           # normalisasi untuk pencarian (BUKAN untuk tampilan)
+│   │   └── format/
+│   ├── styles/               # tokens.css, global.css
+│   └── sw/                   # kode service worker kustom (jika perlu)
+├── tests/
+│   ├── unit/
+│   └── e2e/
+└── .github/workflows/
+```
+
+## 4. Data Quran
+
+### 4.1 Sumber
+
+- Teks Arab: **Tanzil Uthmani v1.1** (CC BY 3.0, tidak boleh diubah).
+- Metadata (juz, sajdah, halaman): file metadata Tanzil. Verifikasi isinya setelah diunduh.
+- Terjemahan Indonesia: **belum ditetapkan** (lisensi). Lihat `DESIGN-DECISIONS.md` D-003.
+
+Berkas mentah disimpan di `data/source/` dan tidak pernah diedit.
+
+### 4.2 Alur build data
+
+```text
+data/source/*  →  scripts/validate-data  →  scripts/build-data  →  public/data/<versi>/*
+```
+
+1. **Validasi** sumber: jumlah surah (114), jumlah ayat (6.236 total), urutan nomor tanpa celah, tanpa duplikat, tidak ada teks kosong, jumlah ayat per surah cocok dengan metadata.
+2. **Build**: menghasilkan JSON per surah dan indeks, **tanpa mengubah teks Arab** (string keluaran harus identik dengan sumber).
+3. **Manifest**: mencatat versi dataset, sumber, lisensi, tanggal pengambilan, dan checksum SHA-256 tiap berkas.
+4. **CI** menjalankan validasi dan membandingkan checksum. Build gagal jika ada ketidakcocokan.
+
+**Status:** `validate:data`, `build:data`, dan `verify:output` sudah tersedia (lihat `scripts/README.md`). Dataset v1 dibangun dari `quran-uthmani.txt` (Tanzil Uthmani 1.1) dan `quran-data.js` (metadata 1.0). Indeks pencarian Arab dihasilkan saat build. Terjemahan belum dihasilkan (D-003).
+
+### 4.3 Tata letak berkas keluaran
+
+```text
+public/data/v1/
+├── manifest.json                 # versi, sumber, lisensi, checksum
+├── COPYRIGHT.txt                 # blok hak cipta Tanzil, disalin verbatim
+├── surahs.json                   # metadata 114 surah
+├── juz.json                      # pemetaan juz (jika terverifikasi)
+├── ar/
+│   ├── 001.json … 114.json       # teks Arab per surah
+├── tr/
+│   └── <id-terjemahan>/
+│       └── 001.json … 114.json   # terjemahan per surah (dipisah agar mudah diganti)
+└── search/
+    └── arabic.json               # [surah, ayat, teks ternormalisasi] untuk 6.236 ayat
+```
+
+Pada v1, `tr/` belum dihasilkan (D-003). `search/arabic.json` hanya berisi referensi dan teks ternormalisasi; teks tampilan tetap dibaca dari `ar/*.json` (D-032, D-033).
+
+Contoh isi `ar/001.json` (struktur, bukan data nyata):
+
+```json
+{
+  "surah": 1,
+  "ayahs": [{ "n": 1, "text": "<teks Arab verbatim dari sumber>" }]
+}
+```
+
+### 4.4 Aturan
+
+- Kunci ayat selalu `(surah, ayat)`.
+- Teks Arab, terjemahan, dan (nanti) transliterasi/tafsir disimpan di berkas terpisah.
+- Versi dataset ada di path (`/data/v1/`). Koreksi konten = versi baru, bukan menimpa berkas.
+- Basmalah: ikuti keputusan **D-012** setelah berkas sumber diperiksa. Jangan mengubah data tersimpan.
+
+## 5. Data pengguna (IndexedDB)
+
+| Tabel       | Kunci          | Isi                                                           |
+| ----------- | -------------- | ------------------------------------------------------------- |
+| `bookmarks` | `[surah+ayah]` | `createdAt`                                                   |
+| `position`  | `'last'`       | `{ surah, ayah, updatedAt }`                                  |
+| `settings`  | `key`          | tema, ukuran Arab, ukuran terjemahan, tampil terjemahan, dll. |
+| `meta`      | `key`          | versi skema, versi dataset yang ter-cache                     |
+
+- Satu penanda per ayat (kunci gabungan menjamin tidak ada duplikat).
+- Penulisan bersifat idempoten (upsert).
+- Migrasi skema memakai sistem versi Dexie.
+- Waktu disimpan dalam UTC.
+- Implementasi M3: `bookmarks.createdAt` berupa ISO UTC dan daftar diurutkan terbaru lebih dahulu; `position` hanya memiliki satu baris `'last'`; `settings` memakai kunci `theme` (`light`/`dark`/`system`) dan `reader.arabicSize` (`s`–`xxl`, bawaan `m`).
+- Posisi baca awal diambil dari ayat tujuan deep link. Gulir programatik tidak menimpa posisi; pembaruan hanya terjadi setelah pengguna berinteraksi (D-025).
+
+### Format ekspor/impor penanda
+
+```json
+{
+  "app": "quran-pwa",
+  "schemaVersion": 1,
+  "exportedAt": "2026-11-12T09:00:00Z",
+  "bookmarks": [
+    { "surah": 18, "ayah": 10, "createdAt": "2026-11-12T08:00:00Z" }
+  ],
+  "position": { "surah": 18, "ayah": 10 },
+  "settings": {}
+}
+```
+
+Impor: validasi dengan skema, gabungkan berdasarkan `(surah, ayah)`, jangan menghapus data yang ada, laporkan jumlah diimpor dan dilewati. Posisi baca hanya dipulihkan bila perangkat belum memilikinya. Pengaturan yang dikenal (`theme`, `reader.arabicSize`) hanya diisi bila belum ada. Berkas dengan bentuk atau rentang tidak valid ditolak seluruhnya, dan pesan galat tampil di Pengaturan (D-028).
+
+## 6. Rute
+
+| Rute                  | Layar                                                      |
+| --------------------- | ---------------------------------------------------------- |
+| `/`                   | Beranda                                                    |
+| `/surah`              | Indeks Surah (tab Surah/Juz)                               |
+| `/surah/:surah`       | Reader (`?ayah=N` untuk menggulir ke ayat)                 |
+| `/surah/:surah/:ayah` | Reader langsung ke ayat (bentuk tautan kanonis)            |
+| `/cari`               | Cari                                                       |
+| `/penanda`            | Penanda                                                    |
+| `/pengaturan`         | Pengaturan                                                 |
+| `/pengaturan/sumber`  | Sumber & Atribusi                                          |
+
+Rute lama `/quran`, `/quran/:surah`, dan `/quran/:surah/:ayah` dialihkan permanen ke bentuk `/surah`; `/sumber` dialihkan ke `/pengaturan/sumber`. Parameter `?ayah=N` tetap didukung untuk tautan juz dan tautan lama (D-024).
+
+Hosting statis perlu _fallback_ SPA agar rute dalam dapat dimuat langsung. Cloudflare Pages memperlakukan project tanpa `404.html` sebagai SPA, tetapi verifikasi perilakunya di staging.
+
+## 7. Service worker dan offline
+
+| Aset                                     | Strategi                                                                                              |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| App shell (HTML/JS/CSS/font/ikon)        | Precache Workbox, versi lewat hash berkas                                                             |
+| `manifest.json`, `surahs.json`, `juz.json` | Precache (juga disalin ke cache data oleh unduhan offline)                                            |
+| `ar/*.json`, `search/*.json`             | `CacheFirst` di cache berversi `quranku-data-v1`; diunduh di latar setelah idle (progres di S11)      |
+| `tr/*/*.json`                            | Belum ada (D-003)                                                                                     |
+
+- Manifest dan service worker dihasilkan `vite-plugin-pwa` 2 (`registerType: "prompt"`, `injectRegister: null`).
+- Pembaruan: tampilkan "Versi baru tersedia." dan **jangan** muat ulang paksa (posisi baca tidak boleh hilang). Pemeriksaan pembaruan dilakukan tiap jam selama aplikasi terbuka.
+- Cache data memakai nama berversi. Saat versi dataset berubah, cache `quranku-data-*` lama dihapus saat aplikasi mulai.
+- Unduhan offline memakai Cache API langsung dari halaman, konkurensi 3, dan berhenti otomatis bila pengguna menghapus salinan pada sesi itu. `Save-Data` menunda unduhan otomatis.
+- Kuota penuh dan kegagalan jaringan memiliki pesan terpisah di banner S11 dan Pengaturan.
+- Uji offline di Playwright (`setOffline`) mencakup navigasi Reader, pencarian, dan service worker; tetap uji di perangkat nyata sebelum rilis.
+
+## 8. Pencarian
+
+- Mode: **Surah** dan **Arab**. Mode terjemahan ditunda sampai D-003 (lihat `SCREEN-SPECS.md` S08).
+- Normalisasi Arab hanya untuk **indeks** dan pencocokan: hapus harakat dan tanda Qur'ani, samakan varian alif, alif maksura, ta marbuta, dan tatweel. Tampilan tetap memakai teks asli. Rincian di `docs/SEARCH-NORMALIZATION.md`.
+- Indeks `search/arabic.json` dihasilkan oleh `scripts/build-data.mjs` dengan format `[surah, ayat, teks ternormalisasi]`; total 6.236 entri (~775 KB).
+- Indeks dimuat malas hanya saat mode Arab aktif dan kueri minimal dua karakter, bukan di muatan awal.
+- Semua kata kueri harus muncul. Peringkat memberi bobot kecocokan persis, awalan, frasa, dan jumlah kemunculan; hasil dibatasi 20.
+- Batas panjang kueri 100 karakter dan debounce input 250 ms.
+- Hasil menampilkan teks ayat utuh dari `ar/*.json` dengan sorotan `<mark>` yang dipetakan ke teks asli.
+- Tidak ada pencarian semantik, vektor, tafsir, atau akar kata.
+
+## 9. Kinerja
+
+- Jangan memuat seluruh Qur'an di muatan awal. Muat per surah.
+- Daftar panjang (Al-Baqarah) memakai virtualisasi atau pemuatan bertahap bila perlu.
+- Font Arab: `font-display: swap`; jangan subset yang menghilangkan glyph.
+- Tetapkan anggaran ukuran dan waktu interaktif setelah build pertama, ukur p75 pada perangkat nyata.
+
+## 10. Privasi dan keamanan
+
+- Semua data pengguna hanya di perangkat. Tidak ada pengiriman ke server.
+- Tanpa analitik pihak ketiga secara bawaan. Jika kelak ditambahkan: agregat, tanpa cookie, tanpa teks pencarian, tanpa riwayat baca perorangan.
+- Header keamanan lewat berkas `_headers` (CSP ketat, `X-Content-Type-Options`, `Referrer-Policy`).
+- Tidak ada rahasia di repo. Pindai dependensi (Dependabot atau `pnpm audit`).
+- Impor berkas pengguna divalidasi ketat dengan skema.
+
+## 11. Pengujian
+
+| Jenis            | Cakupan                                                                                                                                   |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit             | Navigasi surah/ayat/juz, normalisasi Arab, validator data, skema impor/ekspor, layanan penanda                                            |
+| Integrasi        | Dexie (penanda, posisi, pengaturan), klien data statis                                                                                    |
+| E2E (Playwright) | Buka surah dan baca; ubah pengaturan; beri penanda dan pulihkan; cari dan buka hasil tepat; lanjutkan membaca; mode offline; ekspor/impor |
+| Aksesibilitas    | axe-core di E2E + uji manual (lihat `ACCESSIBILITY-CHECKLIST.md`)                                                                         |
+| Konten           | Uji integritas data (jumlah, urutan, checksum) + tinjauan orang yang berkompeten. Lulus uji kode saja bukan bukti teks benar              |
+| Perangkat        | Rendering Arab sesuai `DESIGN-TEST-PLAN.md` bagian A                                                                                      |
+
+## 12. Deployment
+
+- Cloudflare Pages, build dari GitHub. Hanya aset statis (tanpa Pages Functions).
+- Batas paket gratis yang relevan: 500 build/bulan, 20.000 file per situs, 25 MiB per file. Proyek ini jauh di bawahnya, tetapi periksa kembali syarat terbaru sebelum rilis.
+- Audio (rilis berikutnya) **tidak** dihosting di sini; gunakan CDN reciter yang berlisensi.
+- Domain `.pages.dev` gratis. Domain sendiri opsional.
+- Siapkan prosedur rollback (deploy ulang versi sebelumnya).
+
+## 13. CI (GitHub Actions)
+
+Workflow `.github/workflows/ci.yml` menjalankan tiga job:
+
+1. **Quality:** instal dependensi, lint, typecheck, unit test, `validate:data`, dan `verify:output`.
+2. **E2E:** build produksi lalu Playwright pada Chromium dan emulasi Pixel 5 (termasuk PWA, offline, pencarian, aksesibilitas, dan 320 px).
+3. **Lighthouse:** build lalu `lhci autorun` terhadap beranda, Reader, dan hasil pencarian Arab. Ambang aksesibilitas 0.95, performa 0.85 (peringatan), best practices dan SEO 0.9.
+
+Deploy ke Cloudflare Pages dilakukan di luar workflow ini (cabang utama) sampai kredensial dan prosedur rollback ditetapkan.
+
+## 14. Skrip
+
+| Skrip                | Fungsi                                                  |
+| -------------------- | ------------------------------------------------------- |
+| `pnpm dev`           | Server pengembangan (`predev` menyiapkan data)          |
+| `pnpm build`         | Build produksi (validasi, build-data, verifikasi dulu)  |
+| `pnpm test`          | Unit test (`pretest` menyiapkan data)                   |
+| `pnpm test:e2e`      | Playwright terhadap build produksi                      |
+| `pnpm lighthouse`    | Lighthouse CI terhadap build (`lhci autorun`)           |
+| `pnpm generate:pwa-assets` | Membuat ulang ikon PWA dari `public/icons/icon.svg` |
+| `pnpm typecheck`     | `tsc -b`                                                |
+| `pnpm lint`          | ESLint                                                  |
+| `pnpm format`        | Prettier tulis ulang                                    |
+| `pnpm format:check`  | Prettier pemeriksaan                                    |
+| `pnpm validate:data` | Validasi berkas sumber dan keluaran                     |
+| `pnpm build:data`    | Menghasilkan `public/data/<versi>/`                     |
+| `pnpm verify:output` | Membandingkan keluaran dengan sumber dan checksum       |
+
+## 15. Jalur ke rilis berikutnya
+
+| Kebutuhan                      | Rencana                                                                                                          |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| Audio                          | CDN eksternal berlisensi; pemutar di klien; tidak di-cache dulu                                                  |
+| Tafsir dan terjemahan tambahan | Berkas data tambahan per sumber dengan label dan lisensi                                                         |
+| Akun dan sinkronisasi          | Tambahkan backend **terpisah**. Data pengguna sudah terpisah dari data referensi, jadi reader tidak perlu diubah |
+| Aplikasi native                | Evaluasi setelah PWA terbukti; PWA sudah dapat dipasang                                                          |
+
+## 16. Pertanyaan terbuka
+
+| #   | Pertanyaan                                   | Terkait               |
+| --- | -------------------------------------------- | --------------------- |
+| 1   | Terjemahan Indonesia dan lisensinya          | D-003                 |
+| 2   | Penanganan basmalah pada berkas sumber       | D-012                 |
+| 3   | Font Arab final dan lisensinya               | D-006                 |
+| 4   | Versi minimum browser dan OS yang didukung   | —                     |
+| 5   | Anggaran ukuran dan kinerja                  | Setelah build pertama |
+| 6   | Siapa yang meninjau impor dan koreksi konten | PRD §13               |
+
+## 17. Prioritas dokumen bila ada konflik
+
+1. `docs/ARCHITECTURE.md` (teknis)
+2. `docs/design/*` (desain dan konten)
+3. `docs/PRD.md` dan `docs/PRODUCT-SPECIFICATION.md` (produk; bagian API/akun/Expo **ditunda**)
+4. `docs/archive/*` (hanya referensi, bukan instruksi)
+
+## 18. Status implementasi
+
+### Sudah berjalan
+
+- Fondasi Vite + React + TypeScript, router, tata letak, token desain, tema terang/gelap.
+- Pipeline data Tanzil Uthmani v1.1: validasi, build, verifikasi checksum, 114 surah, 6.236 ayat, 30 juz.
+- S01 Beranda (termasuk kartu "Lanjutkan membaca"), S02 Indeks Surah/Juz, S03 Reader dengan deep link ayat, penanda, pengaturan ukuran Arab, salin referensi/ayat, bagikan lewat Web Share API, dan atribusi.
+- S06 "Lompat ke": dialog dengan tab Surah & Ayat dan Juz; validasi rentang ayat, keadaan memuat/galat untuk juz, dan navigasi ke awal juz.
+- S07 Penanda: daftar terbaru lebih dahulu, hapus, dan urungkan.
+- S09 Pengaturan dasar, ekspor/impor penanda (JSON), data offline (unduh/hapus), hapus data lokal dengan dialog konfirmasi, dan S10 Sumber & Atribusi.
+- S08 Cari: mode Surah dan Arab, indeks Arab dimuat malas, sorotan kata, hasil membuka Reader tepat di ayat.
+- Pencarian surah berdasarkan nama Latin, nama Arab, dan nomor; filter juz.
+- PWA: manifest, ikon, precache app shell, runtime cache data, prompt pembaruan tanpa muat ulang paksa, banner progres offline, dan baris data offline di Pengaturan.
+- Unduhan offline otomatis setelah idle (kecuali `Save-Data`), cache berversi `quranku-data-v1`, penanganan kuota/jaringan, dan pembersihan cache lama.
+- Dexie v1: `bookmarks`, `position`, `settings`, `meta`; tema, posisi baca, dan ukuran Arab tersimpan di perangkat.
+- Unit test (Vitest) dan E2E (Playwright) untuk navigasi, teks Arab verbatim, RTL, 320 px, target sentuh, tema, axe, penanda, posisi baca, ukuran Arab, ekspor/impor, berbagi, pencarian Arab, PWA, dan offline.
+- CI GitHub Actions (quality, E2E, Lighthouse) dan konfigurasi `lighthouserc.json`.
+
+### Belum dikerjakan
+
+- Pencarian terjemahan (menunggu D-003).
+- Ajakan instal kustom (prompt bawaan peramban sudah tersedia).
+- Terjemahan Indonesia (D-003) dan keputusan basmalah (D-012).
+- Uji perangkat nyata dan penentuan font Arab (D-006) sebelum rilis publik.
