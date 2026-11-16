@@ -1,0 +1,9 @@
+dist
+node_modules
+public/data
+figcraft
+docs
+data
+pnpm-lock.yaml
+playwright-report
+test-results
