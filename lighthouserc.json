@@ -1,0 +1,29 @@
+{
+  "ci": {
+    "collect": {
+      "startServerCommand": "pnpm preview --host 127.0.0.1 --port 4173",
+      "startServerReadyPattern": "Local:",
+      "url": [
+        "http://127.0.0.1:4173/",
+        "http://127.0.0.1:4173/surah/1",
+        "http://127.0.0.1:4173/cari?mode=arab&q=%D8%A7%D9%84%D8%B1%D8%AD%D9%85%D9%86"
+      ],
+      "numberOfRuns": 1,
+      "settings": {
+        "preset": "desktop",
+        "skipAudits": ["uses-http2"]
+      }
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance": ["warn", { "minScore": 0.85 }],
+        "categories:accessibility": ["error", { "minScore": 0.95 }],
+        "categories:best-practices": ["warn", { "minScore": 0.9 }],
+        "categories:seo": ["warn", { "minScore": 0.9 }]
+      }
+    },
+    "upload": {
+      "target": "temporary-public-storage"
+    }
+  }
+}
