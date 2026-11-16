@@ -1,0 +1,62 @@
+.header {
+  padding: var(--space-5) 0 var(--space-4);
+}
+
+.title {
+  font-size: var(--text-ui-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: var(--leading-ui-display);
+}
+
+.subtitle {
+  color: var(--color-text-secondary);
+  font-size: var(--text-ui-body-s);
+  line-height: var(--leading-ui-body-s);
+}
+
+.modes {
+  margin-top: var(--space-3);
+}
+
+.hint {
+  margin-top: var(--space-2);
+  color: var(--color-text-tertiary);
+  font-size: var(--text-ui-caption);
+  line-height: var(--leading-ui-caption);
+}
+
+.resultCount {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.list {
+  margin-top: var(--space-4);
+  overflow: hidden;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+}
+
+.minimum {
+  margin-top: var(--space-5);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-secondary);
+  font-size: var(--text-ui-body-s);
+  line-height: var(--leading-ui-body-s);
+  text-align: center;
+}
+
+.note {
+  margin-top: var(--space-4);
+  color: var(--color-text-tertiary);
+  font-size: var(--text-ui-caption);
+  line-height: var(--leading-ui-caption);
+  text-align: center;
+}

@@ -1,0 +1,24 @@
+.list {
+  margin-top: var(--space-4);
+  overflow: hidden;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+@media (min-width: 1024px) {
+  .row {
+    padding-inline: var(--space-5);
+  }
+}
