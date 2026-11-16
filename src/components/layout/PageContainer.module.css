@@ -1,0 +1,17 @@
+.container {
+  width: 100%;
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: var(--space-5) var(--gutter-mobile) var(--space-6);
+}
+
+.reader {
+  max-width: calc(var(--reader-max-width) + (2 * var(--gutter-desktop)));
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-right: var(--gutter-desktop);
+    padding-left: var(--gutter-desktop);
+  }
+}

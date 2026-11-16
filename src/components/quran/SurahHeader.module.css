@@ -1,0 +1,30 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  align-items: center;
+  padding: var(--space-6) var(--space-2) var(--space-5);
+  text-align: center;
+}
+
+.arabicName {
+  color: var(--color-text-primary);
+  font-family: var(--font-arabic);
+  font-size: var(--text-arabic-xl);
+  font-synthesis: none;
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: 1.6;
+}
+
+.nameLatin {
+  font-size: var(--text-ui-title);
+  font-weight: 600;
+  line-height: var(--leading-ui-title);
+}
+
+.meta {
+  color: var(--color-text-tertiary);
+  font-size: var(--text-ui-body-s);
+  line-height: var(--leading-ui-body-s);
+}

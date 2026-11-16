@@ -1,0 +1,42 @@
+.arabic {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-family: var(--font-arabic);
+  font-synthesis: none;
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: var(--leading-arabic);
+  overflow-wrap: normal;
+  text-align: center;
+  text-transform: none;
+  word-break: normal;
+}
+
+.s {
+  font-size: var(--text-arabic-s);
+}
+
+.m {
+  font-size: var(--text-arabic-m);
+}
+
+.l {
+  font-size: var(--text-arabic-l);
+}
+
+.xl {
+  font-size: var(--text-arabic-xl);
+}
+
+.xxl {
+  font-size: var(--text-arabic-xxl);
+}
+
+.mark {
+  padding: 0 0.08em;
+  background: var(--color-accent-subtle);
+  border-radius: 0.15em;
+  color: inherit;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}

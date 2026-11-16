@@ -1,0 +1,43 @@
+.skeleton {
+  position: relative;
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.skeleton::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-surface-raised) 72%, transparent),
+    transparent
+  );
+  transform: translateX(-100%);
+  animation: shimmer 1.5s var(--motion-easing) infinite;
+  content: "";
+}
+
+.sm {
+  border-radius: var(--radius-sm);
+}
+
+.md {
+  border-radius: var(--radius-md);
+}
+
+.lg {
+  border-radius: var(--radius-lg);
+}
+
+.full {
+  border-radius: var(--radius-full);
+}
+
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}

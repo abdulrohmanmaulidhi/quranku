@@ -1,0 +1,14 @@
+.help {
+  margin-top: var(--space-4);
+  color: var(--color-text-tertiary);
+  font-size: var(--text-ui-body-s);
+  line-height: var(--leading-ui-body-s);
+  text-align: center;
+}
+
+.help a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding-inline: var(--space-1);
+}

@@ -1,0 +1,25 @@
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  align-items: center;
+  padding: var(--space-6) 0 var(--space-4);
+  border-top: 1px solid var(--color-divider);
+  text-align: center;
+}
+
+.source {
+  color: var(--color-text-tertiary);
+  font-size: var(--text-ui-caption);
+  line-height: var(--leading-ui-caption);
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding-inline: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--text-ui-body-s);
+  line-height: var(--leading-ui-body-s);
+}

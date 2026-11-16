@@ -1,0 +1,33 @@
+.shell {
+  display: grid;
+  min-height: 100dvh;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.main {
+  flex: 1;
+  padding-bottom: calc(var(--nav-height) + var(--safe-bottom));
+}
+
+.main:focus {
+  outline: none;
+}
+
+.reader {
+  padding-bottom: var(--space-4);
+}
+
+@media (min-width: 1024px) {
+  .shell {
+    grid-template-columns: 15rem minmax(0, 1fr);
+  }
+
+  .main {
+    padding-bottom: 0;
+  }
+}
