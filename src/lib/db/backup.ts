@@ -34,6 +34,7 @@ function isValidSetting(key: string, value: unknown): boolean {
   if (key === "reader.arabicSize") {
     return typeof value === "string" && VALID_ARABIC_SIZES.has(value);
   }
+  if (key === "reader.showTranslation") return typeof value === "boolean";
   return false;
 }
 
@@ -69,7 +70,15 @@ export function parseBackup(input: unknown): BackupFile {
   if (!isRecord(input) || input.app !== BACKUP_APP) {
     throw new BackupValidationError();
   }
-  if (input.schemaVersion !== BACKUP_SCHEMA_VERSION) {
+  // ponytail: hanya v1 yang ada. Versi lama tetap diterima saat skema naik;
+  // versi lebih baru ditolak agar field tak dikenal tidak hilang diam-diam.
+  const version = input.schemaVersion;
+  if (
+    typeof version !== "number" ||
+    !Number.isInteger(version) ||
+    version < 1 ||
+    version > BACKUP_SCHEMA_VERSION
+  ) {
     throw new BackupValidationError("Versi berkas tidak didukung.");
   }
   if (!Array.isArray(input.bookmarks)) {

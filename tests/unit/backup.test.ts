@@ -101,6 +101,8 @@ describe("impor penanda", () => {
   it("menolak berkas dengan bentuk atau rentang tidak valid", () => {
     expect(() => parseBackup({ app: "lain" })).toThrow(BackupValidationError);
     expect(() => parseBackup(validBackup({ schemaVersion: 99 }))).toThrow(BackupValidationError);
+    expect(() => parseBackup(validBackup({ schemaVersion: 1.5 }))).toThrow(BackupValidationError);
+    expect(() => parseBackup(validBackup({ schemaVersion: 0 }))).toThrow(BackupValidationError);
     expect(() =>
       parseBackup(validBackup({ bookmarks: [{ surah: 115, ayah: 1, createdAt: "x" }] })),
     ).toThrow(BackupValidationError);

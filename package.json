@@ -23,6 +23,7 @@
     "test:e2e": "playwright test",
     "lighthouse": "lhci autorun",
     "generate:pwa-assets": "pwa-assets-generator",
+    "fetch:translation": "node scripts/fetch-translation.mjs",
     "validate:data": "node scripts/validate-data.mjs",
     "build:data": "node scripts/build-data.mjs",
     "verify:output": "node scripts/verify-output.mjs"

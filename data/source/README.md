@@ -2,7 +2,7 @@
 
 Berkas **mentah** dari sumber konten. Isi folder ini tidak boleh diedit.
 
-**Status:** teks Arab dan metadata sudah diunduh pada 2026-11-15. Rincian sumber, lisensi, dan temuan basmalah ada di `SOURCES.md`; checksum ada di `CHECKSUMS.txt`.
+**Status:** teks Arab dan metadata diunduh 2026-11-15; terjemahan Indonesia diunduh 2026-11-17. Rincian sumber, lisensi, dan temuan basmalah ada di `SOURCES.md`; checksum ada di `CHECKSUMS.txt`.
 
 ## Yang perlu ditaruh di sini
 
@@ -10,7 +10,7 @@ Berkas **mentah** dari sumber konten. Isi folder ini tidak boleh diedit.
 |---|---|---|
 | Teks Arab Tanzil (Uthmani) | https://tanzil.net/download/ | Pilih jenis teks **Uthmani**, format teks dengan nomor ayat (umumnya berbentuk `surah\|ayat\|teks`). Periksa format setelah diunduh. |
 | Metadata Tanzil (`quran-data.js`) | https://tanzil.net/res/text/metadata/quran-data.js | Berisi metadata surah, juz, halaman, sajdah. Verifikasi isi dan lisensinya. |
-| Terjemahan Indonesia | **Belum ditetapkan** | Lihat `docs/design/DESIGN-DECISIONS.md` D-003. Jangan memakai hasil scrape tidak resmi sebagai data final. |
+| Terjemahan Indonesia (`tr/indonesian_affairs.json`) | QuranEnc API (`https://quranenc.com/api/v1/translation/sura/indonesian_affairs/{surah}`) | Kemenag RI, diambil dengan `node scripts/fetch-translation.mjs`. Jangan mengedit berkas; perbarui lewat skrip. |
 
 > Alamat unduhan di atas perlu dicek ulang di situs Tanzil, karena tata letak situs dapat berubah.
 

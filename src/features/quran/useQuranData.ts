@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { loadJuz, loadManifest, loadSurahs, loadSurahText } from "@/lib/data/client";
-import type { Juz, Manifest, Surah, SurahText } from "@/lib/data/types";
+import {
+  loadJuz,
+  loadManifest,
+  loadSurahs,
+  loadSurahText,
+  loadSurahTranslation,
+} from "@/lib/data/client";
+import type { Juz, Manifest, Surah, SurahText, SurahTranslation } from "@/lib/data/types";
 
 export type AsyncState<T> =
   { status: "loading" } | { status: "success"; data: T } | { status: "error"; error: Error };
@@ -79,4 +85,15 @@ export function useSurahText(
 ): AsyncResource<SurahText> {
   const load = useCallback(() => loadSurahText(surah, ayahCount), [surah, ayahCount]);
   return useAsyncResource(load, `surah:${surah}:${ayahCount}`, enabled);
+}
+
+export function useSurahTranslation(
+  surah: number,
+  ayahCount: number,
+  enabled = true,
+): AsyncResource<SurahTranslation> {
+  // ponytail: terjemahan dimuat penuh per surah dan tidak di-prefetch; bila
+  // ukuran jadi masalah, pecah per rentang ayat.
+  const load = useCallback(() => loadSurahTranslation(surah, ayahCount), [surah, ayahCount]);
+  return useAsyncResource(load, `translation:${surah}:${ayahCount}`, enabled);
 }

@@ -9,7 +9,7 @@ PWA local-first untuk membaca Al-Qur'an (Vite + React + TypeScript). **Release 1
 3. **Jangan menghasilkan** teks Al-Qur'an, terjemahan, atau tafsir dengan AI.
 4. **Tanpa iklan**, pop-up, atau elemen gamifikasi (streak, peringkat) di aplikasi.
 5. **Privasi:** data pengguna hanya di perangkat. Jangan menambah analitik yang merekam teks pencarian atau riwayat baca perorangan.
-6. **Lisensi:** atribusi Tanzil wajib tampil. Terjemahan Indonesia belum boleh dirilis sebelum lisensinya jelas (D-003).
+6. **Lisensi:** atribusi Tanzil dan QuranEnc wajib tampil. Terjemahan Indonesia mengikuti D-003 (QuranEnc, tujuh syarat); teks dan catatan kaki tidak boleh diubah.
 7. Jangan mengedit `data/source/` atau `public/data/` secara manual. `public/data/` dihasilkan oleh skrip build-data.
 
 ## Prioritas dokumen bila ada konflik

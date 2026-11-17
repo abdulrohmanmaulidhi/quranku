@@ -1,4 +1,14 @@
-import type { Ayah, AyahRef, Juz, Manifest, Revelation, Surah, SurahText } from "./types";
+import type {
+  Ayah,
+  AyahRef,
+  Juz,
+  Manifest,
+  Revelation,
+  Surah,
+  SurahText,
+  SurahTranslation,
+  TranslationAyah,
+} from "./types";
 
 export class DataError extends Error {
   constructor(message: string) {
@@ -44,6 +54,7 @@ export function parseManifest(value: unknown): Manifest {
   assert(isRecord(value.source), "Manifest.source tidak valid.");
   assert(isRecord(value.source.text), "Manifest.source.text tidak valid.");
   assert(isRecord(value.source.metadata), "Manifest.source.metadata tidak valid.");
+  assert(isRecord(value.source.translation), "Manifest.source.translation tidak valid.");
 
   const sourceInfo = (source: Record<string, unknown>) => ({
     file: requireString(source.file, "source.file"),
@@ -66,6 +77,7 @@ export function parseManifest(value: unknown): Manifest {
     source: {
       text: sourceInfo(value.source.text),
       metadata: sourceInfo(value.source.metadata),
+      translation: sourceInfo(value.source.translation),
     },
     copyrightNotice: requireString(value.copyrightNotice, "copyrightNotice"),
     textPolicy: requireString(value.textPolicy, "textPolicy"),
@@ -166,6 +178,41 @@ export function parseSurahText(
     assert(entry.n === index + 1, `Nomor ayat ke-${index + 1} tidak berurutan.`);
     assert(isNonEmptyString(entry.text), `Teks ayat ${expectedSurah}:${index + 1} kosong.`);
     return { n: entry.n, text: entry.text } satisfies Ayah;
+  });
+
+  return { surah: expectedSurah, ayahs };
+}
+
+/**
+ * Terjemahan dan catatan kaki diperlakukan sebagai teks verbatim: tidak
+ * dipangkas, dinormalisasi, atau diubah. Penanda `[n]` dipertahankan.
+ */
+export function parseSurahTranslation(
+  value: unknown,
+  expectedSurah: number,
+  expectedAyahCount: number,
+): SurahTranslation {
+  assert(isRecord(value), "Data terjemahan tidak valid.");
+  assert(value.surah === expectedSurah, "Nomor surah pada terjemahan tidak cocok.");
+  assert(Array.isArray(value.ayahs), "Daftar terjemahan tidak valid.");
+  assert(
+    value.ayahs.length === expectedAyahCount,
+    `Terjemahan surah ${expectedSurah} harus berisi ${expectedAyahCount} ayat.`,
+  );
+
+  const ayahs = value.ayahs.map((entry, index) => {
+    assert(isRecord(entry), `Terjemahan ayat ke-${index + 1} tidak valid.`);
+    assert(entry.n === index + 1, `Nomor terjemahan ke-${index + 1} tidak berurutan.`);
+    assert(isNonEmptyString(entry.text), `Terjemahan ${expectedSurah}:${index + 1} kosong.`);
+    assert(
+      typeof entry.footnotes === "string",
+      `Catatan kaki ${expectedSurah}:${index + 1} tidak valid.`,
+    );
+    return {
+      n: entry.n,
+      text: entry.text,
+      footnotes: entry.footnotes,
+    } satisfies TranslationAyah;
   });
 
   return { surah: expectedSurah, ayahs };

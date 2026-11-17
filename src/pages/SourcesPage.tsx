@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/StateView";
 import { Icon } from "@/components/ui/Icon";
 import { useManifest } from "@/features/quran/useQuranData";
+import { dataUrl } from "@/lib/data/url";
 import { formatDate } from "@/lib/format/date";
 import { formatNumber } from "@/lib/format/number";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
@@ -91,7 +92,7 @@ export function SourcesPage() {
                 <ExternalLinkText href={manifest.data.source.text.url}>tanzil.net</ExternalLinkText>
                 <a
                   className={styles.external}
-                  href="/data/v1/COPYRIGHT.txt"
+                  href={dataUrl("COPYRIGHT.txt")}
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -144,12 +145,50 @@ export function SourcesPage() {
                 Terjemahan
               </h2>
               <p className={styles.paragraph}>
-                Terjemahan belum ditampilkan karena lisensi dan sumbernya belum ditetapkan (D-003).
-                Aplikasi tidak menampilkan terjemahan yang dihasilkan AI.
+                Terjemahan Indonesia disediakan oleh Kementerian Agama Republik Indonesia melalui{" "}
+                <ExternalLinkText href={manifest.data.source.translation.url}>
+                  QuranEnc.com
+                </ExternalLinkText>
+                , versi {manifest.data.source.translation.version}. Teks dan catatan kaki
+                ditampilkan tanpa perubahan; penanda catatan kaki dipertahankan.
               </p>
-              <p className={styles.paragraph}>
-                Terjemahan bukan Al-Qur&apos;an itu sendiri. Aplikasi ini tidak menggantikan guru
-                atau ulama.
+              <dl className={styles.details}>
+                <div className={styles.detailRow}>
+                  <dt>Sumber</dt>
+                  <dd>{manifest.data.source.translation.name}</dd>
+                </div>
+                <div className={styles.detailRow}>
+                  <dt>Versi</dt>
+                  <dd>{manifest.data.source.translation.version}</dd>
+                </div>
+                <div className={styles.detailRow}>
+                  <dt>Lisensi</dt>
+                  <dd>{manifest.data.source.translation.license}</dd>
+                </div>
+                <div className={styles.detailRow}>
+                  <dt>Diunduh</dt>
+                  <dd>
+                    {formatDate(
+                      new Date(`${manifest.data.source.translation.retrievedAt}T12:00:00Z`),
+                    )}
+                  </dd>
+                </div>
+              </dl>
+              <p className={styles.links}>
+                <a
+                  className={styles.external}
+                  href={dataUrl("tr/indonesian_affairs/SOURCE.txt")}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Syarat pemakaian dan rincian sumber
+                  <Icon icon={ExternalLink} size={16} />
+                </a>
+              </p>
+              <p className={styles.note}>
+                Terjemahan bukan Al-Qur&apos;an itu sendiri. Catatan tentang terjemahan dilaporkan
+                ke QuranEnc, tidak diubah di aplikasi ini. Aplikasi tidak menampilkan terjemahan
+                yang dihasilkan AI.
               </p>
             </section>
 
@@ -180,6 +219,12 @@ export function SourcesPage() {
                     <dt>SHA-256 metadata</dt>
                     <dd>
                       <code>{manifest.data.source.metadata.sha256}</code>
+                    </dd>
+                  </div>
+                  <div className={styles.detailRow}>
+                    <dt>SHA-256 terjemahan</dt>
+                    <dd>
+                      <code>{manifest.data.source.translation.sha256}</code>
                     </dd>
                   </div>
                 </dl>

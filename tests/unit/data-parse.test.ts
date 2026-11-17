@@ -5,10 +5,11 @@ import { readJuz, readManifest, readSurahs, readSurahText } from "./helpers";
 const surahs = readSurahs();
 
 describe("parseManifest", () => {
-  it("menerima manifest dataset v1", () => {
+  it("menerima manifest dataset v2", () => {
     const manifest = parseManifest(readManifest());
     expect(manifest.counts).toEqual({ surahs: 114, ayahs: 6236, juz: 30 });
     expect(manifest.source.text.license).toBe("Creative Commons Attribution 3.0");
+    expect(manifest.source.translation.name).toContain("QuranEnc.com");
   });
 
   it("menolak jumlah ayat yang salah", () => {

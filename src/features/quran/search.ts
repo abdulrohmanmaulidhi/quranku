@@ -3,6 +3,7 @@ import { normalizeForSearch } from "@/lib/search/normalize";
 
 export const MAX_SEARCH_QUERY_LENGTH = 100;
 export const MIN_SEARCH_QUERY_LENGTH = 2;
+export const MIN_TRANSLATION_QUERY_LENGTH = 3;
 export const SEARCH_RESULT_LIMIT = 20;
 
 export interface AyahSearchResult {

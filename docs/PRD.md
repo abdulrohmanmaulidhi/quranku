@@ -83,7 +83,7 @@ The initial release primarily serves daily readers. Other personas inform the ar
 ### Release 1 — Reader MVP
 
 - Surah index and details.
-- Arabic ayah text and selected Indonesian translation.
+- Arabic ayah text and Indonesian translation of the meanings (Kemenag via QuranEnc, D-003).
 - Navigation by surah and ayah; juz navigation where metadata is verified.
 - Reader display settings.
 - Bookmarks and last-read position.
@@ -121,7 +121,7 @@ Priority: **P0** = required for Reader MVP; **P1** = next release; **P2** = late
 | ID     | Requirement                      | Priority | Acceptance summary                                                         |
 | ------ | -------------------------------- | -------: | -------------------------------------------------------------------------- |
 | FR-001 | Browse surahs                    |       P0 | All 114 surahs are listed with verified metadata                           |
-| FR-002 | Read ayahs                       |       P0 | Correct Arabic text and selected translation are shown                     |
+| FR-002 | Read ayahs                       |       P0 | Correct Arabic text and Indonesian translation shown with source and version |
 | FR-003 | Navigate                         |       P0 | User can move by surah and ayah; supported juz metadata works              |
 | FR-004 | Reader settings                  |       P0 | Font size, theme, and translation visibility persist                       |
 | FR-005 | Bookmark ayah                    |       P0 | User can add, view, and remove private bookmarks                           |
@@ -235,8 +235,8 @@ Do not use streaks or activity metrics to rank users or imply a measure of faith
 
 ## 13. Dependencies and Open Questions
 
-- Which Quran text source and exact edition will be used?
-- Which Indonesian translation(s) are licensed for the intended use?
+- Which Quran text source and exact edition will be used? _(decided: Tanzil Uthmani 1.1, D-002)_
+- Which Indonesian translation(s) are licensed for the intended use? _(decided: Kemenag via QuranEnc, D-003)_
 - Which tafsir collections are in scope, and what are their terms?
 - Which reciters and audio hosting sources are permitted?
 - Is account-less local use supported in the first release?

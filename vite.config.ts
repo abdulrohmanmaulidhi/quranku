@@ -19,10 +19,10 @@ export default defineConfig({
         "icons/apple-touch-icon-180x180.png",
         "icons/favicon.ico",
         "fonts/licenses/*",
-        "data/v1/manifest.json",
-        "data/v1/surahs.json",
-        "data/v1/juz.json",
-        "data/v1/COPYRIGHT.txt",
+        `data/v${DATASET_VERSION}/manifest.json`,
+        `data/v${DATASET_VERSION}/surahs.json`,
+        `data/v${DATASET_VERSION}/juz.json`,
+        `data/v${DATASET_VERSION}/COPYRIGHT.txt`,
       ],
       manifest: {
         id: "/",
@@ -70,26 +70,15 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2}"],
         runtimeCaching: [
           {
-            urlPattern: /\/data\/v\d+\/ar\/.*\.json$/,
+            // Satu cache untuk semua data berversi. Beberapa route dengan
+            // `maxEntries` berbeda pada cache yang sama dapat saling menghapus.
+            urlPattern: /\/data\/v\d+\/(?:ar|tr|search)\/.*\.(?:json|txt)$/,
             handler: "CacheFirst",
             options: {
               cacheName: DATA_CACHE_NAME,
               cacheableResponse: { statuses: [0, 200] },
               expiration: {
-                maxEntries: 200,
-                maxAgeSeconds: 60 * 60 * 24 * 365,
-                purgeOnQuotaError: true,
-              },
-            },
-          },
-          {
-            urlPattern: /\/data\/v\d+\/search\/.*\.json$/,
-            handler: "CacheFirst",
-            options: {
-              cacheName: DATA_CACHE_NAME,
-              cacheableResponse: { statuses: [0, 200] },
-              expiration: {
-                maxEntries: 10,
+                maxEntries: 260,
                 maxAgeSeconds: 60 * 60 * 24 * 365,
                 purgeOnQuotaError: true,
               },

@@ -13,8 +13,12 @@ export const METADATA_FILE = "quran-data.js";
 export const CHECKSUMS_FILE = "CHECKSUMS.txt";
 
 // Harus sama dengan src/lib/data/version.ts.
-export const DATASET_VERSION = "1";
+export const DATASET_VERSION = "2";
 export const DATASET_DIR = join(OUTPUT_ROOT, `v${DATASET_VERSION}`);
+
+export const TRANSLATION_KEY = "indonesian_affairs";
+export const TRANSLATION_FILE = `tr/${TRANSLATION_KEY}.json`;
+export const TRANSLATION_DIR = `tr/${TRANSLATION_KEY}`;
 
 export const SOURCE_INFO = {
   text: {
@@ -34,6 +38,46 @@ export const SOURCE_INFO = {
     retrievedAt: "2026-11-15",
   },
 };
+
+/**
+ * Entri manifest untuk sumber terjemahan. Diturunkan dari berkas mentah agar
+ * build dan verifikasi tidak dapat menyimpang satu sama lain.
+ */
+export function translationSourceInfo(data) {
+  const doc = data.translation ?? {};
+  return {
+    file: TRANSLATION_FILE,
+    name: `${doc.title} — ${doc.publisher} (QuranEnc.com)`,
+    version: doc.version,
+    license: doc.license,
+    url: doc.licenseUrl,
+    retrievedAt: doc.retrievedAt,
+    sha256: data.hashes?.[TRANSLATION_FILE],
+  };
+}
+
+/** Keterangan sumber yang ikut dikirim bersama berkas terjemahan. */
+export function translationNotice(data) {
+  const doc = data.translation ?? {};
+  const terms = Array.isArray(doc.terms) ? doc.terms : [];
+  return [
+    "# --------------------------------------------------------------------",
+    "#",
+    "#  Quran Translation",
+    `#  Name: ${doc.title}`,
+    `#  Publisher: ${doc.publisher}`,
+    `#  Version: ${doc.version}`,
+    `#  Last Update: ${doc.lastUpdate}`,
+    `#  Source: QuranEnc.com (${doc.licenseUrl})`,
+    `#  Retrieved: ${doc.retrievedAt}`,
+    "#",
+    "#  Terms and Policies:",
+    ...terms.map((term, index) => `#  ${index + 1}. ${term}`),
+    "#",
+    "# --------------------------------------------------------------------",
+    "",
+  ].join("\n");
+}
 
 export function sha256(input) {
   return createHash("sha256").update(input).digest("hex");
@@ -129,7 +173,36 @@ export function buildJuz(juzRaw, surahs) {
   });
 }
 
-export function loadSource({ verifyChecksums = true } = {}) {
+function parseTranslation(raw) {
+  const errors = [];
+  let doc = null;
+  try {
+    doc = JSON.parse(raw);
+  } catch {
+    errors.push(`${TRANSLATION_FILE}: JSON tidak valid`);
+    return { doc, errors };
+  }
+
+  if (!doc || typeof doc !== "object") {
+    errors.push(`${TRANSLATION_FILE}: struktur tidak valid`);
+    return { doc: null, errors };
+  }
+  if (doc.key !== TRANSLATION_KEY)
+    errors.push(`${TRANSLATION_FILE}: key ${doc.key} ≠ ${TRANSLATION_KEY}`);
+  for (const field of ["title", "publisher", "version", "license", "licenseUrl", "retrievedAt"]) {
+    if (typeof doc[field] !== "string" || !doc[field]) {
+      errors.push(`${TRANSLATION_FILE}: field ${field} kosong`);
+    }
+  }
+  if (!Array.isArray(doc.entries)) errors.push(`${TRANSLATION_FILE}: entries bukan larik`);
+  if (!Array.isArray(doc.terms) || doc.terms.length === 0) {
+    errors.push(`${TRANSLATION_FILE}: syarat pemakaian tidak tercatat`);
+  }
+
+  return { doc, errors };
+}
+
+export function loadSource({ verifyChecksums = true, requireTranslation = true } = {}) {
   const textRaw = readFileSync(join(SOURCE_DIR, TEXT_FILE), "utf8");
   const metaRaw = readFileSync(join(SOURCE_DIR, METADATA_FILE), "utf8");
   const hashes = {
@@ -137,10 +210,22 @@ export function loadSource({ verifyChecksums = true } = {}) {
     [METADATA_FILE]: sha256(metaRaw),
   };
 
+  // Pengambilan terjemahan pertama kali tidak boleh bergantung pada berkas
+  // terjemahan yang belum ada.
+  let translationRaw = null;
+  try {
+    translationRaw = readFileSync(join(SOURCE_DIR, TRANSLATION_FILE), "utf8");
+  } catch (error) {
+    if (requireTranslation) throw error;
+  }
+  if (translationRaw !== null) hashes[TRANSLATION_FILE] = sha256(translationRaw);
+
   const { ayahs, errors: lineErrors } = parseAyahs(textRaw);
   const meta = parseQuranData(metaRaw);
   const surahs = buildSurahs(meta.surahsRaw);
   const juz = buildJuz(meta.juzRaw, surahs);
+  const translation =
+    translationRaw === null ? { doc: null, errors: [] } : parseTranslation(translationRaw);
 
   const checksumErrors = [];
   if (verifyChecksums) {
@@ -166,10 +251,13 @@ export function loadSource({ verifyChecksums = true } = {}) {
   return {
     textRaw,
     metaRaw,
+    translationRaw,
     hashes,
     ayahs,
     surahs,
     juz,
+    translation: translation.doc,
+    translationErrors: translation.errors,
     lineErrors,
     checksumErrors,
     metaInfo: { version: meta.version, license: meta.license },
@@ -251,6 +339,36 @@ export function validateDataset(data) {
       errors.push(`Surah ${key} tidak ada di metadata`);
     }
   }
+
+  errors.push(...data.translationErrors);
+
+  const translations = Array.isArray(data.translation?.entries) ? data.translation.entries : [];
+  if (translations.length !== 6236) {
+    errors.push(`Jumlah terjemahan ${translations.length} ≠ 6236`);
+  }
+  translations.forEach((row, index) => {
+    if (
+      !row ||
+      !Number.isInteger(row.surah) ||
+      !Number.isInteger(row.ayah) ||
+      typeof row.text !== "string" ||
+      typeof row.footnotes !== "string"
+    ) {
+      errors.push(`Terjemahan posisi ${index + 1}: struktur tidak valid`);
+      return;
+    }
+    if (!row.text.length) errors.push(`Terjemahan ${row.surah}:${row.ayah} kosong`);
+    if (row.text !== row.text.trim()) {
+      errors.push(`Terjemahan ${row.surah}:${row.ayah} memiliki spasi di awal/akhir`);
+    }
+    if (row.footnotes && row.footnotes !== row.footnotes.trim()) {
+      errors.push(`Catatan kaki ${row.surah}:${row.ayah} memiliki spasi di awal/akhir`);
+    }
+    const arabic = data.ayahs[index];
+    if (!arabic || arabic.surah !== row.surah || arabic.ayah !== row.ayah) {
+      errors.push(`Terjemahan posisi ${index + 1} tidak selaras dengan urutan ayat Arab`);
+    }
+  });
 
   if (data.juz.length !== 30) errors.push(`Jumlah juz ${data.juz.length} ≠ 30`);
   const first = data.juz[0];

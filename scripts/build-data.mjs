@@ -8,9 +8,13 @@ import {
   OUTPUT_ROOT,
   SOURCE_INFO,
   TEXT_FILE,
+  TRANSLATION_DIR,
+  TRANSLATION_FILE,
   ayahsBySurah,
   listFiles,
   loadSource,
+  translationNotice,
+  translationSourceInfo,
   validateDataset,
 } from "./lib/source.mjs";
 
@@ -45,6 +49,7 @@ files.set(
     source: {
       text: { ...SOURCE_INFO.text, sha256: data.hashes[TEXT_FILE] },
       metadata: { ...SOURCE_INFO.metadata, sha256: data.hashes[METADATA_FILE] },
+      translation: { ...translationSourceInfo(data), sha256: data.hashes[TRANSLATION_FILE] },
     },
     copyrightNotice: "COPYRIGHT.txt",
     textPolicy:
@@ -57,6 +62,32 @@ files.set("juz.json", json(data.juz));
 for (const surah of surahs) {
   const ayahs = (grouped.get(surah.n) ?? []).map((row) => ({ n: row.ayah, text: row.text }));
   files.set(`ar/${pad(surah.n)}.json`, json({ surah: surah.n, ayahs }));
+}
+
+// Terjemahan disimpan per surah terpisah dari teks Arab agar dapat diganti
+// atau ditarik tanpa menyentuh data Arab. Teks dan catatan kaki verbatim.
+const translated = ayahsBySurah(data.translation.entries);
+let translationBytes = 0;
+for (const surah of surahs) {
+  const ayahs = (translated.get(surah.n) ?? []).map((row) => ({
+    n: row.ayah,
+    text: row.text,
+    footnotes: row.footnotes,
+  }));
+  const content = json({ surah: surah.n, ayahs });
+  translationBytes += Buffer.byteLength(content);
+  files.set(`${TRANSLATION_DIR}/${pad(surah.n)}.json`, content);
+}
+const noticeContent = translationNotice(data);
+translationBytes += Buffer.byteLength(noticeContent);
+files.set(`${TRANSLATION_DIR}/SOURCE.txt`, noticeContent);
+
+const TRANSLATION_BUDGET = 3_000_000;
+if (translationBytes > TRANSLATION_BUDGET) {
+  console.error(
+    `build-data: terjemahan ${translationBytes} byte melewati anggaran ${TRANSLATION_BUDGET} byte`,
+  );
+  process.exit(1);
 }
 
 // Indeks pencarian hanya berisi referensi ayat dan teks ternormalisasi.
@@ -79,10 +110,36 @@ if (searchBytes > 1_000_000) {
 }
 files.set("search/arabic.json", searchJson);
 
+// Indeks terjemahan memakai normalisasi yang sama. Catatan kaki tidak diindeks:
+// isinya komentar, bukan terjemahan, dan akan mengaburkan hasil.
+const translationSearchEntries = data.translation.entries.map((row) => [
+  row.surah,
+  row.ayah,
+  normalizeForSearch(row.text),
+]);
+const translationSearchJson = `${JSON.stringify({
+  schemaVersion: 1,
+  datasetVersion: DATASET_VERSION,
+  entries: translationSearchEntries,
+})}\n`;
+const translationSearchBytes = Buffer.byteLength(translationSearchJson);
+
+if (translationSearchBytes > 1_600_000) {
+  console.error(
+    `build-data: indeks terjemahan terlalu besar (${translationSearchBytes} byte, batas 1,6 MB)`,
+  );
+  process.exit(1);
+}
+if (translationSearchBytes > 1_400_000) {
+  console.warn(`build-data: peringatan, indeks terjemahan ${translationSearchBytes} byte`);
+}
+files.set("search/translation.json", translationSearchJson);
+
 const tempDir = join(OUTPUT_ROOT, `.tmp-v${DATASET_VERSION}`);
 rmSync(tempDir, { recursive: true, force: true });
 mkdirSync(join(tempDir, "ar"), { recursive: true });
 mkdirSync(join(tempDir, "search"), { recursive: true });
+mkdirSync(join(tempDir, TRANSLATION_DIR), { recursive: true });
 
 for (const [path, content] of files) {
   writeFileSync(join(tempDir, path), content, "utf8");

@@ -1,8 +1,10 @@
 import { expect, test } from "@playwright/test";
-import { readSurahText } from "./helpers";
+import { DATASET_VERSION } from "../../src/lib/data/version";
+import { readSurahText, readSurahTranslation } from "./helpers";
 
 const fatihah = readSurahText(1);
 const baqarah = readSurahText(2);
+const baqarahTranslation = readSurahTranslation(2);
 
 test("data tersimpan dapat dipakai untuk membaca dan mencari tanpa jaringan", async ({
   page,
@@ -11,18 +13,15 @@ test("data tersimpan dapat dipakai untuk membaca dan mencari tanpa jaringan", as
   test.setTimeout(90_000);
   await page.goto("/pengaturan");
 
-  await page.waitForFunction(
-    async () => {
-      if (!("caches" in window)) return false;
-      const keys = await caches.keys();
-      if (!keys.includes("quranku-data-v1")) return false;
-      const cache = await caches.open("quranku-data-v1");
-      const entries = await cache.keys();
-      return entries.length >= 119;
-    },
-    undefined,
-    { timeout: 60_000 },
-  );
+  const cacheName = `quranku-data-v${DATASET_VERSION}`;
+  // Status di UI menjadi penanda unduhan selesai. `waitForFunction` dengan
+  // fungsi async tidak menunggu promise, jadi jumlah cache diperiksa terpisah.
+  await expect(page.getByText(/^Siap offline · /)).toBeVisible({ timeout: 60_000 });
+  const cached = await page.evaluate(async (name) => {
+    const cache = await caches.open(name);
+    return (await cache.keys()).length;
+  }, cacheName);
+  expect(cached).toBeGreaterThanOrEqual(235);
 
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready;
@@ -39,7 +38,16 @@ test("data tersimpan dapat dipakai untuk membaca dan mencari tanpa jaringan", as
   await expect(result).toBeVisible();
   await expect(result.locator("[dir='rtl']")).toHaveText(fatihah.ayahs[2]!.text);
 
+  await page.goto(`/cari?mode=terjemahan&q=${encodeURIComponent("pengasih")}`, {
+    waitUntil: "domcontentloaded",
+  });
+
+  const translationResult = page.getByRole("link", { name: /Al-Faatiha 1:1/ });
+  await expect(translationResult).toBeVisible();
+  await expect(translationResult.locator("[lang='id']")).toContainText("Pengasih");
+
   await page.goto("/surah/2", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { level: 1, name: "Al-Baqara" })).toBeVisible();
   await expect(page.locator("#ayah-1 [dir='rtl']")).toHaveText(baqarah.ayahs[0]!.text);
+  await expect(page.locator("#ayah-1").getByText(baqarahTranslation.ayahs[0]!.text)).toBeVisible();
 });

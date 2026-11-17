@@ -1,20 +1,15 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { JumpToDialog } from "@/components/quran/JumpToDialog";
 import { clearDataCache } from "@/lib/data/client";
-import { readSurahs } from "./helpers";
+import { readDataFileForUrl, readSurahs } from "./helpers";
 
 function installDataFetch() {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: RequestInfo | URL) => {
-      const url = new URL(String(input), "http://localhost");
-      const relative = url.pathname.split("/data/v1/")[1];
-      if (!relative) throw new Error(`Alamat data tidak dikenal: ${url.pathname}`);
-      const content = readFileSync(join(process.cwd(), "public", "data", "v1", relative), "utf8");
+      const content = readDataFileForUrl(input);
       return {
         ok: true,
         status: 200,

@@ -1,5 +1,3 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
@@ -8,6 +6,7 @@ import { clearDataCache } from "@/lib/data/client";
 import { addBookmark, db, saveReadingPosition } from "@/lib/db/db";
 import { BookmarksPage } from "@/pages/BookmarksPage";
 import { HomePage } from "@/pages/HomePage";
+import { readDataFileForUrl } from "./helpers";
 
 vi.mock("@/lib/useDocumentTitle", () => ({
   useDocumentTitle: () => undefined,
@@ -17,10 +16,7 @@ function installDataFetch() {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: RequestInfo | URL) => {
-      const url = new URL(String(input), "http://localhost");
-      const relative = url.pathname.split("/data/v1/")[1];
-      if (!relative) throw new Error(`Alamat data tidak dikenal: ${url.pathname}`);
-      const content = readFileSync(join(process.cwd(), "public", "data", "v1", relative), "utf8");
+      const content = readDataFileForUrl(input);
       return {
         ok: true,
         status: 200,

@@ -44,9 +44,9 @@ _(Periksa syarat lengkap di tanzil.net sebelum rilis dan sesuaikan redaksi bila 
 
 ### 2.2 Terjemahan
 
-> [Nama terjemahan] — [Penyusun/penerbit]. Sumber: [sumber data]. Lisensi/izin: [diisi setelah dikonfirmasi].
+> Terjemahan: **Kementerian Agama Republik Indonesia** — sumber data **QuranEnc.com**, versi 1.0.1. Teks dan catatan kaki ditampilkan tanpa perubahan. Lisensi: QuranEnc Terms and Policies (penerbitan ulang diizinkan dengan syarat).
 
-**Belum boleh dirilis publik** sebelum baris ini terisi dan izin penggunaan jelas (lihat D-003).
+Tampilkan nama penerbit, QuranEnc.com, nomor versi, dan tautan di S10. Jangan mengubah, memotong, atau menghapus catatan kaki. Laporkan catatan tentang terjemahan ke QuranEnc, bukan diperbaiki sendiri (D-003).
 
 ### 2.3 Font
 
@@ -111,6 +111,7 @@ Putuskan pilihan akhir "Penanda" vs "Bookmark" lewat uji pembaca (D-010).
 | Surah belum tersedia offline    | Surah ini belum tersedia offline. Sambungkan internet sekali untuk menyimpannya.                                         |
 | Cari kosong                     | Tidak ada hasil untuk “…”. Coba kata lain.                                                                               |
 | Petunjuk cari Arab              | Pencarian Arab mengabaikan harakat.                                                                                      |
+| Petunjuk cari terjemahan        | Pencarian terjemahan mengabaikan huruf besar/kecil dan diakritik.                                                        |
 | Lompat ke: ayat di luar rentang | Surah ini memiliki N ayat.                                                                                               |
 | Penyiapan offline               | Menyiapkan Al-Qur'an untuk dibaca offline…                                                                               |
 | Pembaruan                       | Versi baru tersedia. Muat ulang untuk memperbarui.                                                                       |

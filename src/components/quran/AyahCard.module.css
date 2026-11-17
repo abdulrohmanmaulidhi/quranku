@@ -106,6 +106,39 @@
   outline-offset: var(--focus-offset);
 }
 
+.translation {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  color: var(--color-text-secondary);
+}
+
+.translationText {
+  font-size: var(--text-ui-body-s);
+  line-height: var(--leading-ui-body-s);
+}
+
+.footnotes {
+  color: var(--color-text-tertiary);
+  font-size: var(--text-ui-caption);
+  line-height: var(--leading-ui-caption);
+}
+
+.footnotesSummary {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  color: var(--color-accent);
+  cursor: pointer;
+}
+
+.footnoteText {
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--color-divider);
+  white-space: pre-line;
+}
+
 .actionBar {
   position: relative;
   display: flex;

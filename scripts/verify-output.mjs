@@ -7,10 +7,14 @@ import {
   METADATA_FILE,
   SOURCE_INFO,
   TEXT_FILE,
+  TRANSLATION_DIR,
+  TRANSLATION_FILE,
   ayahsBySurah,
   listFiles,
   loadSource,
   readJson,
+  translationNotice,
+  translationSourceInfo,
   validateDataset,
 } from "./lib/source.mjs";
 
@@ -39,6 +43,7 @@ const expectedManifest = {
   source: {
     text: { ...SOURCE_INFO.text, sha256: source.hashes[TEXT_FILE] },
     metadata: { ...SOURCE_INFO.metadata, sha256: source.hashes[METADATA_FILE] },
+    translation: { ...translationSourceInfo(source), sha256: source.hashes[TRANSLATION_FILE] },
   },
   copyrightNotice: "COPYRIGHT.txt",
   textPolicy: "Teks Arab disalin verbatim dari data/source; tidak ada normalisasi atau pemotongan.",
@@ -53,14 +58,27 @@ const expectedSearchIndex = {
   entries: source.ayahs.map((row) => [row.surah, row.ayah, normalizeForSearch(row.text)]),
 };
 
+const expectedTranslationSearchIndex = {
+  schemaVersion: 1,
+  datasetVersion: DATASET_VERSION,
+  entries: source.translation.entries.map((row) => [
+    row.surah,
+    row.ayah,
+    normalizeForSearch(row.text),
+  ]),
+};
+
 const expectedFiles = new Set([
   "manifest.json",
   "surahs.json",
   "juz.json",
   "COPYRIGHT.txt",
   "search/arabic.json",
+  "search/translation.json",
 ]);
 for (const surah of surahs) expectedFiles.add(`ar/${pad(surah.n)}.json`);
+for (const surah of surahs) expectedFiles.add(`${TRANSLATION_DIR}/${pad(surah.n)}.json`);
+expectedFiles.add(`${TRANSLATION_DIR}/SOURCE.txt`);
 
 let actualFiles;
 try {
@@ -85,6 +103,11 @@ check(
   readJson(join(DATASET_DIR, "search", "arabic.json")),
   expectedSearchIndex,
 );
+check(
+  "search/translation.json",
+  readJson(join(DATASET_DIR, "search", "translation.json")),
+  expectedTranslationSearchIndex,
+);
 check("COPYRIGHT.txt", readFileSync(join(DATASET_DIR, "COPYRIGHT.txt"), "utf8"), expectedNotice);
 
 let verifiedAyahs = 0;
@@ -106,6 +129,27 @@ for (const surah of surahs) {
   }
 }
 
+const translated = ayahsBySurah(source.translation.entries);
+let verifiedTranslations = 0;
+for (const surah of surahs) {
+  const expected = {
+    surah: surah.n,
+    ayahs: (translated.get(surah.n) ?? []).map((row) => ({
+      n: row.ayah,
+      text: row.text,
+      footnotes: row.footnotes,
+    })),
+  };
+  const actual = readJson(join(DATASET_DIR, TRANSLATION_DIR, `${pad(surah.n)}.json`));
+  check(`${TRANSLATION_DIR}/${pad(surah.n)}.json`, actual, expected);
+  verifiedTranslations += actual.ayahs?.length ?? 0;
+}
+check(
+  `${TRANSLATION_DIR}/SOURCE.txt`,
+  readFileSync(join(DATASET_DIR, TRANSLATION_DIR, "SOURCE.txt"), "utf8"),
+  translationNotice(source),
+);
+
 if (failures.length) {
   console.error(`verify-output: ${failures.length} masalah ditemukan\n`);
   for (const failure of failures.slice(0, 20)) console.error(`  - ${failure}`);
@@ -115,4 +159,5 @@ if (failures.length) {
 
 console.log(`verify-output: OK (public/data/v${DATASET_VERSION}, ${actualFiles.length} berkas)`);
 console.log(`  ${surahs.length} surah, ${verifiedAyahs} ayat cocok dengan sumber`);
+console.log(`  ${verifiedTranslations} terjemahan cocok dengan sumber`);
 console.log("  teks Arab identik; manifest dan checksum cocok");

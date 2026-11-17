@@ -82,7 +82,7 @@ quran-pwa/
 
 - Teks Arab: **Tanzil Uthmani v1.1** (CC BY 3.0, tidak boleh diubah).
 - Metadata (juz, sajdah, halaman): file metadata Tanzil. Verifikasi isinya setelah diunduh.
-- Terjemahan Indonesia: **belum ditetapkan** (lisensi). Lihat `DESIGN-DECISIONS.md` D-003.
+- Terjemahan Indonesia: **QuranEnc.com**, edisi `indonesian_affairs` (Kementerian Agama RI), boleh diterbitkan ulang dengan tujuh syarat. Lihat `DESIGN-DECISIONS.md` D-003.
 
 Berkas mentah disimpan di `data/source/` dan tidak pernah diedit.
 
@@ -97,7 +97,7 @@ data/source/*  →  scripts/validate-data  →  scripts/build-data  →  public/
 3. **Manifest**: mencatat versi dataset, sumber, lisensi, tanggal pengambilan, dan checksum SHA-256 tiap berkas.
 4. **CI** menjalankan validasi dan membandingkan checksum. Build gagal jika ada ketidakcocokan.
 
-**Status:** `validate:data`, `build:data`, dan `verify:output` sudah tersedia (lihat `scripts/README.md`). Dataset v1 dibangun dari `quran-uthmani.txt` (Tanzil Uthmani 1.1) dan `quran-data.js` (metadata 1.0). Indeks pencarian Arab dihasilkan saat build. Terjemahan belum dihasilkan (D-003).
+**Status:** `validate:data`, `build:data`, dan `verify:output` sudah tersedia (lihat `scripts/README.md`). Dataset v2 dibangun dari `quran-uthmani.txt` (Tanzil Uthmani 1.1), `quran-data.js` (metadata 1.0), dan `tr/indonesian_affairs.json` (QuranEnc, Kemenag). Indeks pencarian Arab dan berkas terjemahan per surah dihasilkan saat build.
 
 ### 4.3 Tata letak berkas keluaran
 
@@ -110,13 +110,15 @@ public/data/v1/
 ├── ar/
 │   ├── 001.json … 114.json       # teks Arab per surah
 ├── tr/
-│   └── <id-terjemahan>/
-│       └── 001.json … 114.json   # terjemahan per surah (dipisah agar mudah diganti)
+│   └── indonesian_affairs/
+│       ├── 001.json … 114.json   # terjemahan + catatan kaki per surah
+│       └── SOURCE.txt            # penerbit, versi, syarat pemakaian
 └── search/
-    └── arabic.json               # [surah, ayat, teks ternormalisasi] untuk 6.236 ayat
+    ├── arabic.json               # [surah, ayat, teks ternormalisasi] untuk 6.236 ayat
+    └── translation.json          # [surah, ayat, terjemahan ternormalisasi] untuk 6.236 ayat
 ```
 
-Pada v1, `tr/` belum dihasilkan (D-003). `search/arabic.json` hanya berisi referensi dan teks ternormalisasi; teks tampilan tetap dibaca dari `ar/*.json` (D-032, D-033).
+`tr/` berisi terjemahan verbatim dari QuranEnc beserta catatan kaki; teks Arab tidak disalin ke berkas terjemahan (D-003). `search/arabic.json` dan `search/translation.json` hanya berisi referensi dan teks ternormalisasi; teks tampilan tetap dibaca dari `ar/*.json` dan `tr/*/*.json` (D-032, D-033, D-034). Indeks terjemahan tidak memuat catatan kaki.
 
 Contoh isi `ar/001.json` (struktur, bukan data nyata):
 
@@ -191,7 +193,7 @@ Hosting statis perlu _fallback_ SPA agar rute dalam dapat dimuat langsung. Cloud
 | App shell (HTML/JS/CSS/font/ikon)        | Precache Workbox, versi lewat hash berkas                                                             |
 | `manifest.json`, `surahs.json`, `juz.json` | Precache (juga disalin ke cache data oleh unduhan offline)                                            |
 | `ar/*.json`, `search/*.json`             | `CacheFirst` di cache berversi `quranku-data-v1`; diunduh di latar setelah idle (progres di S11)      |
-| `tr/*/*.json`                            | Belum ada (D-003)                                                                                     |
+| `tr/*/*.json`                            | `CacheFirst` di cache data yang sama; diunduh bersama `ar/*.json`                                      |
 
 - Manifest dan service worker dihasilkan `vite-plugin-pwa` 2 (`registerType: "prompt"`, `injectRegister: null`).
 - Pembaruan: tampilkan "Versi baru tersedia." dan **jangan** muat ulang paksa (posisi baca tidak boleh hilang). Pemeriksaan pembaruan dilakukan tiap jam selama aplikasi terbuka.
@@ -202,13 +204,15 @@ Hosting statis perlu _fallback_ SPA agar rute dalam dapat dimuat langsung. Cloud
 
 ## 8. Pencarian
 
-- Mode: **Surah** dan **Arab**. Mode terjemahan ditunda sampai D-003 (lihat `SCREEN-SPECS.md` S08).
+- Mode: **Surah**, **Arab**, dan **Terjemahan** (D-034).
 - Normalisasi Arab hanya untuk **indeks** dan pencocokan: hapus harakat dan tanda Qur'ani, samakan varian alif, alif maksura, ta marbuta, dan tatweel. Tampilan tetap memakai teks asli. Rincian di `docs/SEARCH-NORMALIZATION.md`.
 - Indeks `search/arabic.json` dihasilkan oleh `scripts/build-data.mjs` dengan format `[surah, ayat, teks ternormalisasi]`; total 6.236 entri (~775 KB).
-- Indeks dimuat malas hanya saat mode Arab aktif dan kueri minimal dua karakter, bukan di muatan awal.
+- Indeks `search/translation.json` memakai format dan normalisasi yang sama untuk teks terjemahan (tanpa catatan kaki); total 6.236 entri (~1,1 MB), anggaran 1,6 MB.
+- Indeks dimuat malas hanya saat mode yang bersangkutan aktif: Arab setelah dua karakter, Terjemahan setelah tiga karakter. Tidak ada indeks di muatan awal.
 - Semua kata kueri harus muncul. Peringkat memberi bobot kecocokan persis, awalan, frasa, dan jumlah kemunculan; hasil dibatasi 20.
 - Batas panjang kueri 100 karakter dan debounce input 250 ms.
-- Hasil menampilkan teks ayat utuh dari `ar/*.json` dengan sorotan `<mark>` yang dipetakan ke teks asli.
+- Hasil Arab menampilkan teks ayat utuh dari `ar/*.json`; hasil terjemahan menampilkan teks dari `tr/*/*.json`. Keduanya menyorot kata cocok dengan `<mark>` yang dipetakan ke teks asli.
+- Pencarian terjemahan mewajibkan semua kata muncul dan **belum** menangani imbuhan/stemming; keterbatasan ini tampil di UI.
 - Tidak ada pencarian semantik, vektor, tafsir, atau akar kata.
 
 ## 9. Kinerja
@@ -286,12 +290,11 @@ Deploy ke Cloudflare Pages dilakukan di luar workflow ini (cabang utama) sampai 
 
 | #   | Pertanyaan                                   | Terkait               |
 | --- | -------------------------------------------- | --------------------- |
-| 1   | Terjemahan Indonesia dan lisensinya          | D-003                 |
-| 2   | Penanganan basmalah pada berkas sumber       | D-012                 |
-| 3   | Font Arab final dan lisensinya               | D-006                 |
-| 4   | Versi minimum browser dan OS yang didukung   | —                     |
-| 5   | Anggaran ukuran dan kinerja                  | Setelah build pertama |
-| 6   | Siapa yang meninjau impor dan koreksi konten | PRD §13               |
+| 1   | Penanganan basmalah pada berkas sumber       | D-012                 |
+| 2   | Font Arab final dan lisensinya               | D-006                 |
+| 3   | Versi minimum browser dan OS yang didukung   | —                     |
+| 4   | Anggaran ukuran dan kinerja                  | Setelah build pertama |
+| 5   | Siapa yang meninjau impor dan koreksi konten | PRD §13               |
 
 ## 17. Prioritas dokumen bila ada konflik
 
@@ -310,17 +313,17 @@ Deploy ke Cloudflare Pages dilakukan di luar workflow ini (cabang utama) sampai 
 - S06 "Lompat ke": dialog dengan tab Surah & Ayat dan Juz; validasi rentang ayat, keadaan memuat/galat untuk juz, dan navigasi ke awal juz.
 - S07 Penanda: daftar terbaru lebih dahulu, hapus, dan urungkan.
 - S09 Pengaturan dasar, ekspor/impor penanda (JSON), data offline (unduh/hapus), hapus data lokal dengan dialog konfirmasi, dan S10 Sumber & Atribusi.
-- S08 Cari: mode Surah dan Arab, indeks Arab dimuat malas, sorotan kata, hasil membuka Reader tepat di ayat.
+- S08 Cari: mode Surah, Arab, dan Terjemahan; indeks dimuat malas per mode, sorotan kata, hasil membuka Reader tepat di ayat (terjemahan tampil sekali kunjungan untuk hasil terjemahan).
 - Pencarian surah berdasarkan nama Latin, nama Arab, dan nomor; filter juz.
 - PWA: manifest, ikon, precache app shell, runtime cache data, prompt pembaruan tanpa muat ulang paksa, banner progres offline, dan baris data offline di Pengaturan.
 - Unduhan offline otomatis setelah idle (kecuali `Save-Data`), cache berversi `quranku-data-v1`, penanganan kuota/jaringan, dan pembersihan cache lama.
 - Dexie v1: `bookmarks`, `position`, `settings`, `meta`; tema, posisi baca, dan ukuran Arab tersimpan di perangkat.
-- Unit test (Vitest) dan E2E (Playwright) untuk navigasi, teks Arab verbatim, RTL, 320 px, target sentuh, tema, axe, penanda, posisi baca, ukuran Arab, ekspor/impor, berbagi, pencarian Arab, PWA, dan offline.
+- Terjemahan Indonesia QuranEnc (Kemenag) di dataset v2: berkas per surah, catatan kaki, manifest, dan verifikasi checksum (D-003).
+- Unit test (Vitest) dan E2E (Playwright) untuk navigasi, teks Arab verbatim, RTL, 320 px, target sentuh, tema, axe, penanda, posisi baca, ukuran Arab, ekspor/impor, berbagi, pencarian Arab dan terjemahan, PWA, dan offline.
 - CI GitHub Actions (quality, E2E, Lighthouse) dan konfigurasi `lighthouserc.json`.
 
 ### Belum dikerjakan
 
-- Pencarian terjemahan (menunggu D-003).
 - Ajakan instal kustom (prompt bawaan peramban sudah tersedia).
-- Terjemahan Indonesia (D-003) dan keputusan basmalah (D-012).
+- Keputusan basmalah (D-012).
 - Uji perangkat nyata dan penentuan font Arab (D-006) sebelum rilis publik.

@@ -32,7 +32,20 @@ Berisi `Sura`, `Juz`, `HizbQaurter`, `Manzil`, `Ruku`, `Page`, dan `Sajda`. Buil
 
 ## 3. Terjemahan Indonesia
 
-Belum ditetapkan (D-003). Tidak ada berkas terjemahan di folder ini.
+| Field | Nilai |
+| --- | --- |
+| Berkas | `tr/indonesian_affairs.json` |
+| Nama | Indonesian Translation - Ministry of Religious Affairs |
+| Penerbit | Kementerian Agama Republik Indonesia |
+| Versi | 1.0.1 (pembaruan sumber 2025-06-23) |
+| Diambil | 2026-11-17 |
+| Sumber | QuranEnc.com — `https://quranenc.com/api/v1/translation/sura/indonesian_affairs/{surah}` |
+| Lisensi | QuranEnc Terms and Policies — boleh diunduh dan diterbitkan ulang dengan tujuh syarat |
+| SHA-256 | `8be2ea728ed6ebeee165e802117a58b2582546617b1411054af9ac226c40165b` |
+
+Syarat lengkap dan salinan teksnya ada di `tr/SOURCE.md`. Ringkasnya: tanpa perubahan, sebut penerbit dan QuranEnc.com, cantumkan versi, pertahankan info penerjemah, laporkan catatan ke sumber, perbarui ke versi terbaru, dan tanpa iklan tidak pantas.
+
+Berkas berisi 6.236 entri `{surah, ayah, text, footnotes}`. Teks Arab dari respons API **tidak** disimpan agar tidak ada salinan kedua teks Al-Qur'an. Pembaruan dilakukan dengan menjalankan `node scripts/fetch-translation.mjs`, bukan mengedit berkas.
 
 ## 4. Temuan basmalah (untuk D-012)
 

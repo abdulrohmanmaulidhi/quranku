@@ -1,6 +1,6 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { Bookmark, BookmarkCheck, Copy, Ellipsis, Share2 } from "lucide-react";
-import type { Ayah, Surah } from "@/lib/data/types";
+import type { Ayah, Surah, TranslationAyah } from "@/lib/data/types";
 import { formatReference } from "@/lib/format/reference";
 import { copyText } from "@/lib/clipboard";
 import { buildAyahCopy, buildReferenceCopy } from "@/features/quran/copy";
@@ -16,6 +16,7 @@ export interface AyahCardProps {
   targeted: boolean;
   bookmarked: boolean;
   arabicSize?: ArabicSize;
+  translation?: TranslationAyah;
   onSelect: (ayah: number) => void;
   onToggleBookmark: (ayah: number) => void;
   onNotify: (message: string, tone?: "success" | "error") => void;
@@ -28,6 +29,7 @@ export function AyahCard({
   targeted,
   bookmarked,
   arabicSize = "m",
+  translation,
   onSelect,
   onToggleBookmark,
   onNotify,
@@ -81,7 +83,7 @@ export function AyahCard({
   };
 
   const handleCopyAyah = async () => {
-    const ok = await copyText(buildAyahCopy(surah, ayah));
+    const ok = await copyText(buildAyahCopy(surah, ayah, translation));
     setMenuOpen(false);
     onNotify(ok ? "Ayat disalin." : "Tidak dapat menyalin. Coba lagi.", ok ? "success" : "error");
   };
@@ -99,7 +101,7 @@ export function AyahCard({
     try {
       await navigator.share({
         title: reference,
-        text: buildAyahCopy(surah, ayah),
+        text: buildAyahCopy(surah, ayah, translation),
         url: `${window.location.origin}/surah/${surah.n}/${ayah.n}`,
       });
     } catch (error) {
@@ -143,6 +145,20 @@ export function AyahCard({
         <div className={styles.text} data-ayah-text onClick={handleTextClick}>
           <ArabicText text={ayah.text} size={arabicSize} />
         </div>
+
+        {translation ? (
+          <div className={styles.translation} lang="id">
+            <p className={styles.translationText} onClick={handleTextClick}>
+              {translation.text}
+            </p>
+            {translation.footnotes ? (
+              <details className={styles.footnotes}>
+                <summary className={styles.footnotesSummary}>Catatan kaki</summary>
+                <p className={styles.footnoteText}>{translation.footnotes}</p>
+              </details>
+            ) : null}
+          </div>
+        ) : null}
 
         {selected ? (
           <div className={styles.actionBar}>

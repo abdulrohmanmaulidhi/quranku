@@ -17,7 +17,7 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 | ----- | ---------------------------------------------------------------------------------------- | ---------- | ---------- | ---------------------------------------------------------- |
 | D-001 | PWA local-first, tanpa backend dan tanpa akun untuk Release 1                            | Diputuskan | 2026-11-12 | Sinkronisasi antar perangkat dibutuhkan                    |
 | D-002 | Teks Arab dari Tanzil (Uthmani v1.1), ditampilkan tanpa perubahan                        | Diputuskan | 2026-11-12 | Ada sumber yang lebih sesuai dan berlisensi jelas          |
-| D-003 | Terjemahan Indonesia                                                                     | Ditunda    | 2026-11-12 | Lisensi/izin dikonfirmasi (Kemenag atau terjemahan Tanzil) |
+| D-003 | Terjemahan Indonesia dari QuranEnc (`indonesian_affairs`, Kemenag)                     | Diputuskan | 2026-11-17 | Izin dicabut atau edisi baru terbit    |
 | D-004 | Alat desain: FigCraft                                                                    | Diputuskan | 2026-11-12 | Alat tidak memadai untuk kebutuhan desain                  |
 | D-005 | Varian Reader: A (mobile) dan C (desktop) sebagai dugaan awal                            | Diusulkan  | 2026-11-12 | Hasil evaluasi B di `DESIGN-TEST-PLAN.md`                  |
 | D-006 | Font Arab                                                                                | Ditunda    | 2026-11-12 | Hasil uji A di `DESIGN-TEST-PLAN.md`                       |
@@ -68,10 +68,16 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 
 ### D-003 — Terjemahan Indonesia
 
-- **Status:** ditunda sampai lisensi jelas.
-- **Opsi:** (1) izin tertulis dari Kemenag/LPMQ, (2) terjemahan dari katalog Tanzil setelah syaratnya diperiksa.
-- **Larangan:** jangan memakai hasil _scrape_ tidak resmi sebagai data final.
-- **Dampak desain:** teks atribusi terjemahan di S10 memakai placeholder sampai ditetapkan.
+- **Tanggal:** 2026-11-17
+- **Status:** Diputuskan
+- **Konteks:** Reader membutuhkan terjemahan Indonesia untuk Release 1, tetapi belum ada sumber dengan izin redistribusi yang jelas. Aplikasi gratis, tanpa iklan, tanpa akun, dan menyimpan data secara offline, sehingga izin harus mencakup penyalinan berkas ke perangkat.
+- **Opsi yang dipertimbangkan:** (a) memakai terjemahan Kemenag dari Tanzil, (b) memakai API resmi Qur'an Kemenag, (c) memakai terjemahan dari QuranEnc, (d) merilis tanpa terjemahan.
+- **Keputusan:** memakai **QuranEnc.com**, terjemahan Indonesia "Ministry of Religious Affairs" (`indonesian_affairs`, penerbit Kementerian Agama RI, versi 1.0.1, pembaruan 2025-06-23). QuranEnc menyatakan isi terjemahan "can be downloaded and re-published" dengan tujuh syarat: tanpa perubahan, sebut penerbit dan QuranEnc.com, cantumkan nomor versi, pertahankan info penerjemah, laporkan catatan ke QuranEnc, perbarui ke versi terbaru, dan tanpa iklan yang tidak pantas.
+- **Alasan:** satu-satunya opsi dengan izin redistribusi tertulis dan publik; edisi lebih baru dari berkas Tanzil (2010) dan menyertakan catatan kaki. Tanzil hanya mengizinkan pemakaian non-komersial tanpa menyatakan izin redistribusi, dan hak dasarnya tetap milik penerbit. API Kemenag memerlukan surat permohonan dan token, serta belum menjelaskan redistribusi offline. Scrape `quran.kemenag.go.id` dilarang.
+- **Dampak (desain, konten, teknis):** `data/source/tr/indonesian_affairs.json` menyimpan salinan verbatim beserta syarat dan checksum; `scripts/fetch-translation.mjs` adalah alat dev sekali jalan. Build menghasilkan `tr/indonesian_affairs/NNN.json` dan `SOURCE.txt`; manifest mencatat penerbit, versi, lisensi, URL, tanggal ambil, dan SHA-256. Reader menampilkan terjemahan secara bawaan di bawah teks Arab (dapat disembunyikan lewat Pengaturan baca; pilihan disimpan di perangkat), dengan label sumber singkat di bawah header surah. Catatan kaki dibuka per ayat lewat panel lipat dan penanda `[n]` dipertahankan. S10 menampilkan atribusi ganda (Kemenag dan QuranEnc.com), versi, syarat pemakaian, dan SHA-256. Dataset naik ke v2; berkas `tr/` ikut diunduh untuk mode offline. Pencarian terjemahan ditunda.
+- **Risiko yang diterima:** izin berasal dari platform penerbit, bukan surat langsung Kemenag. Tersedia jalur takedown: hapus direktori `tr/` dan naikkan `DATASET_VERSION`.
+- **Ditinjau ulang bila:** QuranEnc mencabut izin, menerbitkan versi baru, atau aplikasi mulai dimonetisasi sehingga syarat non-komersial/konten berubah.
+- **Bukti:** `data/source/tr/SOURCE.md` (salinan syarat + tanggal akses), `data/source/CHECKSUMS.txt`, dan keluaran `pnpm verify:output`.
 
 ### D-005 — Varian Reader
 
@@ -267,11 +273,11 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 
 - **Tanggal:** 2026-11-16
 - **Status:** Diputuskan
-- **Konteks:** Pengguna perlu membaca seluruh Al-Qur'an tanpa jaringan, tetapi mengunduh 119 berkas pada kunjungan pertama tidak boleh menghambat interaksi atau menghabiskan kuota tanpa kendali.
+- **Konteks:** Pengguna perlu membaca seluruh Al-Qur'an tanpa jaringan, tetapi mengunduh 235 berkas pada kunjungan pertama tidak boleh menghambat interaksi atau menghabiskan kuota tanpa kendali.
 - **Opsi yang dipertimbangkan:** (a) unduh semua saat instalasi, (b) hanya cache saat surah dibuka, (c) unduh di latar setelah idle dengan progres dan opsi hapus, (d) ajukan dialog izin unduhan.
 - **Keputusan:** `OfflineProvider` memeriksa cache saat mulai, lalu memulai unduhan otomatis setelah `requestIdleCallback` (atau timeout 800 ms) bila perangkat online dan tidak mengaktifkan `Save-Data`. Unduhan memakai Cache API langsung dari halaman, konkurensi 3, dan melaporkan progres lewat banner S11 serta baris Pengaturan. Pengguna dapat mengunduh ulang, mencoba lagi, atau menghapus salinan offline. Kuota penuh dan kegagalan jaringan memiliki pesan terpisah.
 - **Alasan:** unduhan di latar memberi pengalaman baca yang langsung dapat dipakai, sementara progres dan opsi hapus menjaga kendali serta ruang penyimpanan pengguna. Cache API langsung memudahkan pelaporan progres dan pembersihan.
-- **Dampak (desain, konten, teknis):** `src/features/offline/cache.ts`, `OfflineProvider`, `OfflineSetupBanner`, dan baris data offline di Pengaturan. Setelah pengguna menghapus salinan, unduhan otomatis tidak langsung berjalan lagi pada sesi itu. E2E menunggu 119 berkas masuk cache sebelum menguji mode offline.
+- **Dampak (desain, konten, teknis):** `src/features/offline/cache.ts`, `OfflineProvider`, `OfflineSetupBanner`, dan baris data offline di Pengaturan. Setelah pengguna menghapus salinan, unduhan otomatis tidak langsung berjalan lagi pada sesi itu. E2E menunggu seluruh berkas (235 pada dataset v2, termasuk terjemahan dan indeks pencarian) masuk cache sebelum menguji mode offline.
 - **Ditinjau ulang bila:** ukuran dataset berubah drastis, kuota perangkat menjadi masalah umum, atau diperlukan unduhan selektif per juz/surah.
 
 ### D-032 — Hasil pencarian Arab menampilkan teks ayat utuh
@@ -280,7 +286,7 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 - **Status:** Diputuskan
 - **Konteks:** S08 menyebut "cuplikan dengan kata cocok ditandai", tetapi aturan proyek melarang memotong atau mengubah teks Arab. Indeks pencarian juga tidak menyimpan teks asli agar tidak ada salinan kedua yang dapat menyimpang.
 - **Opsi yang dipertimbangkan:** (a) menampilkan cuplikan yang dipotong, (b) menampilkan teks ayat utuh dari `ar/*.json`, (c) menyimpan teks asli di indeks pencarian.
-- **Keputusan:** setiap hasil menampilkan referensi `QS. Nama Surah surah:ayat` dan **teks ayat utuh** yang dibaca dari `ar/XXX.json`. Kata yang cocok ditandai dengan `<mark>` berdasarkan pemetaan posisi ke teks asli. Hasil dibatasi 20 teratas dengan catatan bila batas tercapai. Mode terjemahan tidak ditampilkan sampai D-003 diputuskan.
+- **Keputusan:** setiap hasil menampilkan referensi `QS. Nama Surah surah:ayat` dan **teks ayat utuh** yang dibaca dari `ar/XXX.json`. Kata yang cocok ditandai dengan `<mark>` berdasarkan pemetaan posisi ke teks asli. Hasil dibatasi 20 teratas dengan catatan bila batas tercapai. Mode terjemahan diputuskan kemudian di D-034.
 - **Alasan:** memenuhi aturan verbatim dan menghindari duplikasi teks di berkas pencarian. Pemetaan sorotan memungkinkan penanda visual tanpa mengubah karakter.
 - **Dampak (desain, konten, teknis):** `SearchResultRow` memuat teks per surah lewat `loadSurahText` (di-cache), `ArabicText` menerima `highlightRanges`, dan `findHighlightRanges` memetakan posisi ternormalisasi kembali ke teks asli. Teks hasil selalu identik dengan Reader; diuji di unit dan E2E.
 - **Ditinjau ulang bila:** aturan tampilan teks berubah atau diperlukan pratinjau lintas ayat.
@@ -294,7 +300,24 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 - **Keputusan:** `scripts/build-data.mjs` menghasilkan `public/data/v1/search/arabic.json` berisi `[surah, ayah, normalizedText]` untuk 6.236 ayat (sekitar 775 KB). Indeks dimuat malas hanya saat mode **Arab** aktif dan kueri minimal dua karakter. Pencocokan mewajibkan semua kata kueri muncul; peringkat memberi bobot pada kecocokan persis, awalan, frasa, dan jumlah kemunculan. Normalisasi hanya untuk pencarian dan dijelaskan di `docs/SEARCH-NORMALIZATION.md`.
 - **Alasan:** memindai 114 berkas per kueri terlalu lambat dan boros; menyimpan teks asli menggandakan data dan berisiko menyimpang. Referensi + teks ternormalisasi menjaga indeks kecil dan teks tampilan tetap satu sumber.
 - **Dampak (desain, konten, teknis):** `scripts/build-data.mjs` dan `verify-output.mjs` memakai `src/lib/search/normalize.mjs` yang sama dengan aplikasi. `loadSearchIndex` memvalidasi jumlah entri dan versi. `searchAyahs` diuji untuk harakat, multi-kata, batas hasil, dan kueri terlalu pendek.
-- **Ditinjau ulang bila:** diperlukan pencarian terjemahan (D-003), pencarian akar kata, atau ukuran indeks melewati anggaran.
+- **Ditinjau ulang bila:** diperlukan pencarian akar kata, atau ukuran indeks Arab melewati anggaran. Pencarian terjemahan diputuskan terpisah di D-034.
+
+### D-034 — Pencarian terjemahan dengan indeks terpisah dan tampilan paksa sekali kunjungan
+
+- **Tanggal:** 2026-11-17
+- **Status:** Diputuskan
+- **Konteks:** Terjemahan Indonesia sudah tampil di Reader (D-003), tetapi S08 baru mendukung pencarian surah dan Arab. Pengguna perlu menemukan ayat dari kata terjemahan tanpa backend dan tanpa memuat data besar di muatan awal.
+- **Opsi yang dipertimbangkan:** (a) memindai `tr/*.json` saat mencari, (b) indeks `[surah, ayat, ternormalisasi]` untuk teks terjemahan, (c) indeks berisi teks asli + catatan kaki. Opsi (b) dan (c) juga dipertimbangkan untuk cakupan: hanya teks atau termasuk catatan kaki.
+- **Keputusan:**
+  - `scripts/build-data.mjs` menghasilkan `search/translation.json` berskema sama dengan indeks Arab: `{ schemaVersion: 1, datasetVersion, entries: [[surah, ayah, normalizedText]] }` untuk 6.236 ayat, memakai `normalizeForSearch` yang sama. **Hanya teks terjemahan** yang diindeks; catatan kaki tidak.
+  - Indeks dimuat malas hanya saat mode **Terjemahan** aktif dan kueri ≥ 3 karakter. Panjang minimum 3 karena kata Indonesia dua huruf terlalu umum.
+  - Pencocokan memakai `searchAyahs`: semua kata kueri harus muncul (AND), tanpa stemming/imbuhan. Keterbatasan ini ditulis di UI dan dokumen.
+  - Baris hasil (`TranslationResultRow`) menampilkan teks terjemahan utuh dengan `<mark>` dari `findHighlightRanges`; teks diambil dari berkas terjemahan, bukan dari indeks.
+  - Tautan hasil membuka Reader dengan `state={{ showTranslation: true }}`. Reader menampilkan terjemahan untuk kunjungan itu tanpa mengubah pengaturan tersimpan; mengubah sakelar atau menekan reset membatalkan paksa tampil.
+  - Indeks ikut diunduh offline sehingga jumlah berkas menjadi **235** (≈5,6 MB).
+- **Alasan:** memisahkan indeks menjaga muatan awal tetap kecil dan tidak menggandakan teks terjemahan di berkas pencarian. Menampilkan teks utuh mematuhi aturan verbatim. Paksa tampil sekali kunjungan menghindari perubahan pengaturan diam-diam, sementara pengguna tetap dapat mematikannya.
+- **Dampak (desain, konten, teknis):** `scripts/build-data.mjs` (anggaran 1,6 MB, peringatan > 1,4 MB), `scripts/verify-output.mjs`, `src/lib/search/index.ts` (parser + pemuat indeks ganda), `useTranslationSearchIndex`, `SearchPage` tiga mode, `TranslationResultRow`, `ReaderPage` (`forceTranslation`), `src/features/offline/cache.ts`, serta unit/E2E baru. Ukuran terukur: indeks terjemahan ≈1,1 MB, indeks Arab ≈775 KB, total data ≈5,6 MB.
+- **Ditinjau ulang bila:** diperlukan pencarian berimbuhan/stemming, pencarian catatan kaki, atau ukuran indeks melewati anggaran.
 
 ---
 

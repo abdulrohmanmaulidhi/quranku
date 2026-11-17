@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { MAX_SEARCH_QUERY_LENGTH, searchAyahs } from "@/features/quran/search";
 import { findHighlightRanges, normalizeForSearch } from "@/lib/search/normalize";
+import { DATASET_VERSION } from "@/lib/data/version";
 import { readSearchIndex } from "./helpers";
 
 const index = readSearchIndex();
@@ -10,7 +11,7 @@ const byReference = new Map(entries.map((entry) => [`${entry[0]}:${entry[1]}`, e
 describe("indeks pencarian Arab", () => {
   it("memuat seluruh 6.236 ayat tanpa menyimpan teks asli", () => {
     expect(index.entries).toHaveLength(6236);
-    expect(index.datasetVersion).toBe("1");
+    expect(index.datasetVersion).toBe(DATASET_VERSION);
     expect(index.entries[0]).toEqual([1, 1, "بسم الله الرحمن الرحيم"]);
     expect(index.entries[0]).toHaveLength(3);
   });

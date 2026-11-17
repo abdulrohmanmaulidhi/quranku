@@ -10,7 +10,9 @@ export interface SearchIndex {
 }
 
 const EXPECTED_AYAHS = 6236;
-let indexPromise: Promise<SearchIndex> | null = null;
+const ARABIC_INDEX = "search/arabic.json";
+const TRANSLATION_INDEX = "search/translation.json";
+const pending = new Map<string, Promise<SearchIndex>>();
 
 function isEntry(value: unknown): value is SearchEntry {
   return (
@@ -51,17 +53,17 @@ export function parseSearchIndex(value: unknown): SearchIndex {
   };
 }
 
-/**
- * Indeks dimuat hanya saat pencarian Arab dipakai. Ukurannya sekitar 775 KB
- * sehingga tidak boleh masuk muatan awal.
- */
-export function loadSearchIndex(): Promise<SearchIndex> {
-  if (indexPromise) return indexPromise;
+/** Indeks terjemahan memakai skema dan bentuk entri yang sama dengan indeks Arab. */
+export const parseTranslationSearchIndex = parseSearchIndex;
+
+function loadIndex(path: string): Promise<SearchIndex> {
+  const cached = pending.get(path);
+  if (cached) return cached;
 
   const request = (async () => {
     let response: Response;
     try {
-      response = await fetch(dataUrl("search/arabic.json"), {
+      response = await fetch(dataUrl(path), {
         headers: { Accept: "application/json" },
       });
     } catch {
@@ -82,13 +84,26 @@ export function loadSearchIndex(): Promise<SearchIndex> {
     return parseSearchIndex(value);
   })();
 
-  indexPromise = request;
+  pending.set(path, request);
   request.catch(() => {
-    indexPromise = null;
+    pending.delete(path);
   });
   return request;
 }
 
+/**
+ * Indeks dimuat hanya saat mode pencariannya dipakai. Indeks Arab sekitar
+ * 775 KB dan indeks terjemahan sekitar 1,1 MB, jadi keduanya tidak boleh masuk
+ * muatan awal.
+ */
+export function loadSearchIndex(): Promise<SearchIndex> {
+  return loadIndex(ARABIC_INDEX);
+}
+
+export function loadTranslationSearchIndex(): Promise<SearchIndex> {
+  return loadIndex(TRANSLATION_INDEX);
+}
+
 export function clearSearchIndexCache(): void {
-  indexPromise = null;
+  pending.clear();
 }

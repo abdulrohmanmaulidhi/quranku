@@ -9,14 +9,16 @@ import { SearchResultRow } from "@/components/quran/SearchResultRow";
 import { SearchResultsSkeleton } from "@/components/quran/SearchResultsSkeleton";
 import { SurahListSkeleton } from "@/components/quran/SurahListSkeleton";
 import { SurahRow } from "@/components/quran/SurahRow";
+import { TranslationResultRow } from "@/components/quran/TranslationResultRow";
 import { filterSurahs } from "@/features/quran/filter";
 import {
   MAX_SEARCH_QUERY_LENGTH,
   MIN_SEARCH_QUERY_LENGTH,
+  MIN_TRANSLATION_QUERY_LENGTH,
   SEARCH_RESULT_LIMIT,
   searchAyahs,
 } from "@/features/quran/search";
-import { useSearchIndex } from "@/features/quran/useSearchIndex";
+import { useSearchIndex, useTranslationSearchIndex } from "@/features/quran/useSearchIndex";
 import { useSurahs } from "@/features/quran/useQuranData";
 import { useDebouncedValue } from "@/lib/useDebouncedValue";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
@@ -26,6 +28,7 @@ import styles from "./SearchPage.module.css";
 const MODES = [
   { value: "surah", label: "Surah" },
   { value: "arab", label: "Arab" },
+  { value: "terjemahan", label: "Terjemahan" },
 ] as const;
 
 type SearchMode = (typeof MODES)[number]["value"];
@@ -34,20 +37,29 @@ const OFFLINE_SURAH_DESCRIPTION = "Sambungkan internet sekali, lalu coba lagi.";
 const OFFLINE_INDEX_DESCRIPTION =
   "Indeks pencarian belum tersimpan di perangkat ini. Sambungkan internet sekali untuk menyimpannya.";
 
+function parseMode(value: string | null): SearchMode {
+  return value === "arab" || value === "terjemahan" ? value : "surah";
+}
+
 export function SearchPage() {
   useDocumentTitle("Cari");
   const online = useOnlineStatus();
   const [params, setParams] = useSearchParams();
 
   const rawQuery = params.get("q") ?? "";
-  const mode: SearchMode = params.get("mode") === "arab" ? "arab" : "surah";
+  const mode = parseMode(params.get("mode"));
+  const isAyahMode = mode !== "surah";
+  const minLength = mode === "terjemahan" ? MIN_TRANSLATION_QUERY_LENGTH : MIN_SEARCH_QUERY_LENGTH;
   const debouncedQuery = useDebouncedValue(rawQuery, 250);
   const query = debouncedQuery.trim();
   const hasQuery = query.length > 0;
 
   const surahs = useSurahs();
-  const indexEnabled = mode === "arab" && query.length >= MIN_SEARCH_QUERY_LENGTH;
-  const index = useSearchIndex(indexEnabled);
+  const arabIndex = useSearchIndex(mode === "arab" && query.length >= MIN_SEARCH_QUERY_LENGTH);
+  const translationIndex = useTranslationSearchIndex(
+    mode === "terjemahan" && query.length >= MIN_TRANSLATION_QUERY_LENGTH,
+  );
+  const index = mode === "terjemahan" ? translationIndex : arabIndex;
   const indexData = index.status === "success" ? index.data : null;
 
   const surahResults =
@@ -55,7 +67,7 @@ export function SearchPage() {
       ? filterSurahs(surahs.data, query)
       : [];
 
-  const ayahResults = indexData && query ? searchAyahs(indexData.entries, query) : [];
+  const ayahResults = indexData && query && isAyahMode ? searchAyahs(indexData.entries, query) : [];
 
   const updateParam = (key: string, value: string) => {
     const next = new URLSearchParams(params);
@@ -73,13 +85,15 @@ export function SearchPage() {
   let announcement: string | null = null;
   if (mode === "surah" && hasQuery && surahs.status === "success") {
     announcement = `${surahResults.length} surah ditemukan.`;
-  } else if (mode === "arab" && query.length >= MIN_SEARCH_QUERY_LENGTH) {
+  } else if (isAyahMode && query.length >= minLength) {
     if (index.status === "loading" || index.status === "idle") {
-      announcement = "Mencari ayat…";
+      announcement = mode === "terjemahan" ? "Mencari terjemahan…" : "Mencari ayat…";
     } else if (index.status === "success") {
       announcement =
         ayahResults.length === 0
-          ? "Tidak ada ayat yang cocok."
+          ? mode === "terjemahan"
+            ? "Tidak ada terjemahan yang cocok."
+            : "Tidak ada ayat yang cocok."
           : ayahResults.length >= SEARCH_RESULT_LIMIT
             ? `Menampilkan ${SEARCH_RESULT_LIMIT} hasil teratas.`
             : `${ayahResults.length} ayat ditemukan.`;
@@ -90,7 +104,9 @@ export function SearchPage() {
   const isEmptyDescription =
     mode === "surah"
       ? "Ketik nama atau nomor surah untuk menemukannya."
-      : "Ketik minimal dua huruf Arab tanpa harakat untuk mencari ayat.";
+      : mode === "terjemahan"
+        ? "Ketik minimal tiga huruf untuk mencari terjemahan ayat."
+        : "Ketik minimal dua huruf Arab tanpa harakat untuk mencari ayat.";
 
   return (
     <PageContainer>
@@ -99,15 +115,25 @@ export function SearchPage() {
         <p className={styles.subtitle}>
           {mode === "surah"
             ? "Cari surah berdasarkan nama atau nomor."
-            : "Cari ayat berdasarkan teks Arab tanpa harakat."}
+            : mode === "terjemahan"
+              ? "Cari ayat berdasarkan terjemahan Indonesia."
+              : "Cari ayat berdasarkan teks Arab tanpa harakat."}
         </p>
       </header>
 
       <SearchField
         value={rawQuery}
         onChange={(value) => updateParam("q", value)}
-        label={mode === "surah" ? "Cari surah" : "Cari ayat dalam bahasa Arab"}
-        placeholder={mode === "surah" ? "Cari surah" : "Cari ayat"}
+        label={
+          mode === "surah"
+            ? "Cari surah"
+            : mode === "terjemahan"
+              ? "Cari terjemahan ayat"
+              : "Cari ayat dalam bahasa Arab"
+        }
+        placeholder={
+          mode === "surah" ? "Cari surah" : mode === "terjemahan" ? "Cari terjemahan" : "Cari ayat"
+        }
         autoFocus
         maxLength={MAX_SEARCH_QUERY_LENGTH}
       />
@@ -122,6 +148,11 @@ export function SearchPage() {
       </div>
 
       {mode === "arab" ? <p className={styles.hint}>Pencarian Arab mengabaikan harakat.</p> : null}
+      {mode === "terjemahan" ? (
+        <p className={styles.hint}>
+          Pencarian terjemahan mengabaikan huruf besar/kecil dan diakritik.
+        </p>
+      ) : null}
 
       <p className={styles.resultCount} role="status" aria-live="polite">
         {announcement}
@@ -177,18 +208,20 @@ export function SearchPage() {
         </ol>
       ) : null}
 
-      {mode === "arab" && hasQuery && query.length < MIN_SEARCH_QUERY_LENGTH ? (
-        <p className={styles.minimum}>Ketik minimal dua huruf untuk mulai mencari ayat.</p>
+      {isAyahMode && hasQuery && query.length < minLength ? (
+        <p className={styles.minimum}>
+          Ketik minimal {mode === "terjemahan" ? "tiga" : "dua"} huruf untuk mulai mencari ayat.
+        </p>
       ) : null}
 
-      {mode === "arab" &&
-      query.length >= MIN_SEARCH_QUERY_LENGTH &&
+      {isAyahMode &&
+      query.length >= minLength &&
       (index.status === "loading" || index.status === "idle" || surahs.status === "loading") ? (
         <SearchResultsSkeleton rows={4} />
       ) : null}
 
-      {mode === "arab" &&
-      query.length >= MIN_SEARCH_QUERY_LENGTH &&
+      {isAyahMode &&
+      query.length >= minLength &&
       (index.status === "error" || surahs.status === "error") ? (
         <ErrorState
           title="Pencarian belum siap."
@@ -213,8 +246,8 @@ export function SearchPage() {
         />
       ) : null}
 
-      {mode === "arab" &&
-      query.length >= MIN_SEARCH_QUERY_LENGTH &&
+      {isAyahMode &&
+      query.length >= minLength &&
       index.status === "success" &&
       surahs.status === "success" &&
       ayahResults.length === 0 ? (
@@ -230,8 +263,8 @@ export function SearchPage() {
         />
       ) : null}
 
-      {mode === "arab" &&
-      query.length >= MIN_SEARCH_QUERY_LENGTH &&
+      {isAyahMode &&
+      query.length >= minLength &&
       index.status === "success" &&
       surahs.status === "success" &&
       ayahResults.length > 0 ? (
@@ -240,13 +273,11 @@ export function SearchPage() {
             {ayahResults.map((result) => {
               const surah = surahs.data[result.surah - 1];
               if (!surah) return null;
-              return (
-                <SearchResultRow
-                  key={`${result.surah}:${result.ayah}`}
-                  result={result}
-                  surah={surah}
-                  query={query}
-                />
+              const key = `${result.surah}:${result.ayah}`;
+              return mode === "terjemahan" ? (
+                <TranslationResultRow key={key} result={result} surah={surah} query={query} />
+              ) : (
+                <SearchResultRow key={key} result={result} surah={surah} query={query} />
               );
             })}
           </ol>
@@ -260,7 +291,8 @@ export function SearchPage() {
       ) : null}
 
       <p className={styles.note}>
-        Pencarian hanya mencakup teks Arab. Pencarian terjemahan belum tersedia.
+        Pencarian Arab mengabaikan harakat. Pencarian terjemahan mencakup teks terjemahan, bukan
+        catatan kaki.
       </p>
     </PageContainer>
   );

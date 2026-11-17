@@ -3,10 +3,12 @@ import {
   parseJuz,
   parseManifest,
   parseSurahText,
+  parseSurahTranslation,
   parseSurahs,
 } from "./parse";
-import type { Juz, Manifest, Surah, SurahText } from "./types";
+import type { Juz, Manifest, Surah, SurahText, SurahTranslation } from "./types";
 import { dataUrl } from "./url";
+import { TRANSLATION_KEY } from "./version";
 
 const cache = new Map<string, Promise<unknown>>();
 
@@ -59,6 +61,18 @@ export async function loadSurahText(surah: number, ayahCount: number): Promise<S
   const file = `${String(surah).padStart(3, "0")}.json`;
   const value = await fetchJson(`ar/${file}`);
   return parseSurahText(value, surah, ayahCount);
+}
+
+export async function loadSurahTranslation(
+  surah: number,
+  ayahCount: number,
+): Promise<SurahTranslation> {
+  if (!Number.isInteger(surah) || surah < 1 || surah > 114) {
+    throw new DataError("Nomor surah tidak valid.");
+  }
+  const file = `${String(surah).padStart(3, "0")}.json`;
+  const value = await fetchJson(`tr/${TRANSLATION_KEY}/${file}`);
+  return parseSurahTranslation(value, surah, ayahCount);
 }
 
 export function clearDataCache(): void {

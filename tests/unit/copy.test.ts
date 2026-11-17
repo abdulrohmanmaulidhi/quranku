@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildAyahCopy, buildReferenceCopy } from "@/features/quran/copy";
 import { parseSurahText } from "@/lib/data/parse";
-import { readSurahs, readSurahText } from "./helpers";
+import { readSurahs, readSurahText, readSurahTranslation } from "./helpers";
 
 const surah = readSurahs()[17]!;
 const ayahText = parseSurahText(readSurahText(18), 18, surah.ayahCount).ayahs[9]!;
@@ -19,5 +19,16 @@ describe("salin ayat", () => {
     expect(copied).toContain("QS. Al-Kahf 18:10");
     expect(copied).toContain("Sumber: Tanzil (teks Arab)");
     expect(copied).not.toContain("\u0640");
+  });
+
+  it("menyertakan terjemahan verbatim beserta atribusi QuranEnc", () => {
+    const translation = readSurahTranslation(18).ayahs[9]!;
+    const copied = buildAyahCopy(surah, ayahText, translation);
+    expect(copied.split("\n\n")).toEqual([
+      ayahText.text,
+      translation.text,
+      "QS. Al-Kahf 18:10",
+      "Sumber: Tanzil (teks Arab), QuranEnc (terjemahan)",
+    ]);
   });
 });

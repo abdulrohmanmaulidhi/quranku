@@ -113,9 +113,9 @@ Setiap layar wajib punya state: **memuat, terisi, kosong, error, offline/sebagia
 **Aturan**
 
 - Arab selalu RTL, tanpa pemotongan, harakat utuh.
-- Terjemahan diberi label sumber (nama singkat di header atau di bawah terjemahan pertama; detail di S10).
+- Terjemahan diberi label sumber singkat di bawah header surah (detail di S10); catatan kaki dibuka per ayat lewat panel lipat.
 - Tidak ada iklan, rekomendasi, atau pop-up di dalam konten.
-- Posisi terakhir disimpan setelah pengguna berhenti di satu ayat beberapa detik (nilai tepat diputuskan di implementasi, usulan 5 detik) atau lewat aksi simpan eksplisit.
+- Posisi terakhir disimpan setelah pengguna benar-benar menggulir (bukan karena ketukan memilih ayat atau pergeseran tata letak saat terjemahan dimuat).
 - Penanda hanya memakai ikon + label aksesibel; status terpenanda tidak hanya lewat warna.
 
 | State                           | Perilaku                                                                           |
@@ -124,6 +124,7 @@ Setiap layar wajib punya state: **memuat, terisi, kosong, error, offline/sebagia
 | Terisi                          | Daftar ayat                                                                        |
 | Kosong                          | Tidak berlaku                                                                      |
 | Error (data surah gagal dimuat) | "Surah belum dapat dimuat." + Coba lagi + kembali ke indeks                        |
+| Error (terjemahan gagal dimuat) | Teks Arab tetap tampil; "Terjemahan belum dapat dimuat." + Coba lagi               |
 | Offline (data belum ter-cache)  | "Surah ini belum tersedia offline. Sambungkan internet sekali untuk menyimpannya." |
 | Offline (data ada)              | Berjalan normal                                                                    |
 
@@ -155,8 +156,7 @@ Setiap layar wajib punya state: **memuat, terisi, kosong, error, offline/sebagia
 **Kontrol**
 
 - Ukuran teks Arab (stepper/slider dengan pratinjau langsung, 5 tingkat).
-- Ukuran terjemahan (4 tingkat).
-- Tampilkan terjemahan (sakelar).
+- Tampilkan terjemahan (sakelar). Ukuran terjemahan (4 tingkat) belum ada di rilis ini.
 - Tema: Sistem · Terang · Gelap.
 - Jarak baris dan lebar konten (opsional, bila pengujian menunjukkan manfaatnya).
 - Terjemahan terpilih (Release 1: satu pilihan; tampil sebagai baris informasi dengan sumber).
@@ -209,28 +209,30 @@ Setiap layar wajib punya state: **memuat, terisi, kosong, error, offline/sebagia
 
 ## S08 — Cari
 
-**Mode:** **Surah** | **Arab** (segmented control). Mode **Terjemahan** ditunda sampai D-003.
+**Mode:** **Surah** | **Arab** | **Terjemahan** (segmented control). Mode Terjemahan mencari teks terjemahan Indonesia (D-003) dan memakai indeks terpisah yang dimuat malas.
 
 **Komponen**
 
 - Kolom cari dengan tombol hapus, batas 100 karakter.
-- Daftar hasil. Tiap hasil: surah · ayat, **teks ayat utuh** dengan kata cocok ditandai, tanpa memotong teks Arab.
-- Petunjuk di mode Arab: "Pencarian Arab mengabaikan harakat." (pengungkapan normalisasi, supaya tidak menyesatkan).
-- Catatan bahwa pencarian hanya mencakup teks Arab dan terjemahan belum tersedia.
+- Mode Arab: daftar hasil dengan surah · ayat, **teks ayat utuh** dengan kata cocok ditandai, tanpa memotong teks Arab.
+- Mode Terjemahan: daftar hasil dengan surah · ayat, **teks terjemahan utuh** (bukan potongan) dengan kata cocok ditandai. Catatan kaki tidak ikut dicari.
+- Petunjuk di mode Arab: "Pencarian Arab mengabaikan harakat." Petunjuk di mode Terjemahan: "Pencarian terjemahan mengabaikan huruf besar/kecil dan diakritik."
+- Catatan bahwa pencarian terjemahan hanya mencakup **teks terjemahan**, bukan catatan kaki, dan belum menangani imbuhan/stemming.
 
 **Aturan**
 
-- Hasil membuka Reader tepat di ayat yang dirujuk.
-- Batas panjang kueri (usulan 100 karakter).
+- Hasil membuka Reader tepat di ayat yang dirujuk. Hasil terjemahan membuka Reader dengan terjemahan tampil untuk kunjungan itu, tanpa mengubah pengaturan tersimpan.
+- Batas panjang kueri 100 karakter. Panjang minimum kueri Arab 2 karakter; terjemahan 3 karakter.
+- Pencocokan mewajibkan semua kata kueri muncul (AND), tanpa stemming/imbuhan.
 - Tidak menyiratkan pencarian makna/tafsir.
 
-| State        | Perilaku                                           |
-| ------------ | -------------------------------------------------- |
-| Awal         | Petunjuk singkat + contoh                          |
-| Mengetik     | Hasil muncul bertahap, skeleton singkat jika perlu |
-| Kosong       | "Tidak ada hasil untuk “…”. Coba kata lain."       |
-| Error indeks | "Pencarian belum siap. Coba lagi sebentar lagi."   |
-| Offline      | Normal (indeks lokal)                              |
+| State        | Perilaku                                                    |
+| ------------ | ----------------------------------------------------------- |
+| Awal         | Petunjuk singkat + contoh                                   |
+| Mengetik     | Hasil muncul bertahap, skeleton singkat jika perlu          |
+| Kosong       | "Tidak ada hasil untuk “…”. Coba kata lain."                |
+| Error indeks | "Pencarian belum siap. Coba lagi sebentar lagi."            |
+| Offline      | Normal bila indeks sudah tersimpan; jika belum, minta sambungkan internet sekali |
 
 ---
 
@@ -248,7 +250,7 @@ Setiap layar wajib punya state: **memuat, terisi, kosong, error, offline/sebagia
 | ----------------- | ----------------------------------------------------------------------------------------------------- |
 | Impor berhasil    | "N penanda diimpor. M sudah ada dan dilewati."                                                        |
 | Impor gagal       | "Berkas tidak dapat dibaca. Pastikan berkas ekspor dari aplikasi ini."                                |
-| Data offline siap | "Siap offline · 119 dari 119 berkas tersimpan" + opsi hapus salinan                                   |
+| Data offline siap | "Siap offline · 235 dari 235 berkas tersimpan" + opsi hapus salinan                                   |
 | Kuota penuh       | "Ruang penyimpanan tidak cukup. Bebaskan ruang, lalu coba lagi."                                      |
 | Hapus data        | Dialog: jelaskan yang dihapus (penanda, posisi, pengaturan) dan bahwa tindakan tidak dapat dibatalkan |
 
@@ -261,7 +263,7 @@ Setiap layar wajib punya state: **memuat, terisi, kosong, error, offline/sebagia
 **Isi**
 
 - Teks Al-Qur'an: Tanzil Project (Uthmani), versi dataset, lisensi CC BY 3.0, pernyataan "ditampilkan tanpa perubahan".
-- Terjemahan: nama, penerbit/penyusun, sumber, lisensi/izin (diisi setelah lisensi dikonfirmasi).
+- Terjemahan: Kementerian Agama RI — sumber QuranEnc.com, versi, lisensi/syarat pemakaian, dan tautan.
 - Font dan lisensinya.
 - Versi aplikasi dan dataset.
 - Catatan: terjemahan bukan Al-Qur'an itu sendiri.

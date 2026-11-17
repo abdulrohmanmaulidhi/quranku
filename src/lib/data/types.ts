@@ -34,6 +34,17 @@ export interface SurahText {
   ayahs: Ayah[];
 }
 
+export interface TranslationAyah {
+  n: number;
+  text: string;
+  footnotes: string;
+}
+
+export interface SurahTranslation {
+  surah: number;
+  ayahs: TranslationAyah[];
+}
+
 export interface SourceInfo {
   file: string;
   name: string;
@@ -55,6 +66,7 @@ export interface Manifest {
   source: {
     text: SourceInfo;
     metadata: SourceInfo;
+    translation: SourceInfo;
   };
   copyrightNotice: string;
   textPolicy: string;

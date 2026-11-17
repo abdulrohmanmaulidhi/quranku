@@ -1,7 +1,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { DATASET_VERSION } from "../../src/lib/data/version";
 
-const DATA_DIR = join(process.cwd(), "public", "data", "v1");
+const DATA_DIR = join(process.cwd(), "public", "data", `v${DATASET_VERSION}`);
 
 export function readDataJson<T>(path: string): T {
   return JSON.parse(readFileSync(join(DATA_DIR, path), "utf8")) as T;
@@ -25,4 +26,15 @@ export function readSurahs(): SurahSummary[] {
 
 export function readSurahText(surah: number): SurahText {
   return readDataJson<SurahText>(`ar/${String(surah).padStart(3, "0")}.json`);
+}
+
+export interface SurahTranslation {
+  surah: number;
+  ayahs: Array<{ n: number; text: string; footnotes: string }>;
+}
+
+export function readSurahTranslation(surah: number): SurahTranslation {
+  return readDataJson<SurahTranslation>(
+    `tr/indonesian_affairs/${String(surah).padStart(3, "0")}.json`,
+  );
 }

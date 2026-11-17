@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { loadSearchIndex } from "@/lib/search/index";
+import { loadSearchIndex, loadTranslationSearchIndex } from "@/lib/search/index";
 import type { SearchIndex } from "@/lib/search/index";
 
 export type SearchIndexState =
@@ -17,7 +17,10 @@ interface IndexResult {
  * Status diturunkan dari kunci permintaan seperti `useQuranData`, sehingga
  * memuat indeks tidak memicu render berantai lewat setState di dalam efek.
  */
-export function useSearchIndex(enabled: boolean): SearchIndexState & { retry: () => void } {
+function useIndex(
+  load: () => Promise<SearchIndex>,
+  enabled: boolean,
+): SearchIndexState & { retry: () => void } {
   const [attempt, setAttempt] = useState(0);
   const [result, setResult] = useState<IndexResult | null>(null);
   const key = `${enabled ? "on" : "off"}#${attempt}`;
@@ -29,7 +32,7 @@ export function useSearchIndex(enabled: boolean): SearchIndexState & { retry: ()
 
     let cancelled = false;
 
-    loadSearchIndex().then(
+    load().then(
       (data) => {
         if (!cancelled) setResult({ key, state: { status: "success", data } });
       },
@@ -49,7 +52,7 @@ export function useSearchIndex(enabled: boolean): SearchIndexState & { retry: ()
     return () => {
       cancelled = true;
     };
-  }, [enabled, key]);
+  }, [enabled, key, load]);
 
   const state: SearchIndexState = !enabled
     ? { status: "idle" }
@@ -58,4 +61,14 @@ export function useSearchIndex(enabled: boolean): SearchIndexState & { retry: ()
       : { status: "loading" };
 
   return { ...state, retry };
+}
+
+export function useSearchIndex(enabled: boolean): SearchIndexState & { retry: () => void } {
+  return useIndex(loadSearchIndex, enabled);
+}
+
+export function useTranslationSearchIndex(
+  enabled: boolean,
+): SearchIndexState & { retry: () => void } {
+  return useIndex(loadTranslationSearchIndex, enabled);
 }

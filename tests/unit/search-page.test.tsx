@@ -1,5 +1,3 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { render, screen, waitFor } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -7,22 +5,20 @@ import { clearDataCache } from "@/lib/data/client";
 import { clearSearchIndexCache } from "@/lib/search/index";
 import { findHighlightRanges } from "@/lib/search/normalize";
 import { SearchPage } from "@/pages/SearchPage";
-import { readSurahText } from "./helpers";
+import { readDataFileForUrl, readSurahText, readSurahTranslation } from "./helpers";
 
 vi.mock("@/lib/useDocumentTitle", () => ({
   useDocumentTitle: () => undefined,
 }));
 
 const fatihah = readSurahText(1);
+const fatihahTranslation = readSurahTranslation(1);
 
 function installDataFetch() {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: RequestInfo | URL) => {
-      const url = new URL(String(input), "http://localhost");
-      const relative = url.pathname.split("/data/v1/")[1];
-      if (!relative) throw new Error(`Alamat data tidak dikenal: ${url.pathname}`);
-      const content = readFileSync(join(process.cwd(), "public", "data", "v1", relative), "utf8");
+      const content = readDataFileForUrl(input);
       return {
         ok: true,
         status: 200,
@@ -98,5 +94,27 @@ describe("S08 — Cari", () => {
     renderSearch(`/cari?mode=arab&q=${encodeURIComponent("زززززززز")}`);
 
     expect(await screen.findByText(/Tidak ada hasil untuk/)).toBeInTheDocument();
+  });
+
+  it("mencari terjemahan dan menyorot kata yang cocok", async () => {
+    renderSearch("/cari?mode=terjemahan&q=pengasih");
+
+    const link = await screen.findByRole("link", { name: /Al-Faatiha 1:1/ });
+    expect(link).toHaveAttribute("href", "/surah/1/1");
+    const text = await waitFor(() => {
+      const element = link.querySelector("[lang='id']");
+      expect(element).not.toBeNull();
+      return element as HTMLElement;
+    });
+    expect(text.textContent).toBe(fatihahTranslation.ayahs[0]!.text);
+    expect(text.querySelector("mark")?.textContent?.toLowerCase()).toBe("pengasih");
+  });
+
+  it("meminta kueri terjemahan minimal tiga huruf", async () => {
+    renderSearch("/cari?mode=terjemahan&q=ma");
+
+    expect(
+      await screen.findByText("Ketik minimal tiga huruf untuk mulai mencari ayat."),
+    ).toBeInTheDocument();
   });
 });

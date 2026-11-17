@@ -41,7 +41,8 @@ Semua komponen memakai _variables_ dari `DESIGN-TOKENS.md` dan dibuat dengan _au
 | `SurahRow`        | Nomor, nama Arab, nama latin, arti, jumlah ayat                 | Dengan/tanpa klasifikasi turun | D, H, P, F    | S02        |
 | `JuzRow`          | Nomor juz, surah dan ayat awal                                  | —                              | D, H, P, F    | S02        |
 | `BookmarkRow`     | Surah · ayat, pratinjau terjemahan, tanggal, aksi hapus         | —                              | D, H, P, F    | S07        |
-| `SearchResultRow` | Surah · ayat, cuplikan dengan kata cocok ditandai, label sumber | Arab, Terjemahan, Surah        | D, H, P, F    | S08        |
+| `SearchResultRow` | Surah · ayat, teks ayat utuh dengan kata cocok ditandai        | Arab, Surah                    | D, H, P, F    | S08        |
+| `TranslationResultRow` | Surah · ayat, teks terjemahan utuh dengan kata cocok ditandai | —                           | D, H, P, F    | S08        |
 | `SettingsRow`     | Label + nilai/kontrol                                           | Navigasi, Sakelar, Info        | D, H, P, F, X | S09        |
 
 ## 4. Komponen Reader
@@ -52,7 +53,7 @@ Semua komponen memakai _variables_ dari `DESIGN-TOKENS.md` dan dibuat dengan _au
 | `AyahCard`          | Satu ayat: nomor, Arab, terjemahan, aksi                          | Terjemahan tampil/sembunyi; terakhir dibaca; terpenanda | D, P, F, S | Teks Arab tidak boleh dipotong                 |
 | `AyahNumberMarker`  | Penanda nomor ayat                                                | Angka Arab-Indic / Latin (D-013)                        | D          | Uji bidi                                       |
 | `ArabicText`        | Teks Arab RTL                                                     | 5 ukuran                                                | D          | `dir="rtl"`, `lang="ar"`, tanpa letter-spacing |
-| `TranslationText`   | Terjemahan                                                        | 4 ukuran                                                | D          | `lang="id"`, dengan label sumber               |
+| `TranslationText`   | Terjemahan (inline di AyahCard)                                   | Ukuran tunggal; 4 ukuran belum ada                      | D          | `lang="id"`, dengan label sumber               |
 | `ReaderControls`    | Tombol Lompat ke dan Pengaturan baca                              | —                                                       | D, P, F    | Di TopBar                                      |
 | `AyahNav`           | Surah sebelumnya/berikutnya                                       | —                                                       | D, P, F, X | Di akhir daftar ayat                           |
 | `ReadingProgress`   | Indikator progres tipis                                           | —                                                       | D          | Opsional, tidak mengganggu                     |
@@ -63,7 +64,7 @@ Semua komponen memakai _variables_ dari `DESIGN-TOKENS.md` dan dibuat dengan _au
 | Komponen              | Deskripsi                              | State   | Dipakai di |
 | --------------------- | -------------------------------------- | ------- | ---------- |
 | `ContinueReadingCard` | Nama surah + ayat tersimpan            | D, P, F | S01        |
-| `SourceLabel`         | Label sumber singkat (nama terjemahan) | D       | S03, S08   |
+| `SourceLabel`         | Label sumber singkat (nama terjemahan, inline di S03) | D       | S03, S08   |
 | `AttributionBlock`    | Blok atribusi (sumber, versi, lisensi) | D       | S10        |
 
 ## 6. Overlay dan umpan balik

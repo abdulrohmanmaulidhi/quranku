@@ -1,4 +1,4 @@
-import { DATASET_VERSION } from "@/lib/data/version";
+import { DATASET_VERSION, TRANSLATION_KEY } from "@/lib/data/version";
 import { dataUrl } from "@/lib/data/url";
 
 export const DATA_CACHE_NAME = `quranku-data-v${DATASET_VERSION}`;
@@ -8,7 +8,7 @@ const pad = (value: number) => String(value).padStart(3, "0");
 
 /**
  * Daftar berkas yang dibutuhkan untuk membaca seluruh Al-Qur'an tanpa jaringan.
- * Berkas ar disimpan verbatim; skrip build yang membuatnya.
+ * Berkas ar dan tr disimpan verbatim; skrip build yang membuatnya.
  */
 export const OFFLINE_DATA_PATHS: readonly string[] = [
   "manifest.json",
@@ -16,7 +16,13 @@ export const OFFLINE_DATA_PATHS: readonly string[] = [
   "juz.json",
   "COPYRIGHT.txt",
   "search/arabic.json",
+  "search/translation.json",
   ...Array.from({ length: SURAH_COUNT }, (_, index) => `ar/${pad(index + 1)}.json`),
+  ...Array.from(
+    { length: SURAH_COUNT },
+    (_, index) => `tr/${TRANSLATION_KEY}/${pad(index + 1)}.json`,
+  ),
+  `tr/${TRANSLATION_KEY}/SOURCE.txt`,
 ];
 
 export type OfflineErrorKind = "quota" | "network" | "unknown";

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CornerDownRight, SlidersHorizontal } from "lucide-react";
-import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -16,17 +16,24 @@ import { ReadingSettings } from "@/components/quran/ReadingSettings";
 import { SurahHeader } from "@/components/quran/SurahHeader";
 import type { ArabicSize } from "@/components/quran/ArabicText";
 import { useArabicSize } from "@/features/library/useArabicSize";
+import { useTranslationVisible } from "@/features/library/useTranslationVisible";
 import { useBookmarksForSurah } from "@/features/library/useLibrary";
-import { useSurahs, useSurahText, type AsyncResource } from "@/features/quran/useQuranData";
+import {
+  useSurahs,
+  useSurahText,
+  useSurahTranslation,
+  type AsyncResource,
+} from "@/features/quran/useQuranData";
 import { addBookmark, saveReadingPosition, setBookmark } from "@/lib/db/db";
 import { formatReference } from "@/lib/format/reference";
-import type { Surah, SurahText } from "@/lib/data/types";
+import type { Surah, SurahText, SurahTranslation } from "@/lib/data/types";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import { useOnlineStatus } from "@/lib/useOnlineStatus";
 import styles from "./ReaderPage.module.css";
 
 interface RouteState {
   from?: unknown;
+  showTranslation?: unknown;
 }
 
 interface Toast {
@@ -67,6 +74,13 @@ export function ReaderPage() {
   const surahs = useSurahs();
   const back = useBackNavigation();
   const arabicSize = useArabicSize();
+  const translationVisible = useTranslationVisible();
+  // Hasil pencarian terjemahan membuka ayat dengan terjemahan tampil untuk
+  // kunjungan ini saja; pilihan tersimpan tidak diubah diam-diam.
+  const [forceTranslation, setForceTranslation] = useState(
+    () => (location.state as RouteState | null)?.showTranslation === true,
+  );
+  const showTranslation = translationVisible.visible || forceTranslation;
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [jumpOpen, setJumpOpen] = useState(false);
 
@@ -83,6 +97,11 @@ export function ReaderPage() {
   const invalidAyahLabel = invalidAyahRequest ? rawAyah : null;
 
   const text = useSurahText(surahNumber ?? 0, surah?.ayahCount ?? 0, Boolean(surah));
+  const translation = useSurahTranslation(
+    surahNumber ?? 0,
+    surah?.ayahCount ?? 0,
+    Boolean(surah) && showTranslation,
+  );
 
   useDocumentTitle(
     surah ? `${surah.nameLatin}${targetAyah ? ` ayat ${targetAyah}` : ""}` : "Baca Quran",
@@ -122,9 +141,18 @@ export function ReaderPage() {
       open={settingsOpen}
       sampleText={sampleText}
       size={arabicSize.size}
-      failed={arabicSize.failed}
+      failed={arabicSize.failed || translationVisible.failed}
       onChangeSize={arabicSize.setSize}
-      onReset={arabicSize.resetSize}
+      onReset={() => {
+        arabicSize.resetSize();
+        translationVisible.reset();
+        setForceTranslation(false);
+      }}
+      showTranslation={showTranslation}
+      onChangeShowTranslation={(next) => {
+        setForceTranslation(false);
+        translationVisible.setVisible(next);
+      }}
       onClose={() => setSettingsOpen(false)}
     />
   ) : null;
@@ -206,7 +234,9 @@ export function ReaderPage() {
         invalidAyahLabel={invalidAyahLabel}
         from={from}
         text={text}
+        translation={translation}
         arabicSize={arabicSize.size}
+        showTranslation={showTranslation}
       />
       {settingsDialog}
       {jumpOpen ? (
@@ -237,7 +267,9 @@ interface ReaderContentProps {
   invalidAyahLabel: string | null;
   from: string;
   text: AsyncResource<SurahText>;
+  translation: AsyncResource<SurahTranslation>;
   arabicSize: ArabicSize;
+  showTranslation: boolean;
 }
 
 function ReaderContent({
@@ -248,7 +280,9 @@ function ReaderContent({
   invalidAyahLabel,
   from,
   text,
+  translation,
   arabicSize,
+  showTranslation,
 }: ReaderContentProps) {
   const online = useOnlineStatus();
   const bookmarks = useBookmarksForSurah(surah.n);
@@ -281,14 +315,16 @@ function ReaderContent({
   }, [persistPosition, targetAyah, text.status]);
 
   // Gulir programatik (mis. deep link ke ayat) tidak boleh menimpa posisi awal.
-  // Posisi baru dicatat setelah pengguna benar-benar berinteraksi.
+  // Posisi baru dicatat setelah pengguna benar-benar menggulir. Ketukan untuk
+  // memilih ayat tidak dihitung: memuat terjemahan dapat menggeser tata letak
+  // dan memicu peristiwa scroll tanpa niat pengguna.
   const userInteracted = useRef(false);
 
   useEffect(() => {
     const markInteracted = () => {
       userInteracted.current = true;
     };
-    const events = ["wheel", "touchmove", "pointerdown", "keydown"] as const;
+    const events = ["wheel", "touchmove", "keydown"] as const;
     for (const name of events) {
       window.addEventListener(name, markInteracted, { passive: true });
     }
@@ -422,7 +458,23 @@ function ReaderContent({
     <PageContainer width="reader">
       <SurahHeader surah={surah} />
 
+      {showTranslation ? (
+        <p className={styles.translationSource}>
+          Terjemahan: Kementerian Agama RI — QuranEnc.com ·{" "}
+          <Link to="/pengaturan/sumber">detail sumber</Link>
+        </p>
+      ) : null}
+
       <p className={styles.hint}>Ketuk ayat untuk membuka aksi.</p>
+
+      {showTranslation && translation.status === "error" ? (
+        <div className={styles.notice} role="status">
+          <p>Terjemahan belum dapat dimuat.</p>
+          <Button variant="ghost" onClick={translation.retry}>
+            Coba lagi
+          </Button>
+        </div>
+      ) : null}
 
       {noticeVisible && invalidAyahLabel ? (
         <div className={styles.notice} role="status">
@@ -451,6 +503,11 @@ function ReaderContent({
             targeted={targetAyah === ayah.n}
             bookmarked={bookmarks.bookmarked.has(ayah.n)}
             arabicSize={arabicSize}
+            translation={
+              showTranslation && translation.status === "success"
+                ? translation.data.ayahs[ayah.n - 1]
+                : undefined
+            }
             onSelect={setSelected}
             onToggleBookmark={handleToggleBookmark}
             onNotify={notify}

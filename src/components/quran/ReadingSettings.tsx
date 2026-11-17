@@ -20,7 +20,9 @@ export interface ReadingSettingsProps {
   sampleText: string;
   size: ArabicSize;
   failed: boolean;
+  showTranslation: boolean;
   onChangeSize: (size: ArabicSize) => void;
+  onChangeShowTranslation: (visible: boolean) => void;
   onReset: () => void;
   onClose: () => void;
 }
@@ -30,7 +32,9 @@ export function ReadingSettings({
   sampleText,
   size,
   failed,
+  showTranslation,
   onChangeSize,
+  onChangeShowTranslation,
   onReset,
   onClose,
 }: ReadingSettingsProps) {
@@ -96,15 +100,24 @@ export function ReadingSettings({
           <ArabicText text={sampleText} size={size} />
         </div>
 
+        <label className={styles.toggle}>
+          <input
+            type="checkbox"
+            checked={showTranslation}
+            onChange={(event) => onChangeShowTranslation(event.target.checked)}
+          />
+          <span>Tampilkan terjemahan</span>
+        </label>
+
         {failed ? (
           <p className={styles.warning} role="status">
-            Ukuran berlaku di sesi ini, tetapi belum dapat disimpan di perangkat.
+            Perubahan berlaku di sesi ini, tetapi belum dapat disimpan di perangkat.
           </p>
         ) : null}
 
         <p className={styles.note}>
-          Perubahan berlaku langsung dan disimpan hanya di perangkat ini. Terjemahan belum tersedia
-          (D-003).
+          Perubahan berlaku langsung dan disimpan hanya di perangkat ini. Terjemahan Indonesia dari
+          Kementerian Agama RI via QuranEnc.com.
         </p>
 
         <div className={styles.actions}>
