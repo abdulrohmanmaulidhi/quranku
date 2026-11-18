@@ -28,12 +28,8 @@ export function SideNav() {
               [styles.item, isActive ? styles.active : ""].filter(Boolean).join(" ")
             }
           >
-            {({ isActive }) => (
-              <>
-                <Icon icon={item.icon} size={20} filled={isActive} />
-                <span>{item.label}</span>
-              </>
-            )}
+            <Icon icon={item.icon} size={20} />
+            <span>{item.label}</span>
           </NavLink>
         ))}
       </nav>

@@ -33,7 +33,7 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 | D-016 | Target sentuh 44x44 px lewat padding, bukan memperbesar gambar                           | Diputuskan | 2026-11-13 | CSS tidak dapat mencapai 44 px tanpa menggeser tata letak  |
 | D-017 | Atribusi Tanzil "Teks Arab: Tanzil (CC BY 3.0)" di setiap varian Reader                  | Diputuskan | 2026-11-13 | Pemilik lisensi meminta bentuk atribusi lain               |
 | D-018 | Set ikon: Lucide (ISC), grid 24, stroke 2, warna lewat variabel                          | Diputuskan | 2026-11-14 | Ada glyph yang tidak tersedia atau rendering bermasalah    |
-| D-019 | Ikon terisi menandakan keadaan aktif/tersimpan, garis untuk aksi                         | Diputuskan | 2026-11-14 | Uji kegunaan: state tidak terbaca                          |
+| D-019 | Ikon terisi menandakan keadaan aktif/tersimpan, garis untuk aksi                         | Diganti sebagian | 2026-11-14 | Uji kegunaan: state tidak terbaca                     |
 | D-020 | Nama latin surah: transliterasi Tanzil atau daftar Indonesia                             | Terbuka    | 2026-11-15 | Daftar nama Indonesia terverifikasi tersedia               |
 | D-021 | Rute kanonis `/surah`; rute lama `/quran*` dialihkan                                     | Diputuskan | 2026-11-15 | Struktur informasi berubah                                 |
 | D-022 | Arti nama surah dalam bahasa Inggris tidak ditampilkan; baris memakai Makkiyah/Madaniyah | Diputuskan | 2026-11-15 | Uji pembaca meminta arti nama                              |
@@ -45,6 +45,7 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 | D-034 | Pencarian terjemahan: indeks terpisah, tanpa catatan kaki, tampil paksa sekali kunjungan   | Diputuskan | 2026-11-17 | Perlu stemming atau pencarian catatan kaki                 |
 | D-035 | Ukuran teks terjemahan 4 tingkat dan pratinjau penanda dua baris                           | Diputuskan | 2026-11-18 | Desain meminta pratinjau utuh atau ukuran tambahan          |
 | D-036 | Halaman dimuat per rute dengan `lazy` dan `Suspense` di `RootLayout`                       | Diputuskan | 2026-11-18 | Navigasi terasa lambat atau strategi prefetch berubah       |
+| D-037 | Ikon navigasi selalu garis; status aktif lewat latar, bobot, dan aksen                     | Diputuskan | 2026-11-18 | Uji kegunaan: tab aktif tidak terbaca                       |
 | D-024 | Deep link ayat: `/surah/:surah/:ayah` kanonis; `?ayah=N` tetap didukung                  | Diputuskan | 2026-11-15 | Pola rute berubah                                          |
 | D-025 | Posisi baca tidak ditimpa gulir programatik; pembaruan setelah interaksi pengguna        | Diputuskan | 2026-11-15 | Semantik posisi baca berubah                               |
 | D-026 | Menu aksi ayat membuka ke atas bila ruang bawah tidak cukup, di luar containment kartu    | Diputuskan | 2026-11-15 | Menu diganti portal atau bottom sheet                      |
@@ -157,6 +158,7 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 - **Keputusan:** ikon terisi menandakan keadaan aktif atau tersimpan; ikon garis menandakan aksi atau keadaan tidak aktif. Di `BottomNav` dan `SideNav` desktop, ikon tab aktif memakai `fill` variabel aksen selain warna teks. Tombol penanda pada `AyahCard` tetap garis karena merupakan aksi, bukan status; setelah alur penanda dibangun, keadaan tersimpan memakai `bookmark` terisi.
 - **Alasan:** bentuk terisi terbaca tanpa membedakan warna dan tetap jelas pada mode Gelap.
 - **Dampak:** seluruh ikon tab aktif di `BottomNav` (8 frame) dan `SideNav` desktop kini terisi; tidak ada perubahan ukuran atau tata letak. Aturan ini menjadi acuan saat membuat state "tersimpan" di Reader.
+- **Diganti sebagian oleh D-037:** ikon navigasi kembali selalu garis; ikon terisi hanya untuk status tersimpan.
 - **Ditinjau ulang bila:** uji kegunaan menunjukkan pengguna tidak membedakan keadaan terisi dan garis.
 - **Bukti:** `S01 · Beranda`, `S02 · Indeks Surah`, `S07 · Penanda (gelap)`, `S03-A · desktop`.
 
@@ -343,6 +345,17 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 - **Alasan:** muatan awal turun ke **333,36 KB (105,46 KB gzip)** tanpa peringatan ukuran chunk, tanpa dependensi baru, dan tanpa perubahan perilaku rute. Service worker tetap mem-precache semua chunk sehingga rute malas tetap tersedia offline.
 - **Dampak (desain, konten, teknis):** `src/app/lazyPages.ts` (baru), `src/app/router.tsx`, `RootLayout.tsx`, `RootLayout.module.css` (`.fallback`), serta cakupan axe untuk Penanda, Sumber, dan dialog Pengaturan baca.
 - **Ditinjau ulang bila:** navigasi rute terasa lambat (perlu prefetch), jumlah halaman bertambah banyak, atau strategi *code splitting* diganti.
+
+### D-037 — Ikon navigasi selalu garis
+
+- **Tanggal:** 2026-11-18
+- **Status:** Diputuskan
+- **Konteks:** D-019 membuat ikon tab aktif terisi sehingga bentuknya berubah antar-state dan tampak tidak konsisten dengan ikon lain di `SideNav` dan `BottomNav`. Permintaan pengguna: ikon tetap garis, warna aksen dipakai saat aktif dan hover.
+- **Opsi yang dipertimbangkan:** (a) mempertahankan ikon terisi (D-019), (b) ikon garis dengan warna aksen saja tanpa cue lain, (c) ikon garis dengan cue bentuk tambahan.
+- **Keputusan:** `SideNav` dan `BottomNav` selalu memakai ikon garis. Keadaan aktif ditandai pil latar `--color-accent-subtle`, teks dan ikon aksen, bobot 600, serta `aria-current="page"` dari `NavLink`. Hover memakai warna aksen dengan latar `--color-surface`. Ikon terisi tetap dipakai untuk status tersimpan (penanda ayat) dan bukan untuk navigasi.
+- **Alasan:** menyatukan bahasa bentuk ikon tanpa mengandalkan warna saja — bobot tebal dan pil latar membedakan tab aktif meski warna tidak terbaca. `aria-current` menjaga status tetap tersedia bagi pembaca layar.
+- **Dampak (desain, konten, teknis):** `SideNav.tsx`, `BottomNav.tsx`, `SideNav.module.css`, `BottomNav.module.css`, cek E2E di `navigation.spec.ts`, `COMPONENT-INVENTORY.md`; mengganti sebagian D-019.
+- **Ditinjau ulang bila:** uji kegunaan menunjukkan tab aktif tidak terbaca tanpa ikon terisi.
 
 ---
 

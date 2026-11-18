@@ -61,6 +61,17 @@ test("ayat di luar rentang menampilkan pemberitahuan yang bisa ditutup", async (
   await expect(notice).toBeHidden();
 });
 
+test("ikon navigasi selalu garis dan tab aktif tetap terbaca tanpa warna", async ({ page }) => {
+  await page.goto("/surah");
+
+  const nav = page.getByRole("navigation", { name: "Navigasi utama" }).first();
+  const active = nav.locator("[aria-current='page']");
+
+  await expect(active).toHaveText(/Baca Quran|Quran/);
+  await expect(active.locator("svg")).toHaveAttribute("fill", "none");
+  await expect(active).toHaveCSS("font-weight", "600");
+});
+
 test("rute lama dialihkan ke rute kanonis", async ({ page }) => {
   await page.goto("/quran");
   await expect(page).toHaveURL(/\/surah$/);

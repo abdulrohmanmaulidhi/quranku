@@ -22,14 +22,10 @@ export function BottomNav() {
             [styles.item, isActive ? styles.active : ""].filter(Boolean).join(" ")
           }
         >
-          {({ isActive }) => (
-            <>
-              <span className={styles.icon}>
-                <Icon icon={item.icon} size={22} filled={isActive} />
-              </span>
-              <span>{item.label}</span>
-            </>
-          )}
+          <span className={styles.icon}>
+            <Icon icon={item.icon} size={22} />
+          </span>
+          <span>{item.label}</span>
         </NavLink>
       ))}
     </nav>

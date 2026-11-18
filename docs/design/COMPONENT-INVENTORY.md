@@ -85,13 +85,13 @@ Semua komponen memakai _variables_ dari `DESIGN-TOKENS.md` dan dibuat dengan _au
 | `Skeleton`   | Placeholder sesuai bentuk (baris surah, kartu ayat)                                        | Semua layar   |
 | `EmptyState` | Ikon + penjelasan + aksi                                                                   | S02, S07, S08 |
 | `ErrorState` | Pesan + Coba lagi                                                                          | Semua layar   |
-| `Icon set`   | Lucide grid 24 (D-018): terisi = aktif/tersimpan (D-019)                                   | Global        |
+| `Icon set`   | Lucide grid 24 (D-018): garis untuk navigasi, terisi = tersimpan (D-037)                   | Global        |
 
 ### 7.1 Ikon
 
 - **Set:** Lucide, lisensi ISC. Grid 24 px; ukuran tampilan 20–24 px mengikuti konteks komponen. Stroke 2 pada grid 24, diskalakan proporsional (2 × ukuran/24, minimum 1,5), `strokeCap` dan `strokeJoin` round.
 - **Warna:** selalu lewat variabel tema (`color.text-secondary`, `color.text-tertiary`, `color.accent`, `color.on-accent`), tidak pernah hex mentah.
-- **Keadaan:** ikon terisi = aktif atau tersimpan; ikon garis = aksi atau tidak aktif (D-019).
+- **Keadaan:** ikon garis untuk navigasi dan aksi; ikon terisi untuk status tersimpan (D-037). Tab aktif dibedakan lewat pil latar, bobot tebal, warna aksen, dan `aria-current="page"`.
 - **Penamaan layer:** `icon/lucide/<glyph>`.
 - **Glyph:** `search`, `arrow-right`, `arrow-left`, `house`, `book-open`, `bookmark`, `sliders-horizontal`, `chevron-left`, `chevron-right`, `chevron-down`, `x`, `copy`, `link-2`, `share`.
 - **Referensi visual:** halaman `Components`, seksi `Ikon · Lucide`.
