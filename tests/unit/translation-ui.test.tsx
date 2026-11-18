@@ -50,11 +50,15 @@ afterEach(() => {
 });
 
 describe("terjemahan di Reader", () => {
-  it("menampilkan terjemahan apa adanya beserta label sumber", async () => {
+  it("menampilkan terjemahan apa adanya dengan tautan atribusi di kaki halaman", async () => {
     renderAt("/surah/1");
 
     expect(await screen.findByText(fatihah.ayahs[0]!.text)).toBeInTheDocument();
-    expect(screen.getByText(/Kementerian Agama RI — QuranEnc\.com/)).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "detail sumber" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Sumber & Atribusi" })).toHaveAttribute(
+      "href",
+      "/pengaturan/sumber",
+    );
   });
 
   it("menampilkan catatan kaki per ayat tanpa mengubah penanda", async () => {

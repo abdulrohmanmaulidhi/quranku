@@ -11,7 +11,7 @@ test("terjemahan tampil secara bawaan, catatan kaki dapat dibuka, dan pilihan te
   await page.goto("/surah/1");
 
   await expect(page.getByRole("heading", { level: 1, name: "Al-Faatiha" })).toBeVisible();
-  await expect(page.getByText(/Kementerian Agama RI — QuranEnc\.com/)).toBeVisible();
+  await expect(page.getByRole("link", { name: "detail sumber" })).toHaveCount(0);
   await expect(page.locator("#ayah-4").getByText(verse.text)).toBeVisible();
   await expect(page.locator("#ayah-4 details p")).toHaveText(verse.footnotes);
 

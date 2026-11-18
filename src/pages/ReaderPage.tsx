@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CornerDownRight, SlidersHorizontal } from "lucide-react";
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -469,13 +469,6 @@ function ReaderContent({
   return (
     <PageContainer width="reader">
       <SurahHeader surah={surah} />
-
-      {showTranslation ? (
-        <p className={styles.translationSource}>
-          Terjemahan: Kementerian Agama RI — QuranEnc.com ·{" "}
-          <Link to="/pengaturan/sumber">detail sumber</Link>
-        </p>
-      ) : null}
 
       <p className={styles.hint}>Ketuk ayat untuk membuka aksi.</p>
 
