@@ -6,7 +6,7 @@ import { clearDataCache } from "@/lib/data/client";
 import { addBookmark, db, saveReadingPosition } from "@/lib/db/db";
 import { BookmarksPage } from "@/pages/BookmarksPage";
 import { HomePage } from "@/pages/HomePage";
-import { readDataFileForUrl } from "./helpers";
+import { readDataFileForUrl, readSurahTranslation } from "./helpers";
 
 vi.mock("@/lib/useDocumentTitle", () => ({
   useDocumentTitle: () => undefined,
@@ -106,6 +106,19 @@ describe("S07 — Penanda", () => {
 
     const links = screen.getAllByRole("link");
     expect(links[0]).toHaveAttribute("href", "/surah/18/10");
+  });
+
+  it("menampilkan pratinjau terjemahan pada tiap penanda", async () => {
+    await addBookmark(1, 1, "2026-11-15T10:00:00.000Z");
+
+    render(
+      <MemoryRouter>
+        <BookmarksPage />
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByText("QS. Al-Faatiha 1:1")).toBeInTheDocument();
+    expect(await screen.findByText(readSurahTranslation(1).ayahs[0]!.text)).toBeInTheDocument();
   });
 
   it("menghapus penanda dan dapat diurungkan", async () => {

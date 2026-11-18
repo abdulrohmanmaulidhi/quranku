@@ -28,6 +28,7 @@ export interface ImportResult {
 
 const VALID_THEMES = new Set(["light", "dark", "system"]);
 const VALID_ARABIC_SIZES = new Set(["s", "m", "l", "xl", "xxl"]);
+const VALID_TRANSLATION_SIZES = new Set(["s", "m", "l", "xl"]);
 
 function isValidSetting(key: string, value: unknown): boolean {
   if (key === "theme") return typeof value === "string" && VALID_THEMES.has(value);
@@ -35,6 +36,9 @@ function isValidSetting(key: string, value: unknown): boolean {
     return typeof value === "string" && VALID_ARABIC_SIZES.has(value);
   }
   if (key === "reader.showTranslation") return typeof value === "boolean";
+  if (key === "reader.translationSize") {
+    return typeof value === "string" && VALID_TRANSLATION_SIZES.has(value);
+  }
   return false;
 }
 

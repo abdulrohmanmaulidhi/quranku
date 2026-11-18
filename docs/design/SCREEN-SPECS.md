@@ -156,7 +156,7 @@ Setiap layar wajib punya state: **memuat, terisi, kosong, error, offline/sebagia
 **Kontrol**
 
 - Ukuran teks Arab (stepper/slider dengan pratinjau langsung, 5 tingkat).
-- Tampilkan terjemahan (sakelar). Ukuran terjemahan (4 tingkat) belum ada di rilis ini.
+- Tampilkan terjemahan (sakelar). Ukuran terjemahan (4 tingkat: Kecil–Sangat besar, bawaan Sedang) tampil saat terjemahan aktif.
 - Tema: Sistem · Terang · Gelap.
 - Jarak baris dan lebar konten (opsional, bila pengujian menunjukkan manfaatnya).
 - Terjemahan terpilih (Release 1: satu pilihan; tampil sebagai baris informasi dengan sumber).
@@ -189,7 +189,7 @@ Setiap layar wajib punya state: **memuat, terisi, kosong, error, offline/sebagia
 
 **Komponen**
 
-- Daftar penanda terurut terbaru. Tiap baris: nama surah · ayat N, pratinjau terjemahan singkat (boleh dipotong), tanggal dibuat bila berguna.
+- Daftar penanda terurut terbaru. Tiap baris: nama surah · ayat N, pratinjau terjemahan singkat (dipotong dua baris), tanggal dibuat bila berguna.
 - Aksi: buka, hapus (dengan **Urungkan**).
 - Di Pengaturan: ekspor/impor penanda (S09).
 

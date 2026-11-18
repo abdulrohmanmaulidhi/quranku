@@ -8,8 +8,9 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Snackbar } from "@/components/ui/Snackbar";
 import { EmptyState, ErrorState } from "@/components/ui/StateView";
 import { useBookmarksList } from "@/features/library/useLibrary";
-import { useSurahs } from "@/features/quran/useQuranData";
+import { useSurahs, useSurahTranslation } from "@/features/quran/useQuranData";
 import { addBookmark, removeBookmark, type BookmarkRecord } from "@/lib/db/db";
+import type { Surah } from "@/lib/data/types";
 import { formatDate } from "@/lib/format/date";
 import { formatReference } from "@/lib/format/reference";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
@@ -109,6 +110,7 @@ export function BookmarksPage() {
               <li key={`${row.surah}:${row.ayah}`} className={styles.item}>
                 <Link to={`/surah/${row.surah}/${row.ayah}`} className={styles.link}>
                   <span className={styles.reference}>{reference}</span>
+                  {surah ? <BookmarkPreview surah={surah} ayah={row.ayah} /> : null}
                   <span className={styles.meta}>
                     {surah ? `${surah.revelationId} · ` : ""}
                     Ditandai {formatDate(new Date(row.createdAt))}
@@ -137,5 +139,21 @@ export function BookmarksPage() {
         />
       ) : null}
     </PageContainer>
+  );
+}
+
+function BookmarkPreview({ surah, ayah }: { surah: Surah; ayah: number }) {
+  const translation = useSurahTranslation(surah.n, surah.ayahCount);
+  const text =
+    translation.status === "success"
+      ? translation.data.ayahs.find((row) => row.n === ayah)?.text
+      : undefined;
+
+  if (!text) return null;
+
+  return (
+    <span className={styles.preview} lang="id">
+      {text}
+    </span>
   );
 }

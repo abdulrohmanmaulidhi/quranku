@@ -4,6 +4,7 @@ import type { Ayah, Surah, TranslationAyah } from "@/lib/data/types";
 import { formatReference } from "@/lib/format/reference";
 import { copyText } from "@/lib/clipboard";
 import { buildAyahCopy, buildReferenceCopy } from "@/features/quran/copy";
+import type { TranslationSize } from "@/features/library/useTranslationSize";
 import { ArabicText, type ArabicSize } from "./ArabicText";
 import { Icon } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/IconButton";
@@ -16,6 +17,7 @@ export interface AyahCardProps {
   targeted: boolean;
   bookmarked: boolean;
   arabicSize?: ArabicSize;
+  translationSize?: TranslationSize;
   translation?: TranslationAyah;
   onSelect: (ayah: number) => void;
   onToggleBookmark: (ayah: number) => void;
@@ -29,6 +31,7 @@ export function AyahCard({
   targeted,
   bookmarked,
   arabicSize = "m",
+  translationSize = "m",
   translation,
   onSelect,
   onToggleBookmark,
@@ -147,7 +150,7 @@ export function AyahCard({
         </div>
 
         {translation ? (
-          <div className={styles.translation} lang="id">
+          <div className={styles.translation} data-size={translationSize} lang="id">
             <p className={styles.translationText} onClick={handleTextClick}>
               {translation.text}
             </p>

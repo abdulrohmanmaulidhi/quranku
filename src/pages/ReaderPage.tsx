@@ -15,7 +15,9 @@ import { JumpToDialog } from "@/components/quran/JumpToDialog";
 import { ReadingSettings } from "@/components/quran/ReadingSettings";
 import { SurahHeader } from "@/components/quran/SurahHeader";
 import type { ArabicSize } from "@/components/quran/ArabicText";
+import type { TranslationSize } from "@/features/library/useTranslationSize";
 import { useArabicSize } from "@/features/library/useArabicSize";
+import { useTranslationSize } from "@/features/library/useTranslationSize";
 import { useTranslationVisible } from "@/features/library/useTranslationVisible";
 import { useBookmarksForSurah } from "@/features/library/useLibrary";
 import {
@@ -74,6 +76,7 @@ export function ReaderPage() {
   const surahs = useSurahs();
   const back = useBackNavigation();
   const arabicSize = useArabicSize();
+  const translationSize = useTranslationSize();
   const translationVisible = useTranslationVisible();
   // Hasil pencarian terjemahan membuka ayat dengan terjemahan tampil untuk
   // kunjungan ini saja; pilihan tersimpan tidak diubah diam-diam.
@@ -141,10 +144,13 @@ export function ReaderPage() {
       open={settingsOpen}
       sampleText={sampleText}
       size={arabicSize.size}
-      failed={arabicSize.failed || translationVisible.failed}
+      translationSize={translationSize.size}
+      failed={arabicSize.failed || translationSize.failed || translationVisible.failed}
       onChangeSize={arabicSize.setSize}
+      onChangeTranslationSize={translationSize.setSize}
       onReset={() => {
         arabicSize.resetSize();
+        translationSize.resetSize();
         translationVisible.reset();
         setForceTranslation(false);
       }}
@@ -236,6 +242,7 @@ export function ReaderPage() {
         text={text}
         translation={translation}
         arabicSize={arabicSize.size}
+        translationSize={translationSize.size}
         showTranslation={showTranslation}
       />
       {settingsDialog}
@@ -269,6 +276,7 @@ interface ReaderContentProps {
   text: AsyncResource<SurahText>;
   translation: AsyncResource<SurahTranslation>;
   arabicSize: ArabicSize;
+  translationSize: TranslationSize;
   showTranslation: boolean;
 }
 
@@ -282,6 +290,7 @@ function ReaderContent({
   text,
   translation,
   arabicSize,
+  translationSize,
   showTranslation,
 }: ReaderContentProps) {
   const online = useOnlineStatus();
@@ -410,17 +419,20 @@ function ReaderContent({
       setSelected(null);
     };
 
-    const startY = window.scrollY;
-    const handleScroll = () => {
-      if (Math.abs(window.scrollY - startY) > 24) setSelected(null);
-    };
-
+    // Gulir programatik atau pergeseran tata letak saat terjemahan dimuat tidak
+    // boleh membatalkan pilihan. Hanya gestur gulir pengguna yang menutup aksi.
+    const handleIntent = () => setSelected(null);
+    const events = ["wheel", "touchmove"] as const;
+    for (const name of events) {
+      window.addEventListener(name, handleIntent, { passive: true });
+    }
     document.addEventListener("pointerdown", handlePointerDown);
-    window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown);
-      window.removeEventListener("scroll", handleScroll);
+      for (const name of events) {
+        window.removeEventListener(name, handleIntent);
+      }
     };
   }, [selected]);
 
@@ -503,6 +515,7 @@ function ReaderContent({
             targeted={targetAyah === ayah.n}
             bookmarked={bookmarks.bookmarked.has(ayah.n)}
             arabicSize={arabicSize}
+            translationSize={translationSize}
             translation={
               showTranslation && translation.status === "success"
                 ? translation.data.ayahs[ayah.n - 1]

@@ -97,6 +97,33 @@ describe("terjemahan di Reader", () => {
     ).toBeInTheDocument();
     expect(screen.queryByText(fatihah.ayahs[0]!.text)).not.toBeInTheDocument();
   });
+
+  it("mengubah ukuran teks terjemahan dan menyimpannya", async () => {
+    const user = userEvent.setup();
+    renderAt("/surah/1");
+
+    const text = await screen.findByText(fatihah.ayahs[0]!.text);
+    expect(text.closest("[data-size]")).toHaveAttribute("data-size", "m");
+
+    await user.click(screen.getByRole("button", { name: "Pengaturan baca" }));
+    await user.click(screen.getByRole("button", { name: "Perbesar teks terjemahan" }));
+
+    await waitFor(() => {
+      expect(text.closest("[data-size]")).toHaveAttribute("data-size", "l");
+    });
+    expect(await db.settings.get("reader.translationSize")).toEqual({
+      key: "reader.translationSize",
+      value: "l",
+    });
+  });
+
+  it("memakai ukuran terjemahan tersimpan saat dibuka lagi", async () => {
+    await db.settings.put({ key: "reader.translationSize", value: "xl" });
+    renderAt("/surah/1");
+
+    const text = await screen.findByText(fatihah.ayahs[0]!.text);
+    expect(text.closest("[data-size]")).toHaveAttribute("data-size", "xl");
+  });
 });
 
 describe("atribusi terjemahan di S10", () => {

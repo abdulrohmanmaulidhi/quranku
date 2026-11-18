@@ -149,7 +149,7 @@ Contoh isi `ar/001.json` (struktur, bukan data nyata):
 - Penulisan bersifat idempoten (upsert).
 - Migrasi skema memakai sistem versi Dexie.
 - Waktu disimpan dalam UTC.
-- Implementasi M3: `bookmarks.createdAt` berupa ISO UTC dan daftar diurutkan terbaru lebih dahulu; `position` hanya memiliki satu baris `'last'`; `settings` memakai kunci `theme` (`light`/`dark`/`system`) dan `reader.arabicSize` (`s`–`xxl`, bawaan `m`).
+- Implementasi M3: `bookmarks.createdAt` berupa ISO UTC dan daftar diurutkan terbaru lebih dahulu; `position` hanya memiliki satu baris `'last'`; `settings` memakai kunci `theme` (`light`/`dark`/`system`), `reader.arabicSize` (`s`–`xxl`), `reader.showTranslation` (boolean), dan `reader.translationSize` (`s`–`xl`); bawaan `m` untuk kedua ukuran.
 - Posisi baca awal diambil dari ayat tujuan deep link. Gulir programatik tidak menimpa posisi; pembaruan hanya terjadi setelah pengguna berinteraksi (D-025).
 
 ### Format ekspor/impor penanda
@@ -167,7 +167,7 @@ Contoh isi `ar/001.json` (struktur, bukan data nyata):
 }
 ```
 
-Impor: validasi dengan skema, gabungkan berdasarkan `(surah, ayah)`, jangan menghapus data yang ada, laporkan jumlah diimpor dan dilewati. Posisi baca hanya dipulihkan bila perangkat belum memilikinya. Pengaturan yang dikenal (`theme`, `reader.arabicSize`) hanya diisi bila belum ada. Berkas dengan bentuk atau rentang tidak valid ditolak seluruhnya, dan pesan galat tampil di Pengaturan (D-028).
+Impor: validasi dengan skema, gabungkan berdasarkan `(surah, ayah)`, jangan menghapus data yang ada, laporkan jumlah diimpor dan dilewati. Posisi baca hanya dipulihkan bila perangkat belum memilikinya. Pengaturan yang dikenal (`theme`, `reader.arabicSize`, `reader.showTranslation`, `reader.translationSize`) hanya diisi bila belum ada. Berkas dengan bentuk atau rentang tidak valid ditolak seluruhnya, dan pesan galat tampil di Pengaturan (D-028).
 
 ## 6. Rute
 

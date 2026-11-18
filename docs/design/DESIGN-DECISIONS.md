@@ -42,6 +42,8 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 | D-031 | Unduhan data offline otomatis setelah idle, dengan progres dan penanganan kuota            | Diputuskan | 2026-11-16 | Kuota, kebijakan data saver, atau alur unduhan berubah      |
 | D-032 | Hasil pencarian Arab menampilkan teks ayat utuh dari `ar/*.json`, bukan cuplikan           | Diputuskan | 2026-11-16 | Aturan tampilan teks Arab berubah                          |
 | D-033 | Indeks pencarian Arab: referensi + teks ternormalisasi, dimuat malas                       | Diputuskan | 2026-11-16 | Format indeks atau algoritme pencarian berubah             |
+| D-034 | Pencarian terjemahan: indeks terpisah, tanpa catatan kaki, tampil paksa sekali kunjungan   | Diputuskan | 2026-11-17 | Perlu stemming atau pencarian catatan kaki                 |
+| D-035 | Ukuran teks terjemahan 4 tingkat dan pratinjau penanda dua baris                           | Diputuskan | 2026-11-18 | Desain meminta pratinjau utuh atau ukuran tambahan          |
 | D-024 | Deep link ayat: `/surah/:surah/:ayah` kanonis; `?ayah=N` tetap didukung                  | Diputuskan | 2026-11-15 | Pola rute berubah                                          |
 | D-025 | Posisi baca tidak ditimpa gulir programatik; pembaruan setelah interaksi pengguna        | Diputuskan | 2026-11-15 | Semantik posisi baca berubah                               |
 | D-026 | Menu aksi ayat membuka ke atas bila ruang bawah tidak cukup, di luar containment kartu    | Diputuskan | 2026-11-15 | Menu diganti portal atau bottom sheet                      |
@@ -243,7 +245,7 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 - **Tanggal:** 2026-11-15
 - **Status:** Diputuskan
 - **Konteks:** pengguna perlu memindahkan penanda ke perangkat lain tanpa akun. Impor yang menimpa data dapat menghapus penanda yang dibuat setelah ekspor.
-- **Keputusan:** ekspor menghasilkan JSON `quran-pwa` versi 1 berisi penanda, posisi baca, dan pengaturan. Impor memvalidasi seluruh berkas, menambahkan penanda yang belum ada, melewati duplikat, dan melaporkan jumlah diimpor/dilewati. Posisi baca hanya dipulihkan bila perangkat belum punya posisi. Pengaturan yang dikenal (`theme`, `reader.arabicSize`) hanya diisi bila belum ada. Berkas tidak valid ditolak tanpa mengubah data.
+- **Keputusan:** ekspor menghasilkan JSON `quran-pwa` versi 1 berisi penanda, posisi baca, dan pengaturan. Impor memvalidasi seluruh berkas, menambahkan penanda yang belum ada, melewati duplikat, dan melaporkan jumlah diimpor/dilewati. Posisi baca hanya dipulihkan bila perangkat belum punya posisi. Pengaturan yang dikenal (`theme`, `reader.arabicSize`, `reader.showTranslation`, `reader.translationSize`) hanya diisi bila belum ada. Berkas tidak valid ditolak tanpa mengubah data.
 - **Alasan:** impor tidak boleh menghapus data lokal, sementara migrasi perangkat tetap membawa posisi dan preferensi bila perangkat tujuan masih kosong.
 - **Dampak:** `src/lib/db/backup.ts` menangani format dan transaksi Dexie; Pengaturan menyediakan ekspor, impor, dan "Hapus data lokal" dengan dialog konfirmasi. Hapus data membersihkan tabel Dexie dan kunci `localStorage` tema, lalu tema kembali ke `system`.
 - **Ditinjau ulang bila:** format cadangan berubah, pengaturan baru perlu ikut dipulihkan, atau akun dan sinkronisasi ditambahkan.
@@ -318,6 +320,17 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 - **Alasan:** memisahkan indeks menjaga muatan awal tetap kecil dan tidak menggandakan teks terjemahan di berkas pencarian. Menampilkan teks utuh mematuhi aturan verbatim. Paksa tampil sekali kunjungan menghindari perubahan pengaturan diam-diam, sementara pengguna tetap dapat mematikannya.
 - **Dampak (desain, konten, teknis):** `scripts/build-data.mjs` (anggaran 1,6 MB, peringatan > 1,4 MB), `scripts/verify-output.mjs`, `src/lib/search/index.ts` (parser + pemuat indeks ganda), `useTranslationSearchIndex`, `SearchPage` tiga mode, `TranslationResultRow`, `ReaderPage` (`forceTranslation`), `src/features/offline/cache.ts`, serta unit/E2E baru. Ukuran terukur: indeks terjemahan ≈1,1 MB, indeks Arab ≈775 KB, total data ≈5,6 MB.
 - **Ditinjau ulang bila:** diperlukan pencarian berimbuhan/stemming, pencarian catatan kaki, atau ukuran indeks melewati anggaran.
+
+### D-035 — Ukuran teks terjemahan 4 tingkat dan pratinjau penanda dua baris
+
+- **Tanggal:** 2026-11-18
+- **Status:** Diputuskan
+- **Konteks:** S05 menjanjikan empat tingkat ukuran terjemahan dan S07 menjanjikan pratinjau terjemahan pada daftar penanda. Token `--text-translation-*` sudah ada tetapi belum dipakai; `AyahCard` memakai ukuran UI 14 px. Daftar penanda hanya menampilkan referensi dan tanggal.
+- **Opsi yang dipertimbangkan:** (a) membiarkan ukuran tunggal dan penanda tanpa pratinjau, (b) menyimpan potongan pratinjau di basis data, (c) membaca terjemahan dari data surah saat daftar ditampilkan dan memotong hanya pada lapisan tampilan.
+- **Keputusan:** ukuran terjemahan memakai kunci `reader.translationSize` (`s`/`m`/`l`/`xl`, bawaan `m`), diterapkan lewat atribut `data-size` pada kontainer terjemahan dan token `--text-translation-*`. Stepper hanya tampil saat terjemahan aktif dan ikut di "Atur ulang ke bawaan". Pratinjau penanda membaca terjemahan per surah secara malas, ditampilkan verbatim dengan `line-clamp: 2`; bila terjemahan gagal dimuat, baris tetap menampilkan referensi dan tanggal. Teks Arab tidak pernah dipotong.
+- **Alasan:** memenuhi janji S05/S07 tanpa mengubah data, tanpa duplikasi teks di basis data, dan tanpa dependensi baru. Memotong terjemahan pada daftar diperbolehkan; memotong teks Arab tidak.
+- **Dampak (desain, konten, teknis):** `useTranslationSize`, `AyahCard`, `ReadingSettings`, `ReaderPage`, `BookmarksPage`, `backup.ts` (kunci baru pada ekspor/impor), `AyahCard.module.css`, `BookmarksPage.module.css`, unit/E2E, serta S05/S07 di `SCREEN-SPECS.md`.
+- **Ditinjau ulang bila:** desain meminta pratinjau utuh, ukuran tambahan, atau pratinjau yang tersedia offline tanpa memuat berkas surah.
 
 ---
 

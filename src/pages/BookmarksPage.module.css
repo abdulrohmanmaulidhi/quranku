@@ -87,6 +87,17 @@
   line-height: var(--leading-ui-caption);
 }
 
+.preview {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--color-text-secondary);
+  font-size: var(--text-ui-body-s);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  line-height: var(--leading-ui-body-s);
+}
+
 .delete {
   flex: none;
 }

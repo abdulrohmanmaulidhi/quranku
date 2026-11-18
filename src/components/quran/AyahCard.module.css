@@ -112,11 +112,28 @@
   gap: var(--space-2);
   margin-top: var(--space-2);
   color: var(--color-text-secondary);
+  line-height: var(--leading-translation);
+}
+
+.translation[data-size="s"] {
+  font-size: var(--text-translation-s);
+}
+
+.translation[data-size="m"] {
+  font-size: var(--text-translation-m);
+}
+
+.translation[data-size="l"] {
+  font-size: var(--text-translation-l);
+}
+
+.translation[data-size="xl"] {
+  font-size: var(--text-translation-xl);
 }
 
 .translationText {
-  font-size: var(--text-ui-body-s);
-  line-height: var(--leading-ui-body-s);
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .footnotes {

@@ -89,12 +89,20 @@ describe("impor penanda", () => {
     await db.settings.put({ key: "theme", value: "dark" });
 
     const result = await importBackup(
-      validBackup({ settings: { theme: "light", "reader.arabicSize": "xl", lain: 1 } }),
+      validBackup({
+        settings: {
+          theme: "light",
+          "reader.arabicSize": "xl",
+          "reader.translationSize": "l",
+          lain: 1,
+        },
+      }),
     );
 
-    expect(result.restoredSettings).toEqual(["reader.arabicSize"]);
+    expect(result.restoredSettings).toEqual(["reader.arabicSize", "reader.translationSize"]);
     expect(await db.settings.get("theme")).toMatchObject({ value: "dark" });
     expect(await db.settings.get("reader.arabicSize")).toMatchObject({ value: "xl" });
+    expect(await db.settings.get("reader.translationSize")).toMatchObject({ value: "l" });
     expect(await db.settings.get("lain")).toBeUndefined();
   });
 

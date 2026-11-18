@@ -7,6 +7,7 @@ const pages = [
   { path: "/cari", label: "cari" },
   { path: "/cari?mode=arab&q=%D8%A7%D9%84%D8%B1%D8%AD%D9%85%D9%86", label: "hasil cari Arab" },
   { path: "/cari?mode=terjemahan&q=pengasih", label: "hasil cari terjemahan" },
+  { path: "/penanda", label: "penanda" },
   { path: "/pengaturan", label: "pengaturan" },
 ];
 

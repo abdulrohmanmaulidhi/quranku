@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { Minus, Plus } from "lucide-react";
 import { ARABIC_SIZES } from "@/features/library/useArabicSize";
+import { TRANSLATION_SIZES, type TranslationSize } from "@/features/library/useTranslationSize";
 import type { ArabicSize } from "./ArabicText";
 import { ArabicText } from "./ArabicText";
 import { Button } from "@/components/ui/Button";
@@ -15,13 +16,22 @@ const SIZE_LABELS: Record<ArabicSize, string> = {
   xxl: "Terbesar",
 };
 
+const TRANSLATION_LABELS: Record<TranslationSize, string> = {
+  s: "Kecil",
+  m: "Sedang",
+  l: "Besar",
+  xl: "Sangat besar",
+};
+
 export interface ReadingSettingsProps {
   open: boolean;
   sampleText: string;
   size: ArabicSize;
+  translationSize: TranslationSize;
   failed: boolean;
   showTranslation: boolean;
   onChangeSize: (size: ArabicSize) => void;
+  onChangeTranslationSize: (size: TranslationSize) => void;
   onChangeShowTranslation: (visible: boolean) => void;
   onReset: () => void;
   onClose: () => void;
@@ -31,17 +41,24 @@ export function ReadingSettings({
   open,
   sampleText,
   size,
+  translationSize,
   failed,
   showTranslation,
   onChangeSize,
+  onChangeTranslationSize,
   onChangeShowTranslation,
   onReset,
   onClose,
 }: ReadingSettingsProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const arabicLabelId = useId();
+  const translationLabelId = useId();
   const index = ARABIC_SIZES.indexOf(size);
   const canDecrease = index > 0;
   const canIncrease = index < ARABIC_SIZES.length - 1;
+  const translationIndex = TRANSLATION_SIZES.indexOf(translationSize);
+  const canDecreaseTranslation = translationIndex > 0;
+  const canIncreaseTranslation = translationIndex < TRANSLATION_SIZES.length - 1;
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -69,8 +86,10 @@ export function ReadingSettings({
           Pengaturan baca
         </h2>
 
-        <div className={styles.control}>
-          <span className={styles.label}>Ukuran teks Arab</span>
+        <div className={styles.control} role="group" aria-labelledby={arabicLabelId}>
+          <span id={arabicLabelId} className={styles.label}>
+            Ukuran teks Arab
+          </span>
           <div className={styles.stepper}>
             <IconButton
               icon={Minus}
@@ -108,6 +127,37 @@ export function ReadingSettings({
           />
           <span>Tampilkan terjemahan</span>
         </label>
+
+        {showTranslation ? (
+          <div className={styles.control} role="group" aria-labelledby={translationLabelId}>
+            <span id={translationLabelId} className={styles.label}>
+              Ukuran teks terjemahan
+            </span>
+            <div className={styles.stepper}>
+              <IconButton
+                icon={Minus}
+                label="Perkecil teks terjemahan"
+                disabled={!canDecreaseTranslation}
+                onClick={() => {
+                  const next = TRANSLATION_SIZES[translationIndex - 1];
+                  if (next) onChangeTranslationSize(next);
+                }}
+              />
+              <span className={styles.value} aria-live="polite">
+                {TRANSLATION_LABELS[translationSize]}
+              </span>
+              <IconButton
+                icon={Plus}
+                label="Perbesar teks terjemahan"
+                disabled={!canIncreaseTranslation}
+                onClick={() => {
+                  const next = TRANSLATION_SIZES[translationIndex + 1];
+                  if (next) onChangeTranslationSize(next);
+                }}
+              />
+            </div>
+          </div>
+        ) : null}
 
         {failed ? (
           <p className={styles.warning} role="status">

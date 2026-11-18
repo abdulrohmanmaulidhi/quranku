@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { readSurahTranslation } from "./helpers";
 
 async function readSetting(page: Page, key: string): Promise<unknown> {
   return readStoreValue(page, "settings", key);
@@ -54,6 +55,7 @@ test("penanda tersimpan setelah muat ulang, lalu dapat dihapus dan diurungkan", 
 
   await page.goto("/penanda");
   await expect(page.getByText("QS. Al-Faatiha 1:1")).toBeVisible();
+  await expect(page.getByText(readSurahTranslation(1).ayahs[0]!.text)).toBeVisible();
 
   await page.reload();
   await expect(page.getByText("QS. Al-Faatiha 1:1")).toBeVisible();
@@ -88,10 +90,11 @@ test("ukuran teks Arab tersimpan setelah muat ulang", async ({ page }) => {
   await page.getByRole("button", { name: "Pengaturan baca" }).click();
   let dialog = page.getByRole("dialog", { name: "Pengaturan baca" });
   await expect(dialog).toBeVisible();
-  await expect(dialog.getByText("Sedang", { exact: true })).toBeVisible();
+  const arabicSizeGroup = dialog.getByRole("group", { name: "Ukuran teks Arab" });
+  await expect(arabicSizeGroup.getByText("Sedang", { exact: true })).toBeVisible();
 
   await dialog.getByRole("button", { name: "Perbesar teks Arab" }).click();
-  await expect(dialog.getByText("Besar", { exact: true })).toBeVisible();
+  await expect(arabicSizeGroup.getByText("Besar", { exact: true })).toBeVisible();
   await expect.poll(() => readSetting(page, "reader.arabicSize")).toBe("l");
 
   await dialog.getByRole("button", { name: "Selesai" }).click();
@@ -106,7 +109,9 @@ test("ukuran teks Arab tersimpan setelah muat ulang", async ({ page }) => {
 
   await page.getByRole("button", { name: "Pengaturan baca" }).click();
   dialog = page.getByRole("dialog", { name: "Pengaturan baca" });
-  await expect(dialog.getByText("Besar", { exact: true })).toBeVisible();
+  await expect(
+    dialog.getByRole("group", { name: "Ukuran teks Arab" }).getByText("Besar", { exact: true }),
+  ).toBeVisible();
 
   const sizeAfter = await page
     .locator("#ayah-1 [dir='rtl']")

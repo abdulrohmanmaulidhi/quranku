@@ -5,7 +5,7 @@ PWA local-first untuk membaca Al-Qur'an tanpa gangguan. Tanpa akun, tanpa iklan,
 ## Fitur
 
 - Baca 114 surah / 6.236 ayat dari teks **Tanzil Uthmani v1.1** tanpa perubahan.
-- Deep link ayat `/surah/:surah/:ayah`, penanda, posisi baca, dan pengaturan ukuran teks Arab.
+- Deep link ayat `/surah/:surah/:ayah`, penanda, posisi baca, serta pengaturan ukuran teks Arab dan terjemahan.
 - Terjemahan Indonesia (Kementerian Agama RI via QuranEnc) dengan catatan kaki dan atribusi sumber, dapat disembunyikan.
 - Pencarian surah (nama Latin, nama Arab, nomor), pencarian ayat Arab yang mengabaikan harakat, dan pencarian terjemahan Indonesia.
 - Hasil pencarian menampilkan teks ayat atau terjemahan utuh dengan kata cocok disorot.
