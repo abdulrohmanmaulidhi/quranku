@@ -108,12 +108,13 @@ Setiap layar wajib punya state: **memuat, terisi, kosong, error, offline/sebagia
 - Daftar ayat. Tiap ayat: penanda nomor ayat, teks Arab (RTL), terjemahan, tombol **Aksi** (S04) dan ikon penanda.
 - Penanda "terakhir dibaca" (sorotan `accent-subtle`).
 - Navigasi surah sebelumnya/berikutnya di akhir daftar.
-- Indikator progres tipis (opsional, tidak mengganggu).
+- Indikator progres tipis di bawah bilah atas; lebarnya mengikuti posisi gulir.
+- Tombol **Kembali ke atas** (panah atas) di kanan bawah, muncul setelah satu layar tergulir.
 
 **Aturan**
 
 - Arab selalu RTL, tanpa pemotongan, harakat utuh.
-- Terjemahan diberi label sumber singkat di bawah header surah (detail di S10); catatan kaki dibuka per ayat lewat panel lipat.
+- Terjemahan ditampilkan verbatim; atribusi ada di S10 dan dapat dijangkau dari kaki Reader. Catatan kaki dibuka per ayat lewat panel lipat.
 - Tidak ada iklan, rekomendasi, atau pop-up di dalam konten.
 - Posisi terakhir disimpan setelah pengguna benar-benar menggulir (bukan karena ketukan memilih ayat atau pergeseran tata letak saat terjemahan dimuat).
 - Penanda hanya memakai ikon + label aksesibel; status terpenanda tidak hanya lewat warna.

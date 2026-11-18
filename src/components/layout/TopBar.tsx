@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Icon } from "../ui/Icon";
+import { ReadingProgress } from "./ReadingProgress";
 import styles from "./TopBar.module.css";
 
 export interface TopBarProps {
@@ -10,7 +11,7 @@ export interface TopBarProps {
   onBack?: () => void;
   backLabel?: string;
   actions?: ReactNode;
-  progress?: number;
+  readingProgress?: boolean;
 }
 
 export function TopBar({
@@ -19,11 +20,8 @@ export function TopBar({
   onBack,
   backLabel = "Kembali",
   actions,
-  progress,
+  readingProgress = false,
 }: TopBarProps) {
-  const percent =
-    progress === undefined ? undefined : Math.round(Math.min(1, Math.max(0, progress)) * 100);
-
   const backButton = onBack ? (
     <button type="button" aria-label={backLabel} className={styles.back} onClick={onBack}>
       <Icon icon={ChevronLeft} size={20} />
@@ -41,18 +39,7 @@ export function TopBar({
         <p className={styles.title}>{title}</p>
         <div className={styles.actions}>{actions}</div>
       </div>
-      {percent !== undefined ? (
-        <div
-          className={styles.track}
-          role="progressbar"
-          aria-label="Progres baca"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={percent}
-        >
-          <div className={styles.fill} style={{ transform: `scaleX(${percent / 100})` }} />
-        </div>
-      ) : null}
+      {readingProgress ? <ReadingProgress /> : null}
     </header>
   );
 }

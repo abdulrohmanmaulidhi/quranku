@@ -1,0 +1,52 @@
+.button {
+  position: fixed;
+  right: var(--gutter-mobile);
+  bottom: calc(
+    var(--space-4) + var(--touch-target) + var(--space-2) + var(--space-1) + var(--safe-bottom)
+  );
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  padding: 0;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-full);
+  box-shadow: var(--elevation-2);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(var(--space-2));
+  visibility: hidden;
+  transition:
+    opacity var(--motion-fast) var(--motion-easing),
+    transform var(--motion-fast) var(--motion-easing),
+    background-color var(--motion-fast) var(--motion-easing),
+    color var(--motion-fast) var(--motion-easing),
+    visibility var(--motion-fast);
+}
+
+.button[data-visible="true"] {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+}
+
+.button:hover {
+  color: var(--color-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .button {
+    right: var(--gutter-desktop);
+    bottom: var(--space-5);
+  }
+}

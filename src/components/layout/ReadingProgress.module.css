@@ -1,0 +1,18 @@
+.track {
+  height: 2px;
+  background: var(--color-divider);
+}
+
+.fill {
+  height: 100%;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--motion-fast) linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill {
+    transition: none;
+  }
+}

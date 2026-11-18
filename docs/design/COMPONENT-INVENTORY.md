@@ -18,7 +18,7 @@ Semua komponen memakai _variables_ dari `DESIGN-TOKENS.md` dan dibuat dengan _au
 | -------------------- | ------------------------------------------------------------------------- | ----------------------------- | ------------------------- | ------------------------------ |
 | `BottomNav`          | Bilah navigasi bawah mobile, 4 item (Beranda, Quran, Penanda, Pengaturan) | —                             | D, P, F, S                | S01–S09 (disembunyikan di S03) |
 | `SideNav` / `TopNav` | Navigasi desktop                                                          | Sidebar, bilah atas           | D, H, P, F, S             | Semua (desktop)                |
-| `TopBar`             | Bilah atas dengan judul, tombol kembali, aksi                             | Reader, Standar               | D, F; auto-hide di Reader | S02–S10                        |
+| `TopBar`             | Bilah atas dengan judul, tombol kembali, aksi, progres baca               | Reader, Standar               | D, F; auto-hide di Reader | S02–S10                        |
 | `PageContainer`      | Wadah dengan gutter dan lebar maksimum                                    | Mobile, Desktop, Reader (680) | —                         | Semua                          |
 
 ## 2. Kontrol dasar
@@ -55,6 +55,8 @@ Semua komponen memakai _variables_ dari `DESIGN-TOKENS.md` dan dibuat dengan _au
 | `ArabicText`        | Teks Arab RTL                                                     | 5 ukuran                                                | D          | `dir="rtl"`, `lang="ar"`, tanpa letter-spacing |
 | `TranslationText`   | Terjemahan (inline di AyahCard)                                   | 4 ukuran (`s`–`xl`)                                     | D          | `lang="id"`, dengan label sumber               |
 | `ReaderControls`    | Tombol Lompat ke dan Pengaturan baca                              | —                                                       | D, P, F    | Di TopBar                                      |
+| `ReadingProgress`   | Bar progres tipis di bawah TopBar                                 | 0–100% mengikuti gulir                                  | D, P       | `aria-valuenow` diperbarui tanpa re-render     |
+| `BackToTop`         | Tombol panah atas, target 44×44                                    | Tersembunyi hingga satu layar tergulir                  | D, P, F    | Lompat instan; tanpa animasi bila gerak dikurangi |
 | `AyahNav`           | Surah sebelumnya/berikutnya                                       | —                                                       | D, P, F, X | Di akhir daftar ayat                           |
 | `ReadingProgress`   | Indikator progres tipis                                           | —                                                       | D          | Opsional, tidak mengganggu                     |
 | `LastReadHighlight` | Sorotan ayat terakhir dibaca                                      | —                                                       | S          | `accent-subtle` + penanda non-warna            |

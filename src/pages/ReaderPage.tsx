@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { CornerDownRight, SlidersHorizontal } from "lucide-react";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PageContainer } from "@/components/layout/PageContainer";
+import { BackToTop } from "@/components/layout/BackToTop";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/IconButton";
@@ -117,7 +118,7 @@ export function ReaderPage() {
     <TopBar
       title={surah?.nameLatin ?? "Baca Quran"}
       {...back}
-      progress={surah && targetAyah ? targetAyah / surah.ayahCount : undefined}
+      readingProgress
       actions={
         settingsAvailable ? (
           <>
@@ -523,6 +524,7 @@ function ReaderContent({
 
       <AyahNav previous={previous} next={next} from={from} />
       <AttributionFooter />
+      <BackToTop />
 
       {toast ? (
         <Snackbar

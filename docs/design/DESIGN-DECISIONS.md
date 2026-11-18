@@ -46,6 +46,7 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 | D-035 | Ukuran teks terjemahan 4 tingkat dan pratinjau penanda dua baris                           | Diputuskan | 2026-11-18 | Desain meminta pratinjau utuh atau ukuran tambahan          |
 | D-036 | Halaman dimuat per rute dengan `lazy` dan `Suspense` di `RootLayout`                       | Diputuskan | 2026-11-18 | Navigasi terasa lambat atau strategi prefetch berubah       |
 | D-037 | Ikon navigasi selalu garis; status aktif lewat latar, bobot, dan aksen                     | Diputuskan | 2026-11-18 | Uji kegunaan: tab aktif tidak terbaca                       |
+| D-038 | Progres baca mengikuti gulir dan tombol kembali ke atas di Reader                          | Diputuskan | 2026-11-18 | Progres dinilai mengganggu atau tombol menutupi konten      |
 | D-024 | Deep link ayat: `/surah/:surah/:ayah` kanonis; `?ayah=N` tetap didukung                  | Diputuskan | 2026-11-15 | Pola rute berubah                                          |
 | D-025 | Posisi baca tidak ditimpa gulir programatik; pembaruan setelah interaksi pengguna        | Diputuskan | 2026-11-15 | Semantik posisi baca berubah                               |
 | D-026 | Menu aksi ayat membuka ke atas bila ruang bawah tidak cukup, di luar containment kartu    | Diputuskan | 2026-11-15 | Menu diganti portal atau bottom sheet                      |
@@ -356,6 +357,17 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 - **Alasan:** menyatukan bahasa bentuk ikon tanpa mengandalkan warna saja — bobot tebal dan pil latar membedakan tab aktif meski warna tidak terbaca. `aria-current` menjaga status tetap tersedia bagi pembaca layar.
 - **Dampak (desain, konten, teknis):** `SideNav.tsx`, `BottomNav.tsx`, `SideNav.module.css`, `BottomNav.module.css`, cek E2E di `navigation.spec.ts`, `COMPONENT-INVENTORY.md`; mengganti sebagian D-019.
 - **Ditinjau ulang bila:** uji kegunaan menunjukkan tab aktif tidak terbaca tanpa ikon terisi.
+
+### D-038 — Progres baca mengikuti gulir dan tombol kembali ke atas
+
+- **Tanggal:** 2026-11-18
+- **Status:** Diputuskan
+- **Konteks:** bar progres di `TopBar` hanya muncul pada deep link dan nilainya statis (`targetAyah / ayahCount`), sehingga tidak mencerminkan posisi baca. Setelah menggulir jauh di surah panjang, pengguna harus menggulir balik ke atas untuk kembali ke header.
+- **Opsi yang dipertimbangkan:** (a) membiarkan progres statis, (b) menyimpan persentase di state React, (c) memperbarui bar lewat DOM dari dalam komponen sendiri.
+- **Keputusan:** `ReadingProgress` menghitung `scrollY / (scrollHeight - innerHeight)`, memperbarui `transform: scaleX()` dan `aria-valuenow` lewat `requestAnimationFrame` tanpa re-render `ReaderPage`; tinggi konten yang berubah (terjemahan/font) dipantau `ResizeObserver`. Halaman tanpa gulir dianggap 100%. `BackToTop` (target 44×44, ikon panah atas) muncul setelah satu layar tergulir, tidak masuk urutan tab saat tersembunyi, dan memakai gulir halus kecuali `prefers-reduced-motion: reduce`.
+- **Alasan:** membaca surah panjang butuh umpan balik posisi dan jalan cepat ke atas. Memperbarui lewat DOM menghindari render ulang ratusan `AyahCard` tiap frame; `ResizeObserver` menjaga akurasi saat terjemahan dimuat.
+- **Dampak (desain, konten, teknis):** `ReadingProgress.tsx` + CSS, `BackToTop.tsx` + CSS, `TopBar` (prop `readingProgress` menggantikan `progress`), `ReaderPage`, E2E `reader-progress.spec.ts`, S03 dan `COMPONENT-INVENTORY.md`.
+- **Ditinjau ulang bila:** progres dinilai mengganggu, tombol menutupi konten pada layar pendek, atau Reader beralih ke virtualisasi daftar.
 
 ---
 
