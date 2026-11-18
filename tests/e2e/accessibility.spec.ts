@@ -6,7 +6,9 @@ const pages = [
   { path: "/surah", label: "indeks surah" },
   { path: "/surah/1", label: "reader" },
   { path: "/cari", label: "cari" },
+  { path: "/penanda", label: "penanda" },
   { path: "/pengaturan", label: "pengaturan" },
+  { path: "/pengaturan/sumber", label: "sumber" },
 ];
 
 for (const { path, label } of pages) {
@@ -35,6 +37,12 @@ const dialogs = [
     open: "Lompat ke",
     dialog: "Lompat ke",
     label: "dialog lompat ke",
+  },
+  {
+    path: "/surah/1",
+    open: "Pengaturan baca",
+    dialog: "Pengaturan baca",
+    label: "dialog pengaturan baca",
   },
   {
     path: "/pengaturan",

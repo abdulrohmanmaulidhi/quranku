@@ -1,14 +1,16 @@
 import { createBrowserRouter, redirect } from "react-router-dom";
 import { RootLayout } from "./RootLayout";
-import { BookmarksPage } from "@/pages/BookmarksPage";
-import { HomePage } from "@/pages/HomePage";
-import { NotFoundPage } from "@/pages/NotFoundPage";
-import { ReaderPage } from "@/pages/ReaderPage";
+import {
+  BookmarksPage,
+  HomePage,
+  NotFoundPage,
+  ReaderPage,
+  SearchPage,
+  SettingsPage,
+  SourcesPage,
+  SurahIndexPage,
+} from "./lazyPages";
 import { RouteErrorPage } from "@/pages/RouteErrorPage";
-import { SearchPage } from "@/pages/SearchPage";
-import { SettingsPage } from "@/pages/SettingsPage";
-import { SourcesPage } from "@/pages/SourcesPage";
-import { SurahIndexPage } from "@/pages/SurahIndexPage";
 
 export const router = createBrowserRouter([
   {

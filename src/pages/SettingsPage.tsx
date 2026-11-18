@@ -3,6 +3,7 @@ import {
   BookMarked,
   ChevronRight,
   Download,
+  Languages,
   Monitor,
   Moon,
   ShieldCheck,
@@ -168,6 +169,28 @@ export function SettingsPage() {
           </div>
         </section>
 
+        <section className={styles.section} aria-labelledby="reading-heading">
+          <h2 id="reading-heading" className={styles.sectionTitle}>
+            Bacaan
+          </h2>
+          <div className={styles.card}>
+            <Link to="/pengaturan/sumber" className={styles.linkRow}>
+              <span className={styles.linkIcon}>
+                <Icon icon={Languages} size={20} />
+              </span>
+              <span className={styles.linkBody}>
+                <span className={styles.settingLabel}>Terjemahan</span>
+                <span className={styles.settingDescription}>
+                  Kementerian Agama RI — QuranEnc.com
+                </span>
+              </span>
+              <span className={styles.chevron}>
+                <Icon icon={ChevronRight} size={18} />
+              </span>
+            </Link>
+          </div>
+        </section>
+
         <section className={styles.section} aria-labelledby="data-heading">
           <h2 id="data-heading" className={styles.sectionTitle}>
             Data saya
@@ -293,7 +316,9 @@ export function SettingsPage() {
               </span>
               <span className={styles.linkBody}>
                 <span className={styles.settingLabel}>Sumber &amp; Atribusi</span>
-                <span className={styles.settingDescription}>Tanzil, lisensi, dan versi data</span>
+                <span className={styles.settingDescription}>
+                  Tanzil, terjemahan QuranEnc, lisensi, dan versi data
+                </span>
               </span>
               <span className={styles.chevron}>
                 <Icon icon={ChevronRight} size={18} />

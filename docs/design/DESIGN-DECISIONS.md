@@ -44,6 +44,7 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 | D-033 | Indeks pencarian Arab: referensi + teks ternormalisasi, dimuat malas                       | Diputuskan | 2026-11-16 | Format indeks atau algoritme pencarian berubah             |
 | D-034 | Pencarian terjemahan: indeks terpisah, tanpa catatan kaki, tampil paksa sekali kunjungan   | Diputuskan | 2026-11-17 | Perlu stemming atau pencarian catatan kaki                 |
 | D-035 | Ukuran teks terjemahan 4 tingkat dan pratinjau penanda dua baris                           | Diputuskan | 2026-11-18 | Desain meminta pratinjau utuh atau ukuran tambahan          |
+| D-036 | Halaman dimuat per rute dengan `lazy` dan `Suspense` di `RootLayout`                       | Diputuskan | 2026-11-18 | Navigasi terasa lambat atau strategi prefetch berubah       |
 | D-024 | Deep link ayat: `/surah/:surah/:ayah` kanonis; `?ayah=N` tetap didukung                  | Diputuskan | 2026-11-15 | Pola rute berubah                                          |
 | D-025 | Posisi baca tidak ditimpa gulir programatik; pembaruan setelah interaksi pengguna        | Diputuskan | 2026-11-15 | Semantik posisi baca berubah                               |
 | D-026 | Menu aksi ayat membuka ke atas bila ruang bawah tidak cukup, di luar containment kartu    | Diputuskan | 2026-11-15 | Menu diganti portal atau bottom sheet                      |
@@ -331,6 +332,17 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 - **Alasan:** memenuhi janji S05/S07 tanpa mengubah data, tanpa duplikasi teks di basis data, dan tanpa dependensi baru. Memotong terjemahan pada daftar diperbolehkan; memotong teks Arab tidak.
 - **Dampak (desain, konten, teknis):** `useTranslationSize`, `AyahCard`, `ReadingSettings`, `ReaderPage`, `BookmarksPage`, `backup.ts` (kunci baru pada ekspor/impor), `AyahCard.module.css`, `BookmarksPage.module.css`, unit/E2E, serta S05/S07 di `SCREEN-SPECS.md`.
 - **Ditinjau ulang bila:** desain meminta pratinjau utuh, ukuran tambahan, atau pratinjau yang tersedia offline tanpa memuat berkas surah.
+
+### D-036 — Pemuatan halaman per rute
+
+- **Tanggal:** 2026-11-18
+- **Status:** Diputuskan
+- **Konteks:** `router.tsx` mengimpor seluruh halaman secara statis sehingga satu chunk `index-*.js` mencapai **511 KB (160 KB gzip)** dan Vite memperingatkan chunk > 500 KB. Pengguna hanya membuka satu layar per kunjungan.
+- **Opsi yang dipertimbangkan:** (a) menaikkan `chunkSizeWarningLimit` tanpa mengubah apa pun, (b) memisahkan vendor saja, (c) memuat tiap halaman dengan `React.lazy` dan `Suspense` di `RootLayout`.
+- **Keputusan:** semua halaman didaftarkan di `src/app/lazyPages.ts` dengan `React.lazy`; `RootLayout` membungkus `Outlet` dengan `Suspense` dan fallback skeleton ber-`role="status"`. Pemisahan vendor tidak dilakukan terpisah karena pemisahan rute sudah menurunkan muatan awal.
+- **Alasan:** muatan awal turun ke **333,36 KB (105,46 KB gzip)** tanpa peringatan ukuran chunk, tanpa dependensi baru, dan tanpa perubahan perilaku rute. Service worker tetap mem-precache semua chunk sehingga rute malas tetap tersedia offline.
+- **Dampak (desain, konten, teknis):** `src/app/lazyPages.ts` (baru), `src/app/router.tsx`, `RootLayout.tsx`, `RootLayout.module.css` (`.fallback`), serta cakupan axe untuk Penanda, Sumber, dan dialog Pengaturan baca.
+- **Ditinjau ulang bila:** navigasi rute terasa lambat (perlu prefetch), jumlah halaman bertambah banyak, atau strategi *code splitting* diganti.
 
 ---
 
