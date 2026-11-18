@@ -23,7 +23,13 @@ test("beranda → indeks surah → reader", async ({ page }) => {
   const firstAyah = page.locator("#ayah-1 [dir='rtl']");
   await expect(firstAyah).toHaveText(kahf.ayahs[0]!.text);
 
-  await page.getByRole("button", { name: "Kembali" }).click();
+  // Tombol kembali harus tampil sama dengan tautan kembali, tanpa gaya bawaan
+  // <button> (latar abu-abu dan border outset).
+  const back = page.getByRole("button", { name: "Kembali" });
+  await expect(back).toHaveCSS("border-top-width", "0px");
+  await expect(back).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+
+  await back.click();
   await expect(page).toHaveURL(/\/surah$/);
 });
 

@@ -24,9 +24,13 @@
   width: var(--touch-target);
   height: var(--touch-target);
   margin-inline-start: calc(-1 * var(--space-2));
+  padding: 0;
+  background: transparent;
+  border: 0;
   border-radius: var(--radius-full);
   color: var(--color-text-secondary);
   text-decoration: none;
+  cursor: pointer;
   transition:
     background-color var(--motion-fast) var(--motion-easing),
     color var(--motion-fast) var(--motion-easing);
