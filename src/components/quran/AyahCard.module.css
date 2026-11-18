@@ -41,7 +41,7 @@
   justify-content: center;
   width: var(--touch-target);
   height: var(--touch-target);
-  margin: calc(-1 * var(--space-2)) 0 calc(-1 * var(--space-2)) calc(-1 * var(--space-2));
+  margin-block: calc(-1 * var(--space-2));
   padding: 0;
   background: transparent;
   border: 0;

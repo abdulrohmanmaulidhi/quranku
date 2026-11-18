@@ -44,6 +44,27 @@ test("nama surah Arab pada indeks juga RTL dan tidak dipotong", async ({ page })
   expect(clipped).toBe(false);
 });
 
+test("lingkaran nomor ayat tidak terpotong kartu", async ({ page }) => {
+  await page.goto("/surah/1");
+
+  const clipped = await page
+    .getByRole("button", { name: "Pilih ayat 1", exact: true })
+    .evaluate((marker) => {
+      const circle = marker.firstElementChild;
+      if (!(circle instanceof Element)) return true;
+
+      const rect = circle.getBoundingClientRect();
+      const y = rect.top + rect.height / 2;
+      const hits = [rect.left + 1, rect.right - 1].map((x) => {
+        const target = document.elementFromPoint(x, y);
+        return target instanceof Node && circle.contains(target);
+      });
+      return hits.includes(false);
+    });
+
+  expect(clipped).toBe(false);
+});
+
 test("setiap ayat surah 18 dirender persis seperti data", async ({ page }) => {
   await page.goto("/surah/18");
 
