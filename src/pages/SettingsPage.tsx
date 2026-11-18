@@ -3,7 +3,6 @@ import {
   BookMarked,
   ChevronRight,
   Download,
-  Languages,
   Monitor,
   Moon,
   ShieldCheck,
@@ -166,28 +165,6 @@ export function SettingsPage() {
                 onChange={handleThemeChange}
               />
             </div>
-          </div>
-        </section>
-
-        <section className={styles.section} aria-labelledby="reading-heading">
-          <h2 id="reading-heading" className={styles.sectionTitle}>
-            Bacaan
-          </h2>
-          <div className={styles.card}>
-            <Link to="/pengaturan/sumber" className={styles.linkRow}>
-              <span className={styles.linkIcon}>
-                <Icon icon={Languages} size={20} />
-              </span>
-              <span className={styles.linkBody}>
-                <span className={styles.settingLabel}>Terjemahan</span>
-                <span className={styles.settingDescription}>
-                  Kementerian Agama RI — QuranEnc.com
-                </span>
-              </span>
-              <span className={styles.chevron}>
-                <Icon icon={ChevronRight} size={18} />
-              </span>
-            </Link>
           </div>
         </section>
 

@@ -242,10 +242,10 @@ Setiap layar wajib punya state: **memuat, terisi, kosong, error, offline/sebagia
 **Bagian dan baris**
 
 - **Tampilan:** tema, ukuran teks Arab, ukuran terjemahan, tampilkan terjemahan.
-- **Bacaan:** terjemahan terpilih (info sumber).
+- **Bacaan:** tidak ada — detail sumber tidak diulang di Pengaturan.
 - **Bahasa:** Indonesia (pilihan lain ditunda).
 - **Data saya:** ekspor penanda (berkas JSON), impor penanda, data offline (status, unduh, hapus salinan), hapus data lokal (dialog konfirmasi).
-- **Tentang:** Sumber & Atribusi (S10), versi aplikasi, versi dataset, kebijakan privasi.
+- **Tentang:** Sumber & Atribusi (S10, satu-satunya pintu ke detail sumber), versi aplikasi, versi dataset, kebijakan privasi.
 
 | State             | Perilaku                                                                                              |
 | ----------------- | ----------------------------------------------------------------------------------------------------- |
