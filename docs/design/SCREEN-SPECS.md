@@ -217,14 +217,14 @@ Setiap layar wajib punya state: **memuat, terisi, kosong, error, offline/sebagia
 - Kolom cari dengan tombol hapus, batas 100 karakter.
 - Mode Arab: daftar hasil dengan surah · ayat, **teks ayat utuh** dengan kata cocok ditandai, tanpa memotong teks Arab.
 - Mode Terjemahan: daftar hasil dengan surah · ayat, **teks terjemahan utuh** (bukan potongan) dengan kata cocok ditandai. Catatan kaki tidak ikut dicari.
-- Petunjuk di mode Arab: "Pencarian Arab mengabaikan harakat." Petunjuk di mode Terjemahan: "Pencarian terjemahan mengabaikan huruf besar/kecil dan diakritik."
-- Catatan bahwa pencarian terjemahan hanya mencakup **teks terjemahan**, bukan catatan kaki, dan belum menangani imbuhan/stemming.
+- Petunjuk di mode Arab: "Pencarian Arab mengabaikan harakat." Petunjuk di mode Terjemahan: "Pencarian terjemahan mengabaikan huruf besar/kecil, diakritik, dan imbuhan umum."
+- Catatan bahwa pencarian terjemahan hanya mencakup **teks terjemahan**, bukan catatan kaki. Imbuhan umum (awalan/akhiran) disederhanakan ke bentuk dasar; ini bukan stemmer linguistik penuh sehingga bentuk tak beraturan bisa terlewat.
 
 **Aturan**
 
 - Hasil membuka Reader tepat di ayat yang dirujuk. Hasil terjemahan membuka Reader dengan terjemahan tampil untuk kunjungan itu, tanpa mengubah pengaturan tersimpan.
 - Batas panjang kueri 100 karakter. Panjang minimum kueri Arab 2 karakter; terjemahan 3 karakter.
-- Pencocokan mewajibkan semua kata kueri muncul (AND), tanpa stemming/imbuhan.
+- Pencocokan mewajibkan semua kata kueri muncul (AND). Mode Terjemahan juga mencocokkan bentuk dasar dari imbuhan umum (D-039); mode Arab tetap apa adanya.
 - Tidak menyiratkan pencarian makna/tafsir.
 
 | State        | Perilaku                                                    |

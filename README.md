@@ -31,10 +31,10 @@ pnpm dev
 
 Aplikasi di-deploy di root domain (`base: "/"`); deploy di sub-path belum didukung karena manifest PWA memakai jalur absolut.
 
-Jika generator data berubah dan `public/data/v1` sudah ada, build data akan menolak menimpa versi lama. Hapus direktori keluaran itu (bukan `data/source/`), lalu jalankan ulang:
+Jika generator data berubah dan `public/data/v2` sudah ada, build data akan menolak menimpa versi lama. Hapus direktori keluaran itu (bukan `data/source/`), lalu jalankan ulang:
 
 ```bash
-rm -rf public/data/v1
+rm -rf public/data/v2
 pnpm validate:data && pnpm build:data && pnpm verify:output
 ```
 

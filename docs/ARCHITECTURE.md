@@ -102,7 +102,7 @@ data/source/*  →  scripts/validate-data  →  scripts/build-data  →  public/
 ### 4.3 Tata letak berkas keluaran
 
 ```text
-public/data/v1/
+public/data/v2/
 ├── manifest.json                 # versi, sumber, lisensi, checksum
 ├── COPYRIGHT.txt                 # blok hak cipta Tanzil, disalin verbatim
 ├── surahs.json                   # metadata 114 surah
@@ -133,7 +133,7 @@ Contoh isi `ar/001.json` (struktur, bukan data nyata):
 
 - Kunci ayat selalu `(surah, ayat)`.
 - Teks Arab, terjemahan, dan (nanti) transliterasi/tafsir disimpan di berkas terpisah.
-- Versi dataset ada di path (`/data/v1/`). Koreksi konten = versi baru, bukan menimpa berkas.
+- Versi dataset ada di path (`/data/v2/`). Nilai ini berasal dari `DATASET_VERSION` di `src/lib/data/version.ts` dan `scripts/lib/source.mjs`; naikkan keduanya bersamaan. Koreksi konten = versi baru, bukan menimpa berkas.
 - Basmalah: ikuti keputusan **D-012** setelah berkas sumber diperiksa. Jangan mengubah data tersimpan.
 
 ## 5. Data pengguna (IndexedDB)

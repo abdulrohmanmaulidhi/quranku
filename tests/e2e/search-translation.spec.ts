@@ -38,6 +38,21 @@ test("pencarian terjemahan meminta kueri minimal tiga huruf", async ({ page }) =
   await expect(page.getByText("Ketik minimal tiga huruf untuk mulai mencari ayat.")).toBeVisible();
 });
 
+test("pencarian terjemahan mengabaikan imbuhan umum", async ({ page }) => {
+  // "diketahui" punya 11 kecocokan literal; dengan bentuk dasar ("tahu")
+  // hasilnya melampaui batas 20 sehingga ayat 2:235 ikut muncul.
+  await page.goto(`/cari?mode=terjemahan&q=${encodeURIComponent("diketahui")}`);
+
+  await expect(
+    page.getByRole("status").getByText("Menampilkan 20 hasil teratas.", { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: /Al-Baqara 2:235/ })).toBeVisible();
+
+  await expect(
+    page.getByText(/mengabaikan huruf besar\/kecil, diakritik, dan imbuhan/),
+  ).toBeVisible();
+});
+
 test("pencarian terjemahan menampilkan keadaan kosong untuk kata yang tidak ada", async ({
   page,
 }) => {

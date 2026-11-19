@@ -20,7 +20,7 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 | D-003 | Terjemahan Indonesia dari QuranEnc (`indonesian_affairs`, Kemenag)                     | Diputuskan | 2026-11-17 | Izin dicabut atau edisi baru terbit    |
 | D-004 | Alat desain: FigCraft                                                                    | Diputuskan | 2026-11-12 | Alat tidak memadai untuk kebutuhan desain                  |
 | D-005 | Varian Reader: A (mobile) dan C (desktop) sebagai dugaan awal                            | Diusulkan  | 2026-11-12 | Hasil evaluasi B di `DESIGN-TEST-PLAN.md`                  |
-| D-006 | Font Arab                                                                                | Ditunda    | 2026-11-12 | Hasil uji A di `DESIGN-TEST-PLAN.md`                       |
+| D-006 | Font Arab: Noto Naskh Arabic; KFGQPC HAFS dievaluasi dan tidak dipakai                        | Diputuskan | 2026-11-19 | Uji A4 di perangkat menunjukkan masalah harakat            |
 | D-007 | Tema Terang dan Gelap di Release 1; tema "warm" ditunda                                  | Diputuskan | 2026-11-12 | Uji pembaca menunjukkan kebutuhan                          |
 | D-008 | Mode mushaf per halaman ditunda                                                          | Ditunda    | 2026-11-12 | Ada sumber tata letak halaman terverifikasi                |
 | D-009 | Sapaan antarmuka memakai "Anda"                                                          | Diusulkan  | 2026-11-12 | Uji pembaca                                                |
@@ -47,6 +47,7 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 | D-036 | Halaman dimuat per rute dengan `lazy` dan `Suspense` di `RootLayout`                       | Diputuskan | 2026-11-18 | Navigasi terasa lambat atau strategi prefetch berubah       |
 | D-037 | Ikon navigasi selalu garis; status aktif lewat latar, bobot, dan aksen                     | Diputuskan | 2026-11-18 | Uji kegunaan: tab aktif tidak terbaca                       |
 | D-038 | Progres baca mengikuti gulir dan tombol kembali ke atas di Reader                          | Diputuskan | 2026-11-18 | Progres dinilai mengganggu atau tombol menutupi konten      |
+| D-039 | Pencarian terjemahan mengabaikan imbuhan umum lewat varian kueri                           | Diputuskan | 2026-11-19 | Muncul keluhan presisi hasil pencarian                     |
 | D-024 | Deep link ayat: `/surah/:surah/:ayah` kanonis; `?ayah=N` tetap didukung                  | Diputuskan | 2026-11-15 | Pola rute berubah                                          |
 | D-025 | Posisi baca tidak ditimpa gulir programatik; pembaruan setelah interaksi pengguna        | Diputuskan | 2026-11-15 | Semantik posisi baca berubah                               |
 | D-026 | Menu aksi ayat membuka ke atas bila ruang bawah tidak cukup, di luar containment kartu    | Diputuskan | 2026-11-15 | Menu diganti portal atau bottom sheet                      |
@@ -92,9 +93,15 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 
 ### D-006 — Font Arab
 
-- **Kandidat:** Amiri Quran, Scheherazade New, Noto Naskh Arabic.
-- **Cara memutuskan:** uji A di `DESIGN-TEST-PLAN.md`.
-- **Hasil:** _(diisi setelah uji)_
+- **Tanggal:** 2026-11-19
+- **Status:** Diputuskan
+- **Konteks:** Teks Arab dirender dengan Noto Naskh Arabic (SIL OFL, 52 KB woff2). Kandidat lain di `DESIGN-TEST-PLAN.md` A2: Amiri Quran, Scheherazade New, dan KFGQPC Uthmanic Script HAFS (typeface mushaf Madinah).
+- **Opsi yang dipertimbangkan:** (a) tetap Noto Naskh Arabic, (b) KFGQPC Uthmanic Script HAFS.
+- **Keputusan:** Noto Naskh Arabic dipertahankan untuk Release 1. KFGQPC Uthmanic Script HAFS sudah dicoba dan dibatalkan: seluruh 68 codepoint data tersedia di `cmap`-nya, tetapi tanda `۟` (U+06DF, 3.988 kemunculan) dirender sebagai cakram penuh dengan cincin putus-putus yang menyatu menjadi gumpalan pada 24–28 px, sementara Noto menggambarnya sebagai lingkaran berongga yang ringan. Berkas HAFS juga menambah 291 KB precache dan lisensinya melarang subset maupun konversi, sehingga tidak ada ruang optimasi ukuran.
+- **Alasan:** keterbacaan pada ukuran UI lebih penting daripada kemiripan dengan cetakan mushaf, dan tidak ada perbaikan yang mungkin tanpa melanggar lisensi font.
+- **Dampak (desain, konten, teknis):** tidak ada perubahan kode; `--font-arabic` tetap `"Noto Naskh Arabic", "Amiri Quran", "Scheherazade New", serif`; S10 tetap menampilkan Noto Naskh Arabic beserta berkas lisensinya.
+- **Catatan pengujian:** daftar periksa A4 di `DESIGN-TEST-PLAN.md` belum dijalankan di perangkat fisik. Keputusan diambil dari render Chromium (desktop, Pixel 5, 320 px; terang dan gelap) atas persetujuan pemilik produk, sehingga atribusi di S10 tidak mengklaim uji perangkat.
+- **Ditinjau ulang bila:** uji A4 di perangkat nyata menunjukkan harakat terpotong atau harakat bertumpuk tidak terbaca.
 
 ### D-012 — Basmalah
 
@@ -368,6 +375,17 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 - **Alasan:** membaca surah panjang butuh umpan balik posisi dan jalan cepat ke atas. Memperbarui lewat DOM menghindari render ulang ratusan `AyahCard` tiap frame; `ResizeObserver` menjaga akurasi saat terjemahan dimuat.
 - **Dampak (desain, konten, teknis):** `ReadingProgress.tsx` + CSS, `BackToTop.tsx` + CSS, `TopBar` (prop `readingProgress` menggantikan `progress`), `ReaderPage`, E2E `reader-progress.spec.ts`, S03 dan `COMPONENT-INVENTORY.md`.
 - **Ditinjau ulang bila:** progres dinilai mengganggu, tombol menutupi konten pada layar pendek, atau Reader beralih ke virtualisasi daftar.
+
+### D-039 — Pencarian terjemahan mengabaikan imbuhan umum
+
+- **Tanggal:** 2026-11-19
+- **Status:** Diputuskan
+- **Konteks:** D-034 menetapkan pencarian terjemahan memakai pencocokan substring apa adanya. Akibatnya kueri berbentuk berimbuhan hanya menemukan ayat yang memakai bentuk yang sama: "diketahui" menghasilkan 11 ayat, padahal bentuk dasar "tahu" muncul jauh lebih sering.
+- **Opsi yang dipertimbangkan:** (a) membiarkan apa adanya, (b) pustaka stemmer Indonesia penuh (mis. Sastrawi), (c) penyederhanaan imbuhan ringan di sisi kueri.
+- **Keputusan:** Opsi (c). `src/lib/search/affixes.ts` menghasilkan varian tiap kata kueri dengan membuang awalan (me-, men-, mem-, meng-, meny-, menge-, penge-, peng-, peny-, pem-, pen-, pember-, per-, ber-, ter-, di-, ke-, se-, pe-) dan akhiran (kannya, annya, nya, lah, kah, pun, kan, an, ku, mu, i), termasuk pemulihan huruf luluh (meng- → k, meny- → s, mem- → p, men- → t). Varian diterapkan berantai (diketahui → ketahu → tahu) dengan batas 12 varian dan panjang minimum 4 karakter agar kata seperti "mengapa" tidak menjadi "apa". Hanya dipakai saat mode Terjemahan; pencarian Arab dan indeks tidak berubah. Penyorotan memakai varian yang sama supaya bagian kata yang cocok tetap ditandai.
+- **Alasan:** menaikkan daya temu tanpa menambah ukuran unduhan, tanpa mengubah indeks, dan tanpa ketergantungan baru. Stemmer penuh akan menambah ratusan KB kamus untuk manfaat yang belum terbukti.
+- **Dampak (desain, konten, teknis):** `src/lib/search/affixes.ts`, `features/quran/search.ts` (opsi `stem`), `lib/search/normalize.mjs` (`findHighlightRanges` menerima varian tambahan), `TranslationResultRow`, petunjuk mode Terjemahan di S08, unit test `search-affixes`/`search-translation-stem`, E2E `search-translation.spec.ts`.
+- **Ditinjau ulang bila:** muncul keluhan presisi (hasil tidak relevan) atau dibutuhkan pencarian lintas makna/tafsir.
 
 ---
 

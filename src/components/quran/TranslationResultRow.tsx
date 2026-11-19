@@ -5,7 +5,8 @@ import { useSurahTranslation } from "@/features/quran/useQuranData";
 import type { Surah } from "@/lib/data/types";
 import { formatReference } from "@/lib/format/reference";
 import { toHighlightSegments } from "@/lib/search/highlight";
-import { findHighlightRanges } from "@/lib/search/normalize";
+import { expandQueryVariants } from "@/lib/search/affixes";
+import { findHighlightRanges, normalizeForSearch } from "@/lib/search/normalize";
 import styles from "./SearchResultRow.module.css";
 
 export interface TranslationResultRowProps {
@@ -24,7 +25,12 @@ export function TranslationResultRow({ result, surah, query }: TranslationResult
     translationState.status === "success"
       ? (translationState.data.ayahs.find((ayah) => ayah.n === result.ayah)?.text ?? null)
       : null;
-  const segments = text ? toHighlightSegments(text, findHighlightRanges(text, query)) : null;
+  const segments = text
+    ? toHighlightSegments(
+        text,
+        findHighlightRanges(text, query, expandQueryVariants(normalizeForSearch(query))),
+      )
+    : null;
 
   return (
     <li className={styles.item}>

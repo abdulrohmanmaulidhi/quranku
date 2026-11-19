@@ -67,7 +67,12 @@ export function SearchPage() {
       ? filterSurahs(surahs.data, query)
       : [];
 
-  const ayahResults = indexData && query && isAyahMode ? searchAyahs(indexData.entries, query) : [];
+  const ayahResults =
+    indexData && query && isAyahMode
+      ? searchAyahs(indexData.entries, query, SEARCH_RESULT_LIMIT, {
+          stem: mode === "terjemahan",
+        })
+      : [];
 
   const updateParam = (key: string, value: string) => {
     const next = new URLSearchParams(params);
@@ -150,7 +155,7 @@ export function SearchPage() {
       {mode === "arab" ? <p className={styles.hint}>Pencarian Arab mengabaikan harakat.</p> : null}
       {mode === "terjemahan" ? (
         <p className={styles.hint}>
-          Pencarian terjemahan mengabaikan huruf besar/kecil dan diakritik.
+          Pencarian terjemahan mengabaikan huruf besar/kecil, diakritik, dan imbuhan umum.
         </p>
       ) : null}
 

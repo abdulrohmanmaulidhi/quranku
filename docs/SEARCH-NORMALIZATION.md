@@ -4,7 +4,7 @@ Dokumen ini menjelaskan normalisasi yang dipakai **hanya untuk pencarian**. Tida
 
 ## Prinsip
 
-1. Teks Al-Qur'an yang ditampilkan selalu berasal dari `public/data/v1/ar/XXX.json` dan identik dengan sumber Tanzil.
+1. Teks Al-Qur'an yang ditampilkan selalu berasal dari `public/data/v2/ar/XXX.json` dan identik dengan sumber Tanzil.
 2. Indeks pencarian menyimpan referensi `(surah, ayat)` dan teks ternormalisasi, bukan teks asli.
 3. Normalisasi yang sama dipakai oleh skrip build dan aplikasi melalui `src/lib/search/normalize.mjs`. Jangan membuat salinan algoritme di tempat lain.
 4. Sorotan hasil pencarian hanya membungkus karakter asli dengan `<mark>`; isi teks tidak berubah.
@@ -15,7 +15,7 @@ Dokumen ini menjelaskan normalisasi yang dipakai **hanya untuk pencarian**. Tida
 data/source/quran-uthmani.txt
         │
         ▼
-scripts/build-data.mjs ── normalizeForSearch ──► public/data/v1/search/arabic.json
+scripts/build-data.mjs ── normalizeForSearch ──► public/data/v2/search/arabic.json
         │
         └── ar/XXX.json (teks verbatim)
 
@@ -79,8 +79,12 @@ Pencarian ini bukan pencarian makna, tafsir, atau akar kata.
 - `tests/e2e/search.spec.ts`: pencarian, sorotan, navigasi ke Reader, dan kueri berharakat.
 - `tests/e2e/offline.spec.ts`: pencarian dan bacaan tanpa jaringan.
 
+## Pencarian terjemahan
+
+Indeks `search/translation.json` memakai normalisasi yang sama. Di atas itu, mode Terjemahan menyederhanakan imbuhan Indonesia di sisi **kueri** (D-039): awalan dan akhiran umum dibuang berantai sampai bentuk dasar, lalu setiap varian dicocokkan sebagai substring. Indeks tidak berubah, sehingga tidak ada tambahan ukuran unduhan. Sorotan memakai daftar varian yang sama agar bagian kata yang cocok tetap ditandai tanpa mengubah teks.
+
 ## Batasan
 
-- Pencarian terjemahan menunggu keputusan lisensi D-003.
-- Tidak ada stemming, sinonim, atau pencarian semantik.
+- Tidak ada sinonim atau pencarian semantik.
+- Penyederhanaan imbuhan bukan stemmer linguistik penuh: bentuk tak beraturan dan kata majemuk bisa terlewat, dan varian yang terlalu longgar bisa menambah hasil yang kurang tepat.
 - Normalisasi Latin hanya membantu nama surah; hasil ayat tetap berasal dari teks Arab.

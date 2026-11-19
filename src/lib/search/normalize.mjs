@@ -87,14 +87,18 @@ export function normalizeWithMap(text) {
 /**
  * @param {string} text
  * @param {string} query
+ * @param {readonly string[]} [extraNeedles] Varian kueri tambahan (sudah
+ *   dinormalisasi), mis. bentuk dasar dari penyederhanaan imbuhan.
  * @returns {Array<{ start: number; end: number }>}
  */
-export function findHighlightRanges(text, query) {
+export function findHighlightRanges(text, query, extraNeedles = []) {
   const needle = normalizeForSearch(query);
-  if (!needle) return [];
+  const extras = extraNeedles.map(normalizeForSearch).filter(Boolean);
+  if (!needle && extras.length === 0) return [];
 
   const { normalized, sourceIndexes } = normalizeWithMap(text);
-  const needles = normalized.includes(needle) ? [needle] : needle.split(" ").filter(Boolean);
+  const base = needle && normalized.includes(needle) ? [needle] : needle.split(" ").filter(Boolean);
+  const needles = [...new Set([...base, ...extras])];
   const ranges = [];
 
   for (const current of needles) {

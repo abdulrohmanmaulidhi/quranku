@@ -6,4 +6,5 @@ export function normalizeWithMap(text: string): {
 export function findHighlightRanges(
   text: string,
   query: string,
+  extraNeedles?: readonly string[],
 ): Array<{ start: number; end: number }>;
