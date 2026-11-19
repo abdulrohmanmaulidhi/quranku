@@ -248,6 +248,7 @@ Setiap layar wajib punya state: **memuat, terisi, kosong, error, offline/sebagia
 - **Bacaan:** tidak ada — detail sumber tidak diulang di Pengaturan.
 - **Bahasa:** Indonesia (pilihan lain ditunda).
 - **Data saya:** ekspor penanda (berkas JSON), impor penanda, data offline (status, unduh, hapus salinan), hapus data lokal (dialog konfirmasi).
+- **Aplikasi:** pasang aplikasi (tombol prompt di Chromium) atau instruksi "Bagikan → Tambah ke Layar Utama" di iOS; status "Aplikasi terpasang" saat berjalan `standalone` (D-040).
 - **Tentang:** Sumber & Atribusi (S10, satu-satunya pintu ke detail sumber), versi aplikasi, versi dataset, kebijakan privasi.
 
 | State             | Perilaku                                                                                              |
@@ -287,7 +288,7 @@ Teks atribusi baku ada di `CONTENT-RULES.md`.
 
 - **Lencana/banner offline:** muncul saat tidak ada koneksi. Tidak memblokir. Hilang otomatis saat online.
 - **Kemajuan penyiapan offline** (kunjungan pertama): "Menyiapkan Al-Qur'an untuk dibaca offline… N%". Reader tetap dapat dipakai. Unduhan dimulai otomatis setelah idle kecuali `Save-Data` aktif.
-- **Ajakan instal:** instalasi memakai prompt bawaan peramban dari manifest dan service worker. Ajakan kustom belum diimplementasikan.
+- **Ajakan instal:** bar non-modal di bawah Reader, muncul setelah pembaca melewati ayat kelima bila `beforeinstallprompt` tersedia. Tombol **Pasang** memanggil prompt bawaan; **Nanti** menutup ajakan selama 14 hari. Tidak tampil saat `standalone` atau setelah `appinstalled`. iOS memakai instruksi manual di S09 (D-040). Tanpa analytics.
 - **Pembaruan tersedia:** "Versi baru tersedia." dengan aksi **Muat ulang**; tidak ada muat ulang paksa.
 
 | State                   | Perilaku                                                         |

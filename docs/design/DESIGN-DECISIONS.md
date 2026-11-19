@@ -27,14 +27,14 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 | D-010 | Istilah UI: "Penanda" untuk bookmark, "Ayat" untuk ayah                                  | Diusulkan  | 2026-11-12 | Uji pembaca                                                |
 | D-011 | Navigasi mobile: Beranda · Quran · Penanda · Pengaturan; pencarian di Beranda dan Indeks | Diusulkan  | 2026-11-12 | Hasil uji kegunaan tugas 5                                 |
 | D-012 | Basmalah dipisah dari ayat 1 di lapisan tampilan dan tampil di baris sendiri di Reader          | Diputuskan | 2026-11-19 | Data sumber berubah atau perlu terjemahan basmalah         |
-| D-013 | Gaya nomor ayat (Arab-Indic atau Latin)                                                  | Terbuka    | 2026-11-12 | Hasil uji A dan B                                          |
+| D-013 | Gaya nomor ayat: angka Latin, tanpa pengaturan pengguna                                  | Diputuskan | 2026-11-19 | Uji keterbacaan menunjukkan angka Latin menyulitkan                  |
 | D-014 | Perpindahan perangkat lewat ekspor/impor penanda (berkas JSON)                           | Diputuskan | 2026-11-12 | Akun dan sinkronisasi dibangun                             |
 | D-015 | Pemicu aksi ayat di Reader kontinu: "..." hanya pada ayat terpilih                       | Diputuskan | 2026-11-13 | Uji kegunaan: tombol tidak ditemukan atau tak dipakai      |
 | D-016 | Target sentuh 44x44 px lewat padding, bukan memperbesar gambar                           | Diputuskan | 2026-11-13 | CSS tidak dapat mencapai 44 px tanpa menggeser tata letak  |
 | D-017 | Atribusi Tanzil "Teks Arab: Tanzil (CC BY 3.0)" di setiap varian Reader                  | Diputuskan | 2026-11-13 | Pemilik lisensi meminta bentuk atribusi lain               |
 | D-018 | Set ikon: Lucide (ISC), grid 24, stroke 2, warna lewat variabel                          | Diputuskan | 2026-11-14 | Ada glyph yang tidak tersedia atau rendering bermasalah    |
 | D-019 | Ikon terisi menandakan keadaan aktif/tersimpan, garis untuk aksi                         | Diganti sebagian | 2026-11-14 | Uji kegunaan: state tidak terbaca                     |
-| D-020 | Nama latin surah: transliterasi Tanzil atau daftar Indonesia                             | Terbuka    | 2026-11-15 | Daftar nama Indonesia terverifikasi tersedia               |
+| D-020 | Nama latin surah mengikuti ejaan Kemenag; ejaan Tanzil tetap jadi alias pencarian          | Diputuskan | 2026-11-19 | Daftar Kemenag terverifikasi tersedia untuk dipetakan      |
 | D-021 | Rute kanonis `/surah`; rute lama `/quran*` dialihkan                                     | Diputuskan | 2026-11-15 | Struktur informasi berubah                                 |
 | D-022 | Arti nama surah dalam bahasa Inggris tidak ditampilkan; baris memakai Makkiyah/Madaniyah | Diputuskan | 2026-11-15 | Uji pembaca meminta arti nama                              |
 | D-023 | Tema: Dexie sebagai sumber setelah hidrasi; `localStorage` hanya cadangan awal                | Diputuskan | 2026-11-15 | Alur hidrasi tema berubah                                  |
@@ -48,6 +48,7 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 | D-037 | Ikon navigasi selalu garis; status aktif lewat latar, bobot, dan aksen                     | Diputuskan | 2026-11-18 | Uji kegunaan: tab aktif tidak terbaca                       |
 | D-038 | Progres baca mengikuti gulir dan tombol kembali ke atas di Reader                          | Diputuskan | 2026-11-18 | Progres dinilai mengganggu atau tombol menutupi konten      |
 | D-039 | Pencarian terjemahan mengabaikan imbuhan umum lewat varian kueri                           | Diputuskan | 2026-11-19 | Muncul keluhan presisi hasil pencarian                     |
+| D-040 | Ajakan pasang non-modal setelah interaksi baca; "Nanti" diingat 14 hari; entri di Pengaturan | Diputuskan | 2026-11-19 | Uji pengguna menunjukkan ajakan mengganggu atau diabaikan  |
 | D-024 | Deep link ayat: `/surah/:surah/:ayah` kanonis; `?ayah=N` tetap didukung                  | Diputuskan | 2026-11-15 | Pola rute berubah                                          |
 | D-025 | Posisi baca tidak ditimpa gulir programatik; pembaruan setelah interaksi pengguna        | Diputuskan | 2026-11-15 | Semantik posisi baca berubah                               |
 | D-026 | Menu aksi ayat membuka ke atas bila ruang bawah tidak cukup, di luar containment kartu    | Diputuskan | 2026-11-15 | Menu diganti portal atau bottom sheet                      |
@@ -176,13 +177,36 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 
 ### D-020 — Nama latin surah
 
-- **Tanggal:** 2026-11-15
-- **Status:** Terbuka
+- **Tanggal:** 2026-11-15 · diputuskan 2026-11-19
+- **Status:** Diputuskan
 - **Konteks:** `surahs.json` v1 memakai `nameLatin` dari metadata Tanzil (mis. "Al-Kahf", "Al-Faatiha"), sedangkan desain dan `CONTENT-RULES.md` memakai transliterasi Indonesia (mis. "Al-Kahfi", "Al-Fatihah").
 - **Opsi yang dipertimbangkan:** (a) tampilkan `nameLatin` Tanzil apa adanya, (b) tambahkan tabel nama Indonesia terkurasi di lapisan data atau UI, (c) ganti sumber metadata.
-- **Keputusan:** _(diisi setelah daftar nama terverifikasi tersedia)_
-- **Dampak:** sampai diputuskan, UI memakai `nameLatin` Tanzil atau memetakan sendiri; ejaan Indonesia tidak boleh dikarang.
-- **Ditinjau ulang bila:** daftar nama Indonesia resmi/terverifikasi tersedia.
+- **Keputusan:** Opsi (b) dengan ejaan Kemenag sebagai satu-satunya sumber tampilan. Tidak ada pengaturan pengguna: nama surah adalah identitas konten, bukan preferensi. Ejaan Tanzil tetap diterima sebagai alias pencarian. Daftar Kemenag yang terverifikasi belum tersedia, sehingga pemetaan belum diimplementasikan; ejaan tidak boleh dikarang.
+- **Alasan:** satu ejaan menjaga konsistensi referensi di beranda, pencarian, penanda, dan ekspor. Toggle akan memaksa dua daftar dirawat dan dua ejaan dicari selamanya.
+- **Dampak:** sampai daftar tersedia, UI tetap memakai `nameLatin` Tanzil. Setelah daftar masuk, metadata dataset menjadi sumber nama, dan pencarian menerima kedua ejaan.
+- **Ditinjau ulang bila:** daftar Kemenag resmi berubah atau pembaca meminta ejaan lain.
+
+### D-013 — Gaya nomor ayat
+
+- **Tanggal:** 2026-11-12 · diputuskan 2026-11-19
+- **Status:** Diputuskan
+- **Konteks:** nomor ayat dapat ditampilkan sebagai angka Latin (1, 2, 3) atau Arab-Indic (١، ٢، ٣). Keduanya terbaca, tetapi hanya satu yang perlu dirawat.
+- **Opsi yang dipertimbangkan:** (a) Arab-Indic agar terasa mushaf, (b) Latin agar cocok dengan referensi `2:255`, (c) keduanya lewat pengaturan.
+- **Keputusan:** Opsi (b). Nomor ayat di Reader memakai angka Latin; tidak ada pengaturan tambahan. Referensi, URL, salin, bagikan, penanda, dan hasil pencarian tetap Latin.
+- **Alasan:** konsisten dengan format referensi dan angka antarmuka lain, serta menghindari percabangan tampilan yang tidak diminta.
+- **Dampak:** `AyahNumberMarker` hanya punya satu varian; label aksesibel tetap "Pilih ayat N".
+- **Ditinjau ulang bila:** uji keterbacaan pada perangkat nyata menunjukkan angka Latin sulit dibedakan dari teks Arab.
+
+### D-040 — Ajakan pasang aplikasi
+
+- **Tanggal:** 2026-11-19
+- **Status:** Diputuskan
+- **Konteks:** prompt bawaan peramban muncul pada waktu yang tidak terkendali dan mudah ditutup permanen. Ajakan yang agresif mengganggu bacaan; tanpa ajakan, pembaca tidak tahu aplikasi dapat dipasang.
+- **Opsi yang dipertimbangkan:** (a) biarkan prompt bawaan, (b) banner otomatis saat halaman dibuka, (c) ajakan non-modal setelah pembaca melewati beberapa ayat, plus entri di Pengaturan.
+- **Keputusan:** Opsi (c). `beforeinstallprompt` ditahan dan dipakai hanya setelah pembaca melewati ayat kelima. Ajakan tampil sebagai bar non-modal di bawah Reader, dengan tombol "Pasang" dan "Nanti". "Nanti" disimpan di `localStorage` selama 14 hari. Ajakan disembunyikan saat aplikasi berjalan `standalone` atau setelah `appinstalled`. iOS tidak menerima banner otomatis; instruksi "Bagikan → Tambah ke Layar Utama" tersedia di bagian "Aplikasi" pada `/pengaturan`, tempat yang sama memuat tombol pasang untuk Chromium. Tanpa analytics.
+- **Alasan:** menjaga Reader tetap bersih, tetap memberi jalan bagi pembaca yang ingin memasang, dan tidak mengulang ajakan yang sudah ditolak.
+- **Dampak (desain, konten, teknis):** `src/features/pwa/install.ts` (pendengar, keadaan, penolakan), `src/components/pwa/InstallPrompt.tsx`, `ReaderPage` (pemicu setelah ayat 5), bagian "Aplikasi" di `SettingsPage`, unit test `install.test.tsx`, E2E `install.spec.ts`.
+- **Ditinjau ulang bila:** uji pengguna menunjukkan ajakan mengganggu, tingkat pemasangan tidak berubah, atau peramban menghapus dukungan `beforeinstallprompt`.
 
 ### D-021 — Rute kanonis `/surah`
 

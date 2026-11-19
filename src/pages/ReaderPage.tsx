@@ -9,6 +9,7 @@ import { IconButton } from "@/components/ui/IconButton";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Snackbar } from "@/components/ui/Snackbar";
 import { ErrorState } from "@/components/ui/StateView";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { AyahCard } from "@/components/quran/AyahCard";
 import { AyahNav } from "@/components/quran/AyahNav";
 import { AttributionFooter } from "@/components/quran/AttributionFooter";
@@ -330,6 +331,7 @@ function ReaderContent({
   // memilih ayat tidak dihitung: memuat terjemahan dapat menggeser tata letak
   // dan memicu peristiwa scroll tanpa niat pengguna.
   const userInteracted = useRef(false);
+  const [engaged, setEngaged] = useState(false);
 
   useEffect(() => {
     const markInteracted = () => {
@@ -357,7 +359,10 @@ function ReaderContent({
       for (const card of document.querySelectorAll<HTMLElement>("[data-ayah]")) {
         if (card.getBoundingClientRect().bottom <= threshold) continue;
         const ayah = Number(card.dataset.ayah);
-        if (Number.isInteger(ayah) && ayah > 0) persistPosition(ayah);
+        if (Number.isInteger(ayah) && ayah > 0) {
+          if (ayah >= 5) setEngaged(true);
+          persistPosition(ayah);
+        }
         return;
       }
     };
@@ -550,6 +555,8 @@ function ReaderContent({
           onDismiss={dismissToast}
         />
       ) : null}
+
+      <InstallPrompt show={engaged && toast === null} />
     </PageContainer>
   );
 }

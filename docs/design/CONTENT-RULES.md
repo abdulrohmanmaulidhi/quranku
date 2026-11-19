@@ -121,7 +121,7 @@ Putuskan pilihan akhir "Penanda" vs "Bookmark" lewat uji pembaca (D-010).
 ## 7. Format angka dan tanggal
 
 - Angka di antarmuka: angka Latin (0–9).
-- Nomor ayat pada baris Arab: Arab-Indic atau Latin, ditentukan oleh uji (D-013).
+- Nomor ayat pada baris Arab: angka Latin (D-013).
 - Tanggal: format Indonesia (mis. 12 November 2026); waktu disimpan UTC, ditampilkan sesuai zona pengguna.
 
 ## 8. Privasi di dalam konten

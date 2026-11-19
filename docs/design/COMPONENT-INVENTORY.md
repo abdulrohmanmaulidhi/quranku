@@ -51,7 +51,7 @@ Semua komponen memakai _variables_ dari `DESIGN-TOKENS.md` dan dibuat dengan _au
 | ------------------- | ----------------------------------------------------------------- | ------------------------------------------------------- | ---------- | ---------------------------------------------- |
 | `SurahHeader`       | Nama Arab, nama latin, arti, jumlah ayat                          | Tetap (satu varian)                                     | D          | Tanpa dekorasi kaligrafi; basmalah di Reader (D-012) |
 | `AyahCard`          | Satu ayat: nomor, Arab, terjemahan, aksi                          | Terjemahan tampil/sembunyi; terakhir dibaca; terpenanda | D, P, F, S | Teks Arab tidak boleh dipotong                 |
-| `AyahNumberMarker`  | Penanda nomor ayat                                                | Angka Arab-Indic / Latin (D-013)                        | D          | Uji bidi                                       |
+| `AyahNumberMarker`  | Penanda nomor ayat                                                | Angka Latin (D-013)                                     | D          | Uji bidi                                       |
 | `ArabicText`        | Teks Arab RTL                                                     | 5 ukuran                                                | D          | `dir="rtl"`, `lang="ar"`, tanpa letter-spacing |
 | `TranslationText`   | Terjemahan (inline di AyahCard)                                   | 4 ukuran (`s`–`xl`)                                     | D          | `lang="id"`, dengan label sumber               |
 | `ReaderControls`    | Tombol Lompat ke dan Pengaturan baca                              | —                                                       | D, P, F    | Di TopBar                                      |
@@ -77,7 +77,7 @@ Semua komponen memakai _variables_ dari `DESIGN-TOKENS.md` dan dibuat dengan _au
 | `Dialog`        | Konfirmasi                                          | Konfirmasi hapus data       | D, F                | S09           |
 | `Snackbar`      | Umpan balik singkat dengan aksi opsional (Urungkan) | Info, Dengan aksi           | Muncul/hilang       | Global        |
 | `OfflineBadge`  | Lencana status offline                              | Lencana, Banner             | D                   | Global        |
-| `InstallPrompt` | Ajakan instal                                       | —                           | D                   | S11           |
+| `InstallPrompt` | Bar ajakan pasang non-modal setelah interaksi baca (D-040) | Chromium, instruksi iOS | D, H, F             | S03, S09, S11 |
 | `UpdateBanner`  | "Versi baru tersedia"                               | —                           | D                   | S11           |
 
 ## 7. State konten

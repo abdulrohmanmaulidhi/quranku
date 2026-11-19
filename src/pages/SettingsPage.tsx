@@ -6,6 +6,7 @@ import {
   Monitor,
   Moon,
   ShieldCheck,
+  Smartphone,
   Sun,
   Trash2,
   Upload,
@@ -18,6 +19,7 @@ import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Snackbar } from "@/components/ui/Snackbar";
 import { useThemePreference } from "@/app/ThemeContext";
 import { useOfflineData } from "@/features/offline/OfflineContext";
+import { promptInstall, useInstallState } from "@/features/pwa/install";
 import { buildBackup, importBackup, parseBackup } from "@/lib/db/backup";
 import { clearUserData } from "@/lib/db/db";
 import type { ThemePreference } from "@/lib/theme";
@@ -39,6 +41,7 @@ export function SettingsPage() {
   useDocumentTitle("Pengaturan");
   const { preference, setPreference } = useThemePreference();
   const offline = useOfflineData();
+  const install = useInstallState();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [toast, setToast] = useState<Toast | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
@@ -138,6 +141,14 @@ export function SettingsPage() {
             ? "Ruang penyimpanan tidak cukup. Bebaskan ruang, lalu coba lagi."
             : "Belum siap. Sambungkan internet lalu coba lagi."
           : "Simpan seluruh surah agar dapat dibaca tanpa jaringan";
+
+  const installDescription = install.installed
+    ? "Quranku sudah berjalan sebagai aplikasi di perangkat ini."
+    : install.ios
+      ? "Di Safari, ketuk Bagikan, lalu pilih Tambah ke Layar Utama."
+      : install.canInstall
+        ? "Buka dari layar utama tanpa peramban."
+        : "Gunakan menu peramban untuk memasang Quranku sebagai aplikasi.";
 
   return (
     <>
@@ -279,6 +290,43 @@ export function SettingsPage() {
                 </span>
               </span>
             </button>
+          </div>
+        </section>
+
+        <section className={styles.section} aria-labelledby="app-heading">
+          <h2 id="app-heading" className={styles.sectionTitle}>
+            Aplikasi
+          </h2>
+          <div className={styles.card}>
+            {install.canInstall && !install.installed ? (
+              <button
+                type="button"
+                className={styles.actionRow}
+                onClick={() => {
+                  void promptInstall();
+                }}
+              >
+                <span className={styles.linkIcon}>
+                  <Icon icon={Smartphone} size={20} />
+                </span>
+                <span className={styles.linkBody}>
+                  <span className={styles.settingLabel}>Pasang aplikasi</span>
+                  <span className={styles.settingDescription}>{installDescription}</span>
+                </span>
+              </button>
+            ) : (
+              <div className={styles.infoRow}>
+                <span className={styles.linkIcon}>
+                  <Icon icon={Smartphone} size={20} />
+                </span>
+                <span className={styles.linkBody}>
+                  <span className={styles.settingLabel}>
+                    {install.installed ? "Aplikasi terpasang" : "Pasang aplikasi"}
+                  </span>
+                  <span className={styles.settingDescription}>{installDescription}</span>
+                </span>
+              </div>
+            )}
           </div>
         </section>
 

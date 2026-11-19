@@ -212,7 +212,7 @@ Hosting statis perlu _fallback_ SPA agar rute dalam dapat dimuat langsung. Cloud
 - Semua kata kueri harus muncul. Peringkat memberi bobot kecocokan persis, awalan, frasa, dan jumlah kemunculan; hasil dibatasi 20.
 - Batas panjang kueri 100 karakter dan debounce input 250 ms.
 - Hasil Arab menampilkan teks ayat utuh dari `ar/*.json`; hasil terjemahan menampilkan teks dari `tr/*/*.json`. Keduanya menyorot kata cocok dengan `<mark>` yang dipetakan ke teks asli.
-- Pencarian terjemahan mewajibkan semua kata muncul dan **belum** menangani imbuhan/stemming; keterbatasan ini tampil di UI.
+- Pencarian terjemahan mewajibkan semua kata muncul. Imbuhan umum Indonesia ditoleransi dengan membuat varian kueri di sisi pencarian (D-039); indeks tidak berubah. Tidak ada pencarian semantik.
 - Tidak ada pencarian semantik, vektor, tafsir, atau akar kata.
 
 ## 9. Kinerja
@@ -309,13 +309,15 @@ Deploy ke Cloudflare Pages dilakukan di luar workflow ini (cabang utama) sampai 
 
 - Fondasi Vite + React + TypeScript, router, tata letak, token desain, tema terang/gelap.
 - Pipeline data Tanzil Uthmani v1.1: validasi, build, verifikasi checksum, 114 surah, 6.236 ayat, 30 juz.
-- S01 Beranda (termasuk kartu "Lanjutkan membaca"), S02 Indeks Surah/Juz, S03 Reader dengan deep link ayat, penanda, pengaturan ukuran Arab, salin referensi/ayat, bagikan lewat Web Share API, dan atribusi.
+- S01 Beranda (termasuk kartu "Lanjutkan membaca"), S02 Indeks Surah/Juz.
+- S03 Reader dengan deep link ayat, penanda, pengaturan ukuran Arab, salin referensi/ayat, bagikan lewat Web Share API, basmalah sebagai baris tampilan (D-012), dan atribusi.
 - S06 "Lompat ke": dialog dengan tab Surah & Ayat dan Juz; validasi rentang ayat, keadaan memuat/galat untuk juz, dan navigasi ke awal juz.
 - S07 Penanda: daftar terbaru lebih dahulu, hapus, dan urungkan.
 - S09 Pengaturan dasar, ekspor/impor penanda (JSON), data offline (unduh/hapus), hapus data lokal dengan dialog konfirmasi, dan S10 Sumber & Atribusi.
 - S08 Cari: mode Surah, Arab, dan Terjemahan; indeks dimuat malas per mode, sorotan kata, hasil membuka Reader tepat di ayat (terjemahan tampil sekali kunjungan untuk hasil terjemahan).
 - Pencarian surah berdasarkan nama Latin, nama Arab, dan nomor; filter juz.
 - PWA: manifest, ikon, precache app shell, runtime cache data, prompt pembaruan tanpa muat ulang paksa, banner progres offline, dan baris data offline di Pengaturan.
+- Ajakan pasang non-modal setelah pembaca melewati beberapa ayat, dengan tombol "Nanti" yang diingat 14 hari, serta entri "Aplikasi" di Pengaturan untuk Chromium dan instruksi manual iOS (D-040).
 - Unduhan offline otomatis setelah idle (kecuali `Save-Data`), cache berversi `quranku-data-v1`, penanganan kuota/jaringan, dan pembersihan cache lama.
 - Dexie v1: `bookmarks`, `position`, `settings`, `meta`; tema, posisi baca, dan ukuran Arab tersimpan di perangkat.
 - Terjemahan Indonesia QuranEnc (Kemenag) di dataset v2: berkas per surah, catatan kaki, manifest, dan verifikasi checksum (D-003).
@@ -324,6 +326,8 @@ Deploy ke Cloudflare Pages dilakukan di luar workflow ini (cabang utama) sampai 
 
 ### Belum dikerjakan
 
-- Ajakan instal kustom (prompt bawaan peramban sudah tersedia).
-- Keputusan basmalah (D-012).
-- Uji perangkat nyata dan penentuan font Arab (D-006) sebelum rilis publik.
+- Uji perangkat nyata dan keputusan akhir font Arab (D-006) sebelum rilis publik.
+- Pemetaan nama surah ejaan Kemenag; menunggu daftar terverifikasi (D-020).
+- Tinjauan basmalah oleh orang yang berkompeten (keputusan tampilan sudah ada di D-012).
+
+Rincian gate dan langkah rilis ada di `docs/RELEASE-CHECKLIST.md`.

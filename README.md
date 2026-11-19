@@ -87,6 +87,7 @@ docs/               arsitektur dan spesifikasi desain
 - [Normalisasi pencarian](docs/SEARCH-NORMALIZATION.md)
 - [Aturan konten](docs/design/CONTENT-RULES.md)
 - [Checklist aksesibilitas](docs/design/ACCESSIBILITY-CHECKLIST.md)
+- [Daftar periksa rilis](docs/RELEASE-CHECKLIST.md)
 
 ## Privasi
 
