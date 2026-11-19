@@ -17,6 +17,11 @@ export interface AyahCardProps {
   targeted: boolean;
   bookmarked: boolean;
   arabicSize?: ArabicSize;
+  /**
+   * Teks Arab untuk tampilan saja, mis. ayat 1 tanpa basmalah. Data asli
+   * (`ayah.text`) tetap dipakai untuk menyalin, membagikan, dan menyimpan.
+   */
+  arabicText?: string;
   translationSize?: TranslationSize;
   translation?: TranslationAyah;
   onSelect: (ayah: number) => void;
@@ -31,6 +36,7 @@ export function AyahCard({
   targeted,
   bookmarked,
   arabicSize = "m",
+  arabicText,
   translationSize = "m",
   translation,
   onSelect,
@@ -146,7 +152,7 @@ export function AyahCard({
         </div>
 
         <div className={styles.text} data-ayah-text onClick={handleTextClick}>
-          <ArabicText text={ayah.text} size={arabicSize} />
+          <ArabicText text={arabicText ?? ayah.text} size={arabicSize} />
         </div>
 
         {translation ? (

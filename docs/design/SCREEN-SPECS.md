@@ -104,7 +104,8 @@ Setiap layar wajib punya state: **memuat, terisi, kosong, error, offline/sebagia
 **Komponen**
 
 - Bilah atas: kembali, nama surah, **Lompat ke** (S06), **Pengaturan baca** (S05).
-- Header surah (dan basmalah sesuai keputusan Q3).
+- Header surah.
+- Petunjuk "Ketuk ayat untuk membuka aksi.", lalu basmalah pembuka sebagai baris tersendiri sebelum daftar ayat (D-012).
 - Daftar ayat. Tiap ayat: penanda nomor ayat, teks Arab (RTL), terjemahan, tombol **Aksi** (S04) dan ikon penanda.
 - Penanda "terakhir dibaca" (sorotan `accent-subtle`).
 - Navigasi surah sebelumnya/berikutnya di akhir daftar.
@@ -114,6 +115,8 @@ Setiap layar wajib punya state: **memuat, terisi, kosong, error, offline/sebagia
 **Aturan**
 
 - Arab selalu RTL, tanpa pemotongan, harakat utuh.
+- Basmalah pada surah 2–114 (kecuali 9) ditampilkan sebagai baris tersendiri di bawah petunjuk baca, dari potongan teks asli; ayat 1 menampilkan sisa teksnya tanpa karakter yang hilang. Salin dan bagikan tetap memakai teks ayat utuh (D-012). Surah 1 menampilkan basmalah sebagai ayat 1; surah 9 tanpa basmalah.
+- Deep link ke ayat 1 menggulir ke atas halaman agar basmalah tetap terlihat.
 - Terjemahan ditampilkan verbatim; atribusi ada di S10 dan dapat dijangkau dari kaki Reader. Catatan kaki dibuka per ayat lewat panel lipat.
 - Tidak ada iklan, rekomendasi, atau pop-up di dalam konten.
 - Posisi terakhir disimpan setelah pengguna benar-benar menggulir (bukan karena ketukan memilih ayat atau pergeseran tata letak saat terjemahan dimuat).

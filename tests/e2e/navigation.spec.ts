@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { readSurahText } from "./helpers";
+import { readSurahText, renderedFirstAyah } from "./helpers";
 
 const kahf = readSurahText(18);
 
@@ -21,7 +21,8 @@ test("beranda → indeks surah → reader", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1, name: "Al-Kahf" })).toBeVisible();
 
   const firstAyah = page.locator("#ayah-1 [dir='rtl']");
-  await expect(firstAyah).toHaveText(kahf.ayahs[0]!.text);
+  await expect(firstAyah).toBeVisible();
+  expect(await renderedFirstAyah(page)).toBe(kahf.ayahs[0]!.text);
 
   // Tombol kembali harus tampil sama dengan tautan kembali, tanpa gaya bawaan
   // <button> (latar abu-abu dan border outset).

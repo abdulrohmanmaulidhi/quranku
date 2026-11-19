@@ -26,7 +26,7 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 | D-009 | Sapaan antarmuka memakai "Anda"                                                          | Diusulkan  | 2026-11-12 | Uji pembaca                                                |
 | D-010 | Istilah UI: "Penanda" untuk bookmark, "Ayat" untuk ayah                                  | Diusulkan  | 2026-11-12 | Uji pembaca                                                |
 | D-011 | Navigasi mobile: Beranda · Quran · Penanda · Pengaturan; pencarian di Beranda dan Indeks | Diusulkan  | 2026-11-12 | Hasil uji kegunaan tugas 5                                 |
-| D-012 | Penanganan basmalah pada data sumber                                                     | Terbuka    | 2026-11-15 | Pilih opsi tampilan setelah data diperiksa                 |
+| D-012 | Basmalah dipisah dari ayat 1 di lapisan tampilan dan tampil di baris sendiri di Reader          | Diputuskan | 2026-11-19 | Data sumber berubah atau perlu terjemahan basmalah         |
 | D-013 | Gaya nomor ayat (Arab-Indic atau Latin)                                                  | Terbuka    | 2026-11-12 | Hasil uji A dan B                                          |
 | D-014 | Perpindahan perangkat lewat ekspor/impor penanda (berkas JSON)                           | Diputuskan | 2026-11-12 | Akun dan sinkronisasi dibangun                             |
 | D-015 | Pemicu aksi ayat di Reader kontinu: "..." hanya pada ayat terpilih                       | Diputuskan | 2026-11-13 | Uji kegunaan: tombol tidak ditemukan atau tak dipakai      |
@@ -110,7 +110,11 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 - **Dampak pada build:** `build-data` menyalin teks apa adanya dan tidak memotong basmalah. Header basmalah di `SurahHeader` belum dapat diisi tanpa memilih opsi (b) atau (c).
 - **Pertanyaan:** bagaimana menampilkan basmalah sebagai header tanpa mengubah teks sumber?
 - **Opsi:** (a) tampilkan teks apa adanya, (b) pisahkan di lapisan tampilan tanpa mengubah data tersimpan, (c) pakai sumber yang memisahkan basmalah secara eksplisit.
-- **Keputusan:** _(diisi setelah verifikasi data; perlu peninjauan orang yang berkompeten)_
+- **Keputusan:** Opsi (b), 2026-11-19. `splitBasmalah` (`src/features/quran/basmalah.ts`) membagi teks ayat 1 menjadi basmalah dan sisa teks untuk tampilan saja. Reader menampilkan basmalah sebagai baris tersendiri tepat di bawah petunjuk "Ketuk ayat untuk membuka aksi.", sebelum daftar ayat; `AyahCard` ayat 1 menampilkan sisa teksnya. Batas diambil dari spasi keempat pada string asli, sehingga bentuk varian surah 95 dan 97 ikut terbawa tanpa diketik ulang. Surah 1 tidak dipisah karena basmalah adalah ayat 1; surah 9 tidak memiliki basmalah. Data tersimpan, checksum, dan indeks pencarian tidak berubah. Salin, bagikan, dan ekspor tetap memakai `ayah.text` utuh; hasil pencarian Arab tetap menampilkan ayat utuh (D-032).
+- **Alasan:** nomor ayat 1 kembali menempel pada ayat yang benar tanpa memotong data atau menambah sumber baru. Pemisahan di lapisan tampilan juga menjaga keluaran build identik dengan Tanzil.
+- **Dampak (desain, konten, teknis):** `src/features/quran/basmalah.ts`, `ReaderPage` (baris `data-basmalah` dan gaya `.basmalah` di bawah petunjuk), `AyahCard` (prop `arabicText` untuk tampilan), S03, `CONTENT-RULES`, unit test `basmalah` dan `reader`, E2E `basmalah.spec.ts` serta tes verbatim yang membaca ayat 1. `SurahHeader` hanya berisi identitas surah. Deep link ke ayat 1 menggulir ke atas agar basmalah terlihat. Tidak ada terjemahan untuk baris basmalah karena QuranEnc tidak menyediakannya per surah.
+- **Catatan pengujian:** unit test membaca `data/source/quran-uthmani.txt` dan memastikan seluruh 112 surah terpisah tepat setelah empat kata, `basmalah + " " + sisa === teks sumber`, dan bentuk dasar basmalah sama dengan 1:1 setelah normalisasi. Surah 1, surah 9, dan 27:30 diuji tidak tersentuh.
+- **Ditinjau ulang bila:** data sumber berubah sehingga basmalah bukan lagi empat kata pertama, atau muncul kebutuhan terjemahan basmalah di header.
 
 ### D-015 — Pemicu aksi ayat di Reader kontinu (varian B)
 

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { DATASET_VERSION } from "../../src/lib/data/version";
-import { readSurahText, readSurahTranslation } from "./helpers";
+import { readSurahText, readSurahTranslation, renderedFirstAyah } from "./helpers";
 
 const fatihah = readSurahText(1);
 const baqarah = readSurahText(2);
@@ -48,6 +48,6 @@ test("data tersimpan dapat dipakai untuk membaca dan mencari tanpa jaringan", as
 
   await page.goto("/surah/2", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { level: 1, name: "Al-Baqara" })).toBeVisible();
-  await expect(page.locator("#ayah-1 [dir='rtl']")).toHaveText(baqarah.ayahs[0]!.text);
+  expect(await renderedFirstAyah(page)).toBe(baqarah.ayahs[0]!.text);
   await expect(page.locator("#ayah-1").getByText(baqarahTranslation.ayahs[0]!.text)).toBeVisible();
 });

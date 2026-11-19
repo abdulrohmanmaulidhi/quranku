@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import type { Page } from "@playwright/test";
 import { DATASET_VERSION } from "../../src/lib/data/version";
 
 const DATA_DIR = join(process.cwd(), "public", "data", `v${DATASET_VERSION}`);
@@ -37,4 +38,16 @@ export function readSurahTranslation(surah: number): SurahTranslation {
   return readDataJson<SurahTranslation>(
     `tr/indonesian_affairs/${String(surah).padStart(3, "0")}.json`,
   );
+}
+
+/**
+ * Gabungan baris basmalah dan teks ayat 1 seperti yang dirender.
+ * Dipakai untuk memastikan pemisahan tampilan tidak menghilangkan karakter.
+ */
+export async function renderedFirstAyah(page: Page): Promise<string> {
+  return page.evaluate(() => {
+    const basmalah = document.querySelector("[data-basmalah]")?.textContent ?? "";
+    const ayah = document.querySelector("#ayah-1 [dir='rtl']")?.textContent ?? "";
+    return [basmalah, ayah].filter(Boolean).join(" ");
+  });
 }

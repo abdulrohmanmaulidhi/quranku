@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { readSurahs, readSurahText } from "./helpers";
+import { readSurahs, readSurahText, renderedFirstAyah } from "./helpers";
 
 const surahs = readSurahs();
 const kahf = readSurahText(18);
@@ -70,7 +70,8 @@ test("setiap ayat surah 18 dirender persis seperti data", async ({ page }) => {
 
   const first = page.locator("#ayah-1 [dir='rtl']");
   const last = page.locator("#ayah-110 [dir='rtl']");
-  await expect(first).toHaveText(kahf.ayahs[0]!.text);
+  await expect(first).toHaveText(kahf.ayahs[0]!.text.split(" ").slice(4).join(" "));
+  expect(await renderedFirstAyah(page)).toBe(kahf.ayahs[0]!.text);
   await last.scrollIntoViewIfNeeded();
   await expect(last).toHaveText(kahf.ayahs[109]!.text);
 });

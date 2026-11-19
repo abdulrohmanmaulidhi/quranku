@@ -16,6 +16,7 @@ import { JumpToDialog } from "@/components/quran/JumpToDialog";
 import { ReadingSettings } from "@/components/quran/ReadingSettings";
 import { SurahHeader } from "@/components/quran/SurahHeader";
 import type { ArabicSize } from "@/components/quran/ArabicText";
+import { splitBasmalah } from "@/features/quran/basmalah";
 import type { TranslationSize } from "@/features/library/useTranslationSize";
 import { useArabicSize } from "@/features/library/useArabicSize";
 import { useTranslationSize } from "@/features/library/useTranslationSize";
@@ -406,6 +407,11 @@ function ReaderContent({
     if (text.status !== "success" || targetAyah === null) return;
 
     const frame = window.requestAnimationFrame(() => {
+      // Ayat 1 digulir ke atas agar basmalah di bawah petunjuk tetap terlihat.
+      if (targetAyah === 1) {
+        window.scrollTo({ top: 0 });
+        return;
+      }
       document.getElementById(`ayah-${targetAyah}`)?.scrollIntoView({ block: "center" });
     });
     return () => window.cancelAnimationFrame(frame);
@@ -467,11 +473,20 @@ function ReaderContent({
   const selectedReference =
     selected !== null ? formatReference(surah.nameLatin, surah.n, selected) : "";
 
+  const firstAyah = text.data.ayahs[0];
+  const basmalahSplit = firstAyah ? splitBasmalah(surah.n, firstAyah.n, firstAyah.text) : null;
+
   return (
     <PageContainer width="reader">
       <SurahHeader surah={surah} />
 
       <p className={styles.hint}>Ketuk ayat untuk membuka aksi.</p>
+
+      {basmalahSplit ? (
+        <p className={styles.basmalah} dir="rtl" lang="ar" data-basmalah>
+          {basmalahSplit.basmalah}
+        </p>
+      ) : null}
 
       {showTranslation && translation.status === "error" ? (
         <div className={styles.notice} role="status">
@@ -509,6 +524,7 @@ function ReaderContent({
             targeted={targetAyah === ayah.n}
             bookmarked={bookmarks.bookmarked.has(ayah.n)}
             arabicSize={arabicSize}
+            arabicText={basmalahSplit && ayah.n === 1 ? basmalahSplit.rest : undefined}
             translationSize={translationSize}
             translation={
               showTranslation && translation.status === "success"

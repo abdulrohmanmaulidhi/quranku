@@ -50,10 +50,31 @@ describe("S03 — Reader", () => {
     renderReader("/surah/18");
 
     expect(await screen.findByRole("heading", { level: 1, name: "Al-Kahf" })).toBeInTheDocument();
+    const source = kahf.ayahs[0]?.text ?? "";
+    const words = source.split(" ");
+    const basmalah = document.querySelector("[data-basmalah]");
     const target = document.querySelector("#ayah-1 [dir='rtl']");
-    expect(target?.textContent).toBe(kahf.ayahs[0]?.text);
+
+    expect(basmalah?.textContent).toBe(words.slice(0, 4).join(" "));
+    expect(basmalah?.previousElementSibling).toBe(
+      screen.getByText("Ketuk ayat untuk membuka aksi."),
+    );
+    expect(target?.textContent).toBe(words.slice(4).join(" "));
+    expect(`${basmalah?.textContent} ${target?.textContent}`).toBe(source);
     expect(target).toHaveAttribute("lang", "ar");
     expect(screen.getByText("Makkiyah · 110 ayat")).toBeInTheDocument();
+  });
+
+  it("tidak memisah basmalah pada surah 1", async () => {
+    renderReader("/surah/1");
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Al-Faatiha" }),
+    ).toBeInTheDocument();
+    expect(document.querySelector("[data-basmalah]")).toBeNull();
+    expect(document.querySelector("#ayah-1 [dir='rtl']")?.textContent).toBe(
+      readSurahText(1).ayahs[0]?.text,
+    );
   });
 
   it("membuka deep link ayat dan menandainya sebagai ayat dituju", async () => {

@@ -30,7 +30,7 @@ Dokumen ini mengatur bagaimana konten Al-Qur'an dan teks antarmuka ditampilkan. 
 | Tafsir (ditunda)        | Panel terpisah dengan penulis dan sumber                                  |
 
 7. Dilarang menampilkan teks buatan AI sebagai teks Al-Qur'an, terjemahan, atau tafsir.
-8. Basmalah: penanganannya mengikuti keputusan **D-012** setelah data sumber diverifikasi (jangan mengubah data tersimpan).
+8. Basmalah: tampil sebagai baris header untuk surah 2–114 (kecuali 9) sesuai D-012. Teksnya diambil apa adanya dari ayat 1; data tersimpan tidak diubah.
 
 ## 2. Atribusi dan lisensi
 
@@ -136,6 +136,6 @@ Putuskan pilihan akhir "Penanda" vs "Bookmark" lewat uji pembaca (D-010).
 - [ ] Terjemahan: izin jelas dan atribusi terisi.
 - [ ] Teks Arab di build identik dengan berkas sumber (uji checksum/jumlah: 114 surah, 6.236 ayat).
 - [ ] Tidak ada teks Arab yang terpotong di layar mana pun.
-- [ ] Basmalah ditangani sesuai D-012 dan ditinjau orang yang berkompeten.
+- [ ] Basmalah ditinjau orang yang berkompeten; tampilan saat ini mengikuti D-012.
 - [ ] Semua teks UI mengikuti nada dan istilah baku.
 - [ ] Tidak ada bahasa gamifikasi.

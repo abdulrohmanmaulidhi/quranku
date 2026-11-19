@@ -49,7 +49,7 @@ Semua komponen memakai _variables_ dari `DESIGN-TOKENS.md` dan dibuat dengan _au
 
 | Komponen            | Deskripsi                                                         | Varian                                                  | State      | Catatan                                        |
 | ------------------- | ----------------------------------------------------------------- | ------------------------------------------------------- | ---------- | ---------------------------------------------- |
-| `SurahHeader`       | Nama Arab, nama latin, arti, jumlah ayat, basmalah (sesuai D-012) | Dengan/tanpa basmalah                                   | D          | Tanpa dekorasi kaligrafi                       |
+| `SurahHeader`       | Nama Arab, nama latin, arti, jumlah ayat                          | Tetap (satu varian)                                     | D          | Tanpa dekorasi kaligrafi; basmalah di Reader (D-012) |
 | `AyahCard`          | Satu ayat: nomor, Arab, terjemahan, aksi                          | Terjemahan tampil/sembunyi; terakhir dibaca; terpenanda | D, P, F, S | Teks Arab tidak boleh dipotong                 |
 | `AyahNumberMarker`  | Penanda nomor ayat                                                | Angka Arab-Indic / Latin (D-013)                        | D          | Uji bidi                                       |
 | `ArabicText`        | Teks Arab RTL                                                     | 5 ukuran                                                | D          | `dir="rtl"`, `lang="ar"`, tanpa letter-spacing |
