@@ -6,6 +6,8 @@ export const MAX_SEARCH_QUERY_LENGTH = 100;
 export const MIN_SEARCH_QUERY_LENGTH = 2;
 export const MIN_TRANSLATION_QUERY_LENGTH = 3;
 export const SEARCH_RESULT_LIMIT = 20;
+/** Batas hasil yang dapat ditampilkan; sisanya dipersempit lewat kata kunci. */
+export const MAX_SEARCH_RESULTS = 100;
 
 export interface AyahSearchResult {
   surah: number;
@@ -44,7 +46,7 @@ function occurrenceCount(text: string, token: string): number {
 export function searchAyahs(
   entries: readonly SearchEntry[],
   query: string,
-  limit = SEARCH_RESULT_LIMIT,
+  limit = Number.POSITIVE_INFINITY,
   options: SearchOptions = {},
 ): AyahSearchResult[] {
   const needle = normalizeForSearch(query.slice(0, MAX_SEARCH_QUERY_LENGTH));

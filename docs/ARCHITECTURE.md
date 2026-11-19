@@ -209,7 +209,7 @@ Hosting statis perlu _fallback_ SPA agar rute dalam dapat dimuat langsung. Cloud
 - Indeks `search/arabic.json` dihasilkan oleh `scripts/build-data.mjs` dengan format `[surah, ayat, teks ternormalisasi]`; total 6.236 entri (~775 KB).
 - Indeks `search/translation.json` memakai format dan normalisasi yang sama untuk teks terjemahan (tanpa catatan kaki); total 6.236 entri (~1,1 MB), anggaran 1,6 MB.
 - Indeks dimuat malas hanya saat mode yang bersangkutan aktif: Arab setelah dua karakter, Terjemahan setelah tiga karakter. Tidak ada indeks di muatan awal.
-- Semua kata kueri harus muncul. Peringkat memberi bobot kecocokan persis, awalan, frasa, dan jumlah kemunculan; hasil dibatasi 20.
+- Semua kata kueri harus muncul. Peringkat memberi bobot kecocokan persis, awalan, frasa, dan jumlah kemunculan; 20 hasil pertama ditampilkan dan dapat ditambah 20 per kali hingga 100.
 - Batas panjang kueri 100 karakter dan debounce input 250 ms.
 - Hasil Arab menampilkan teks ayat utuh dari `ar/*.json`; hasil terjemahan menampilkan teks dari `tr/*/*.json`. Keduanya menyorot kata cocok dengan `<mark>` yang dipetakan ke teks asli.
 - Pencarian terjemahan mewajibkan semua kata muncul. Imbuhan umum Indonesia ditoleransi dengan membuat varian kueri di sisi pencarian (D-039); indeks tidak berubah. Tidak ada pencarian semantik.

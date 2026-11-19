@@ -49,6 +49,7 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 | D-038 | Progres baca mengikuti gulir dan tombol kembali ke atas di Reader                          | Diputuskan | 2026-11-18 | Progres dinilai mengganggu atau tombol menutupi konten      |
 | D-039 | Pencarian terjemahan mengabaikan imbuhan umum lewat varian kueri                           | Diputuskan | 2026-11-19 | Muncul keluhan presisi hasil pencarian                     |
 | D-040 | Ajakan pasang non-modal setelah interaksi baca; "Nanti" diingat 14 hari; entri di Pengaturan | Diputuskan | 2026-11-19 | Uji pengguna menunjukkan ajakan mengganggu atau diabaikan  |
+| D-041 | Hasil pencarian ditampilkan bertahap 20 lalu 20 lagi, maksimal 100, dengan hitungan akurat | Diputuskan | 2026-11-19 | Hasil dinilai terlalu panjang atau batas 100 terasa sempit |
 | D-024 | Deep link ayat: `/surah/:surah/:ayah` kanonis; `?ayah=N` tetap didukung                  | Diputuskan | 2026-11-15 | Pola rute berubah                                          |
 | D-025 | Posisi baca tidak ditimpa gulir programatik; pembaruan setelah interaksi pengguna        | Diputuskan | 2026-11-15 | Semantik posisi baca berubah                               |
 | D-026 | Menu aksi ayat membuka ke atas bila ruang bawah tidak cukup, di luar containment kartu    | Diputuskan | 2026-11-15 | Menu diganti portal atau bottom sheet                      |
@@ -208,6 +209,17 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 - **Dampak (desain, konten, teknis):** `src/features/pwa/install.ts` (pendengar, keadaan, penolakan), `src/components/pwa/InstallPrompt.tsx`, `ReaderPage` (pemicu setelah ayat 5), bagian "Aplikasi" di `SettingsPage`, unit test `install.test.tsx`, E2E `install.spec.ts`.
 - **Ditinjau ulang bila:** uji pengguna menunjukkan ajakan mengganggu, tingkat pemasangan tidak berubah, atau peramban menghapus dukungan `beforeinstallprompt`.
 
+### D-041 — Hasil pencarian bertahap
+
+- **Tanggal:** 2026-11-19
+- **Status:** Diputuskan
+- **Konteks:** pencarian memotong hasil pada 20 dan hanya menampilkan catatan "Menampilkan 20 hasil teratas", sehingga pembaca tidak dapat melihat hasil ke-21 dan seterusnya tanpa mempersempit kata kunci. Jumlah total kecocokan juga tidak terlihat.
+- **Opsi yang dipertimbangkan:** (a) tetap 20, (b) tampilkan semua hasil sekaligus, (c) tambah 20 hasil per klik dengan batas 100 dan hitungan total.
+- **Keputusan:** Opsi (c). 20 hasil pertama tampil; tombol "Tampilkan 20 hasil lagi" menambah 20 hingga 100. Status mengumumkan "Menampilkan X dari Y hasil." dan, saat batas 100 tercapai, menyarankan mempersempit kata kunci. Hitungan total berasal dari seluruh kecocokan; hanya render yang dibatasi.
+- **Alasan:** pembaca dapat memperluas hasil tanpa memuat ribuan baris, dan angka yang tampil jujur. Batas 100 menjaga daftar tetap dapat dipindai.
+- **Dampak (desain, konten, teknis):** `SearchPage` (state bertahap yang direset per mode/kueri), `searchAyahs` mengembalikan seluruh kecocokan (pemotongan di UI), `MAX_SEARCH_RESULTS`, unit test `search-page`, E2E `search-translation.spec.ts`.
+- **Ditinjau ulang bila:** batas 100 terasa sempit atau daftar panjang mengganggu.
+
 ### D-021 — Rute kanonis `/surah`
 
 - **Tanggal:** 2026-11-15
@@ -327,7 +339,7 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 - **Status:** Diputuskan
 - **Konteks:** S08 menyebut "cuplikan dengan kata cocok ditandai", tetapi aturan proyek melarang memotong atau mengubah teks Arab. Indeks pencarian juga tidak menyimpan teks asli agar tidak ada salinan kedua yang dapat menyimpang.
 - **Opsi yang dipertimbangkan:** (a) menampilkan cuplikan yang dipotong, (b) menampilkan teks ayat utuh dari `ar/*.json`, (c) menyimpan teks asli di indeks pencarian.
-- **Keputusan:** setiap hasil menampilkan referensi `QS. Nama Surah surah:ayat` dan **teks ayat utuh** yang dibaca dari `ar/XXX.json`. Kata yang cocok ditandai dengan `<mark>` berdasarkan pemetaan posisi ke teks asli. Hasil dibatasi 20 teratas dengan catatan bila batas tercapai. Mode terjemahan diputuskan kemudian di D-034.
+- **Keputusan:** setiap hasil menampilkan referensi `QS. Nama Surah surah:ayat` dan **teks ayat utuh** yang dibaca dari `ar/XXX.json`. Kata yang cocok ditandai dengan `<mark>` berdasarkan pemetaan posisi ke teks asli. Hasil dibatasi 20 teratas dengan catatan bila batas tercapai; batas ini diperbarui oleh D-041 menjadi bertahap hingga 100. Mode terjemahan diputuskan kemudian di D-034.
 - **Alasan:** memenuhi aturan verbatim dan menghindari duplikasi teks di berkas pencarian. Pemetaan sorotan memungkinkan penanda visual tanpa mengubah karakter.
 - **Dampak (desain, konten, teknis):** `SearchResultRow` memuat teks per surah lewat `loadSurahText` (di-cache), `ArabicText` menerima `highlightRanges`, dan `findHighlightRanges` memetakan posisi ternormalisasi kembali ke teks asli. Teks hasil selalu identik dengan Reader; diuji di unit dan E2E.
 - **Ditinjau ulang bila:** aturan tampilan teks berubah atau diperlukan pratinjau lintas ayat.

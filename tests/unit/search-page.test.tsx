@@ -1,4 +1,5 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { clearDataCache } from "@/lib/data/client";
@@ -115,6 +116,38 @@ describe("S08 — Cari", () => {
 
     expect(
       await screen.findByText("Ketik minimal tiga huruf untuk mulai mencari ayat."),
+    ).toBeInTheDocument();
+  });
+
+  it("menampilkan 20 hasil lalu menambah 20 setiap kali diminta", async () => {
+    const user = userEvent.setup();
+    renderSearch(`/cari?mode=arab&q=${encodeURIComponent("الله")}`);
+
+    expect(await screen.findByText("Menampilkan 20 dari 1842 hasil.")).toBeInTheDocument();
+    const list = screen.getByRole("list");
+    expect(within(list).getAllByRole("link")).toHaveLength(20);
+
+    await user.click(screen.getByRole("button", { name: "Tampilkan 20 hasil lagi" }));
+
+    expect(within(list).getAllByRole("link")).toHaveLength(40);
+    expect(screen.getByText("Menampilkan 40 dari 1842 hasil.")).toBeInTheDocument();
+  });
+
+  it("berhenti menambah hasil pada batas 100", async () => {
+    const user = userEvent.setup();
+    renderSearch(`/cari?mode=arab&q=${encodeURIComponent("الله")}`);
+
+    const more = await screen.findByRole("button", { name: "Tampilkan 20 hasil lagi" });
+    for (let click = 0; click < 4; click += 1) {
+      await user.click(more);
+    }
+
+    expect(screen.getByRole("list").querySelectorAll("a")).toHaveLength(100);
+    expect(
+      screen.queryByRole("button", { name: "Tampilkan 20 hasil lagi" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText("Menampilkan 100 dari 1842 hasil. Persempit kata kunci untuk hasil lain."),
     ).toBeInTheDocument();
   });
 });

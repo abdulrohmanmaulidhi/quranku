@@ -58,7 +58,7 @@ Contoh:
 - Memecah kueri menjadi kata; **semua** kata harus muncul sebagai substring pada teks ternormalisasi.
 - Memberi skor: kecocokan persis +1000, awalan +300, frasa +150, dan +5 per kemunculan kata.
 - Mengurutkan skor tertinggi, lalu surah dan ayat.
-- Mengembalikan maksimal 20 hasil.
+- Mengembalikan seluruh kecocokan terurut; UI menampilkan 20 pertama dan menambah 20 per klik hingga 100 (D-041).
 
 Pencarian ini bukan pencarian makna, tafsir, atau akar kata.
 

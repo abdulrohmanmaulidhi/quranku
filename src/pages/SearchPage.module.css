@@ -53,6 +53,12 @@
   text-align: center;
 }
 
+.more {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-4);
+}
+
 .note {
   margin-top: var(--space-4);
   color: var(--color-text-tertiary);

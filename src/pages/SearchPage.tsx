@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Search, SearchX } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -13,6 +14,7 @@ import { TranslationResultRow } from "@/components/quran/TranslationResultRow";
 import { filterSurahs } from "@/features/quran/filter";
 import {
   MAX_SEARCH_QUERY_LENGTH,
+  MAX_SEARCH_RESULTS,
   MIN_SEARCH_QUERY_LENGTH,
   MIN_TRANSLATION_QUERY_LENGTH,
   SEARCH_RESULT_LIMIT,
@@ -69,10 +71,23 @@ export function SearchPage() {
 
   const ayahResults =
     indexData && query && isAyahMode
-      ? searchAyahs(indexData.entries, query, SEARCH_RESULT_LIMIT, {
+      ? searchAyahs(indexData.entries, query, Number.POSITIVE_INFINITY, {
           stem: mode === "terjemahan",
         })
       : [];
+
+  const [visible, setVisible] = useState({ key: "", count: SEARCH_RESULT_LIMIT });
+  const resultKey = `${mode}:${query}`;
+  const visibleCount = visible.key === resultKey ? visible.count : SEARCH_RESULT_LIMIT;
+
+  const shownResults = Math.min(visibleCount, ayahResults.length);
+  const canShowMore = shownResults < ayahResults.length && visibleCount < MAX_SEARCH_RESULTS;
+
+  const showMore = () =>
+    setVisible({
+      key: resultKey,
+      count: Math.min(visibleCount + SEARCH_RESULT_LIMIT, MAX_SEARCH_RESULTS),
+    });
 
   const updateParam = (key: string, value: string) => {
     const next = new URLSearchParams(params);
@@ -94,14 +109,16 @@ export function SearchPage() {
     if (index.status === "loading" || index.status === "idle") {
       announcement = mode === "terjemahan" ? "Mencari terjemahan…" : "Mencari ayat…";
     } else if (index.status === "success") {
-      announcement =
-        ayahResults.length === 0
-          ? mode === "terjemahan"
-            ? "Tidak ada terjemahan yang cocok."
-            : "Tidak ada ayat yang cocok."
-          : ayahResults.length >= SEARCH_RESULT_LIMIT
-            ? `Menampilkan ${SEARCH_RESULT_LIMIT} hasil teratas.`
-            : `${ayahResults.length} ayat ditemukan.`;
+      if (ayahResults.length === 0) {
+        announcement =
+          mode === "terjemahan" ? "Tidak ada terjemahan yang cocok." : "Tidak ada ayat yang cocok.";
+      } else if (canShowMore) {
+        announcement = `Menampilkan ${shownResults} dari ${ayahResults.length} hasil.`;
+      } else if (ayahResults.length > MAX_SEARCH_RESULTS) {
+        announcement = `Menampilkan ${MAX_SEARCH_RESULTS} dari ${ayahResults.length} hasil. Persempit kata kunci untuk hasil lain.`;
+      } else {
+        announcement = `${ayahResults.length} ayat ditemukan.`;
+      }
     }
   }
 
@@ -275,7 +292,7 @@ export function SearchPage() {
       ayahResults.length > 0 ? (
         <>
           <ol className={styles.list}>
-            {ayahResults.map((result) => {
+            {ayahResults.slice(0, visibleCount).map((result) => {
               const surah = surahs.data[result.surah - 1];
               if (!surah) return null;
               const key = `${result.surah}:${result.ayah}`;
@@ -286,11 +303,12 @@ export function SearchPage() {
               );
             })}
           </ol>
-          {ayahResults.length >= SEARCH_RESULT_LIMIT ? (
-            <p className={styles.note}>
-              Menampilkan {SEARCH_RESULT_LIMIT} hasil teratas. Persempit kata kunci untuk hasil
-              lain.
-            </p>
+          {canShowMore ? (
+            <div className={styles.more}>
+              <Button variant="secondary" onClick={showMore}>
+                Tampilkan {SEARCH_RESULT_LIMIT} hasil lagi
+              </Button>
+            </div>
           ) : null}
         </>
       ) : null}
