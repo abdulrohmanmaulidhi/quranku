@@ -1,5 +1,6 @@
 import { createContext, useContext } from "react";
 import type { AudioRate, AudioTrack, RepeatMode } from "./playback";
+import type { Surah } from "@/lib/data/types";
 import { DEFAULT_RECITER_ID, getReciter, type Reciter } from "./reciters";
 
 export type AudioStatus = "idle" | "loading" | "playing" | "paused" | "error";
@@ -11,8 +12,12 @@ export interface AudioContextValue {
   rate: AudioRate;
   repeat: RepeatMode;
   reciter: Reciter;
+  /** Nomor surah yang sedang dimainkan dengan "Putar Surah"; null kalau tidak. */
+  surahMode: number | null;
   isCurrent: (surah: number, ayah: number) => boolean;
+  isSurahPlaying: (surah: Surah) => boolean;
   toggleTrack: (track: AudioTrack) => void;
+  toggleSurahPlay: (surah: Surah) => void;
   toggle: () => void;
   next: () => void;
   previous: () => void;
@@ -35,9 +40,12 @@ const defaultValue: AudioContextValue = {
   error: null,
   rate: 1,
   repeat: "off",
+  surahMode: null,
   reciter: getReciter(DEFAULT_RECITER_ID),
   isCurrent: () => false,
+  isSurahPlaying: () => false,
   toggleTrack: noop,
+  toggleSurahPlay: noop,
   toggle: noop,
   next: noop,
   previous: noop,

@@ -12,7 +12,9 @@ import {
   REPEAT_MODES,
   cycleRate,
   cycleRepeat,
+  isEndOfSurah,
   nextAyah,
+  nextInSurah,
   previousAyah,
   repeatLabel,
 } from "@/features/audio/playback";
@@ -96,6 +98,17 @@ describe("playback", () => {
   it("previousAyah turun dan berhenti di ayat 1", () => {
     expect(previousAyah(track(2, 1, 5)).ayah).toBe(1);
     expect(previousAyah(track(2, 5, 5)).ayah).toBe(4);
+  });
+
+  it("isEndOfSurah true saat di ayat terakhir", () => {
+    expect(isEndOfSurah(track(2, 1, 5))).toBe(false);
+    expect(isEndOfSurah(track(2, 5, 5))).toBe(true);
+  });
+
+  it("nextInSurah maju satu dan wrap ke ayat 1", () => {
+    expect(nextInSurah(track(2, 1, 5)).ayah).toBe(2);
+    expect(nextInSurah(track(2, 5, 5)).ayah).toBe(1);
+    expect(nextInSurah(track(2, 5, 5)).surah).toBe(2);
   });
 
   it("cycleRate mengitari rates dengan terisi 1", () => {

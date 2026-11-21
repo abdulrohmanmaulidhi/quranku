@@ -104,7 +104,7 @@ Setiap layar wajib punya state: **memuat, terisi, kosong, error, offline/sebagia
 **Komponen**
 
 - Bilah atas: kembali, nama surah, **Lompat ke** (S06), **Pengaturan baca** (S05).
-- Header surah.
+- Header surah: nama Arab, nama latin, arti, jumlah ayat, **Putar Surah** (F1.2), dan kontrol unduh per-surah (S12).
 - Petunjuk "Ketuk ayat untuk membuka aksi.", lalu basmalah pembuka sebagai baris tersendiri sebelum daftar ayat (D-012).
 - Daftar ayat. Tiap ayat: penanda nomor ayat, teks Arab (RTL), terjemahan, tombol **Aksi** (S04) dan ikon penanda.
 - Tombol putar audio tiap ayat; ayat yang sedang diputar atau sedang memuat ditandai dengan latar tebal `accent-subtle` (`.audioActive`).
@@ -313,9 +313,9 @@ Teks atribusi baku ada di `CONTENT-RULES.md`.
 **Perilaku**
 
 - Urutan: ayat berikut di dalam surah; kembali ke ayat 1 setelah ayat terakhir; repeat off/surah/one; rate 0.75/1/1.25/1.5.
+- **Queue surah (F1.2):** tombol **Putar Surah** di header surah (S03) memulai surah dari ayat 1, maju otomatis (auto-advance), dan berhenti di akhir surah. Saat queue aktif, lewati/mundur dan X berlaku seperti normal; X menutup pemutar (token posisi naik diputus sebelum `ended` diproses agar tidak mengawali track berikutnya).
 - Prefetches antar-ayat dikonsumsi pada koneksi hemat data.
-- Media Session: judul `Nama Surah · Ayat X`, artis nama Qari, ikon; aksi putar, jeda, lewati, mundur, stop; status `playing`/`paused`.
-- Tombol X menutup pemutar (token posisi naik diputus sebelum `ended` diproses agar tidak mengawali track berikutnya).
+- Media Session: judul `Nama Surah · Ayat X`, artis nama Qari, ikon; aksi putar, jeda, lewati, mundur, stop, `seekto` (ganti posisi melalui `seekTime`/`seekOffset`); **posisi dan durasi disinkronkan** ke sesi (`setPositionState`: `duration`, `position`, `playbackRate`); status `playing`/`paused`.
 - Offset: `--player-offset` (7rem di bawah nav; 0px di layar besar); `Snackbar`, `BackToTop`, dan `InstallPrompt` menyesuaikan posisi ini; BottomNav dengan mode Reader berada di atas bilah pemutar.
 
 **State**

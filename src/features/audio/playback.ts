@@ -40,6 +40,17 @@ export function previousAyah(track: AudioTrack): AudioTrack {
   return { ...track, ayah: Math.max(1, track.ayah - 1) };
 }
 
+/** true jika urutan di akhir surah. */
+export function isEndOfSurah(track: AudioTrack): boolean {
+  return track.ayah >= track.ayahCount;
+}
+
+/** Ayat berikut dalam surah yang sama; wrap ke ayat 1 setelah terakhir. */
+export function nextInSurah(track: AudioTrack): AudioTrack {
+  if (track.ayah >= track.ayahCount) return { ...track, ayah: 1 };
+  return { ...track, ayah: track.ayah + 1 };
+}
+
 export function repeatLabel(mode: RepeatMode): string {
   if (mode === "one") return "ulangi ayat";
   if (mode === "surah") return "ulangi surah";

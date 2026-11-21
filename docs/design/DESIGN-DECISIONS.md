@@ -463,6 +463,29 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 
 ---
 
+### D-045 — "Putar Surah": queue surah otomatis pada pemutar audio
+
+- **Tanggal:** 2026-11-21
+- **Status:** Diputuskan
+- **Konteks:** D-044 membuat pemutar audio berurutan per ayat dengan auto-advance dan `repeat`; tidak ada cara memutar seluruh surah dari awal, dan pemutar di host internal "seek" luar seperti `seekto` dari sesi media.
+- **Opsi yang dipertimbangkan:** (a) tombol "Putar Surah" yang mulai dari ayat 1 dan maju otomatis hingga akhir surah; (b) queue kaitan antar surah (setelah surah, lanjut surah berikutnya); (c) hanya tombol "Next" yang meloncat ke akhir surah.
+- **Keputusan:** Opsi (a). `AudioProvider` punya state `surahMode` (nomor surah yang dimainkan dalam queue); `isSurahPlaying(surah)` → tombol di SurahHeader berubah menjadi "Berhenti Surah" (`aria-pressed` saat aktif). `handleEnded` dalam queue: `isEndOfSurah` → maju ke `nextInSurah`, di akhir surah → pause. Klik header saat dimainkan → `stop()` (player tertutup); klik saat pause/idle → restart dari ayat 1. `next()`/`previous()` melayakkan `start(..., fromQueue = true)` saat queue aktif agar maju hanya selangkah.
+- **Alasan:** membuat pembacaan seluruh surah jadi satu klik; tidak berbeda semantik dengan repeat "surah" namun explicit dan bisa diurungkan dengan X (token posisi naik diputus sebelum `ended` agar tidak mengawali track berikutnya).
+- **Dampak (desain, konten, teknis):** `SurahHeader` (tombol), `AudioContext` (`surahMode`, `isSurahPlaying`, `toggleSurahPlay`), `AudioProvider` (queue mode, `start(next, fromQueue)`), `SCREEN-SPECS` S03/S12, `USER-FLOWS` F13, `COMPONENT-INVENTORY`.
+- **Bukti:** e2e `Putar Surah: otomatis maju ke ayat berikutnya` — klik, menunggu permintaan ayat 2 via `page.route`; unit test `isEndOfSurah`/`nextInSurah`.
+
+### D-046 — Media Session: durasi, posisi, dan seeking
+
+- **Tanggal:** 2026-11-21
+- **Status:** Diputuskan
+- **Konteks:** Media Session (lock screen) hanya punya judul/artis/play/pause/skip/stop tanpa waktu total atau kemampuan seeking, sehingga pengguna tidak bisa lihat durasi di layar kunci dan tidak bisa cari posisi.
+- **Opsi yang dipertimbangkan:** (a) `setPositionState({ duration, position, playbackRate })` saat metadata/timeupdate; (b) handler `seekto` → `audio.currentTime`; (c) tidak ada seeking.
+- **Keputusan:** Opsi (a)+(b). `AudioProvider` menyinkronkan `setPositionState` pada event `timeupdate`/`durationchange`/`loadedmetadata`/`play`/`pause`; handler `seekto` memakai `details.seekTime` (absolut, dikurangi ke [0, durasi]) atau `details.seekOffset` (relatif) — `MediaSessionActionDetails.seekTime`/`seekOffset` sesuai `MediaSessionActionHandler` di lib.dom. `setPosition` tidak ada di lib.dom; hanya `setPositionState`.
+- **Alasan:** lock screen jadi representatif (waktu total + seek) untuk audio per ayat yang memakai fetch streaming langsung.
+- **Dampak (desain, konten, teknis):** `AudioProvider`, `SCREEN-SPECS` S12 (`setPositionState` dicatat; `seekto` dicatat), `ARCHITECTURE.md §18`, e2e/unit tidak berubah (diperoleh otomatis).
+- **Catatan:** Nilai `seekTime`/`seekOffset` belum teruji di browser nyata; implementasi defensif dan tidak mengganggu play/pause.
+
+---
 ## Templat entri baru
 
 ```

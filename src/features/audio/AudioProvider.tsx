@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AudioContext, type AudioContextValue, type AudioStatus } from "./AudioContext";
 import { AUDIO_CACHE_NAME, matchCachedAudio } from "./audioCache";
-import { nextAyah, previousAyah, type AudioTrack } from "./playback";
+import { isEndOfSurah, nextAyah, nextInSurah, previousAyah, type AudioTrack } from "./playback";
+import type { Surah } from "@/lib/data/types";
 import { audioUrl, getReciter } from "./reciters";
 import { useAudioSettings } from "./useAudioSettings";
 import { PlayerBar } from "@/components/audio/PlayerBar";
@@ -35,6 +36,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const [track, setTrack] = useState<AudioTrack | null>(null);
   const [status, setStatus] = useState<AudioStatus>("idle");
   const [error, setError] = useState<string | null>(null);
+  const [surahMode, setSurahMode] = useState<number | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const trackRef = useRef<AudioTrack | null>(null);
@@ -45,10 +47,15 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const objectUrlRef = useRef<string | null>(null);
   const prefetchRef = useRef<AbortController | null>(null);
   const previousReciterRef = useRef(reciterId);
+  const surahModeRef = useRef<number | null>(null);
 
   useEffect(() => {
     statusRef.current = status;
   }, [status]);
+
+  useEffect(() => {
+    surahModeRef.current = surahMode;
+  }, [surahMode]);
 
   useEffect(() => {
     repeatRef.current = repeat;
@@ -68,7 +75,8 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const start = useCallback(
-    async (next: AudioTrack) => {
+    async (next: AudioTrack, fromQueue = false) => {
+      if (!fromQueue) setSurahMode(null);
       const audio = audioRef.current;
       if (!audio) return;
 
@@ -133,6 +141,19 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     [start],
   );
 
+  const isCurrent = useCallback(
+    (surah: number, ayah: number) => track?.surah === surah && track?.ayah === ayah,
+    [track],
+  );
+
+  const isSurahPlaying = useCallback((surah: Surah) => {
+    return (
+      surahModeRef.current === surah.n &&
+      trackRef.current?.surah === surah.n &&
+      (statusRef.current === "playing" || statusRef.current === "loading")
+    );
+  }, []);
+
   const toggle = useCallback(() => {
     const audio = audioRef.current;
     if (!audio || !trackRef.current) return;
@@ -145,12 +166,22 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
   const next = useCallback(() => {
     const current = trackRef.current;
-    if (current) void start(nextAyah(current));
+    if (!current) return;
+    if (surahModeRef.current === current.surah) {
+      void start(nextInSurah(current), true);
+      return;
+    }
+    void start(nextAyah(current));
   }, [start]);
 
   const previous = useCallback(() => {
     const current = trackRef.current;
-    if (current) void start(previousAyah(current));
+    if (!current) return;
+    if (surahModeRef.current === current.surah) {
+      void start(previousAyah(current), true);
+      return;
+    }
+    void start(previousAyah(current));
   }, [start]);
 
   const stop = useCallback(() => {
@@ -158,6 +189,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     prefetchRef.current?.abort();
     prefetchRef.current = null;
     trackRef.current = null;
+    setSurahMode(null);
     const audio = audioRef.current;
     if (audio) {
       audio.pause();
@@ -170,9 +202,45 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     setError(null);
   }, [releaseObjectUrl]);
 
+  const toggleSurahPlay = useCallback(
+    (surah: Surah) => {
+      const current = trackRef.current;
+      const audio = audioRef.current;
+      if (
+        surahModeRef.current === surah.n &&
+        current?.surah === surah.n &&
+        statusRef.current === "playing" &&
+        audio?.paused === false
+      ) {
+        void stop();
+        return;
+      }
+      setSurahMode(surah.n);
+      void start(
+        {
+          surah: surah.n,
+          surahName: surah.nameLatin,
+          ayah: 1,
+          ayahCount: surah.ayahCount,
+        },
+        true,
+      );
+    },
+    [start, stop],
+  );
+
   const handleEnded = useCallback(() => {
     const current = trackRef.current;
     if (!current) return;
+
+    if (surahModeRef.current === current.surah) {
+      if (isEndOfSurah(current)) {
+        setStatus("paused");
+        return;
+      }
+      void start(nextInSurah(current), true);
+      return;
+    }
 
     if (repeatRef.current === "one") {
       void start(current);
@@ -262,6 +330,32 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     });
   }, [track, reciter]);
 
+  // Sinkronkan posisi Media Session ke elemen audio (durasi, posisi, kecepatan).
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (!("mediaSession" in navigator)) return;
+    const sync = () => {
+      navigator.mediaSession.setPositionState({
+        duration: Number.isFinite(audio.duration) ? audio.duration : 0,
+        playbackRate: audio.playbackRate,
+        position: Number.isFinite(audio.currentTime) ? audio.currentTime : 0,
+      });
+    };
+    audio.addEventListener("timeupdate", sync);
+    audio.addEventListener("durationchange", sync);
+    audio.addEventListener("loadedmetadata", sync);
+    audio.addEventListener("play", sync);
+    audio.addEventListener("pause", sync);
+    return () => {
+      audio.removeEventListener("timeupdate", sync);
+      audio.removeEventListener("durationchange", sync);
+      audio.removeEventListener("loadedmetadata", sync);
+      audio.removeEventListener("play", sync);
+      audio.removeEventListener("pause", sync);
+    };
+  }, []);
+
   useEffect(() => {
     if (!("mediaSession" in navigator)) return;
     const session = navigator.mediaSession;
@@ -272,6 +366,29 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       ["previoustrack", previous],
       ["nexttrack", next],
       ["stop", stop],
+      [
+        "seekto",
+        (details) => {
+          const audio = audioRef.current;
+          if (!audio) return;
+          if (typeof details.seekTime === "number" && Number.isFinite(details.seekTime)) {
+            const duration = Number.isFinite(audio.duration)
+              ? audio.duration
+              : Number.POSITIVE_INFINITY;
+            audio.currentTime = Math.min(Math.max(details.seekTime, 0), duration);
+            return;
+          }
+          if (typeof details.seekOffset === "number" && Number.isFinite(details.seekOffset)) {
+            const duration = Number.isFinite(audio.duration)
+              ? audio.duration
+              : Number.POSITIVE_INFINITY;
+            audio.currentTime = Math.min(
+              Math.max(audio.currentTime + details.seekOffset, 0),
+              duration,
+            );
+          }
+        },
+      ],
     ];
 
     for (const [action, handler] of handlers) {
@@ -307,8 +424,11 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       rate,
       repeat,
       reciter,
-      isCurrent: (surah, ayah) => track?.surah === surah && track?.ayah === ayah,
+      surahMode,
+      isCurrent,
+      isSurahPlaying,
       toggleTrack,
+      toggleSurahPlay,
       toggle,
       next,
       previous,
@@ -324,7 +444,11 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       rate,
       repeat,
       reciter,
+      surahMode,
+      isCurrent,
+      isSurahPlaying,
       toggleTrack,
+      toggleSurahPlay,
       toggle,
       next,
       previous,
@@ -341,6 +465,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         ref={audioRef}
         preload="auto"
         hidden
+        aria-label={track ? `Audio: ${track.surahName} · Ayat ${track.ayah}` : "Pemutar audio"}
         onPlay={() => {
           setStatus("playing");
           setError(null);

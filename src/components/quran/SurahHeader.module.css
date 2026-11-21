@@ -28,3 +28,7 @@
   font-size: var(--text-ui-body-s);
   line-height: var(--leading-ui-body-s);
 }
+
+.surahPlay {
+  margin-top: var(--space-2);
+}

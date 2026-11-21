@@ -3,7 +3,9 @@ import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 
 const FIXTURE = join(process.cwd(), "tests", "fixtures", "audio", "001001.mp3");
+const FIXTURE_2 = join(process.cwd(), "tests", "fixtures", "audio", "001002.mp3");
 const AUDIO_URL = "https://everyayah.com/data/Alafasy_64kbps/001001.mp3";
+const AUDIO_URL_2 = "https://everyayah.com/data/Alafasy_64kbps/001002.mp3";
 
 test("memutar audio ayat pertama dari EveryAyah yang dialirkan", async ({ page }) => {
   const requested: string[] = [];
@@ -49,6 +51,34 @@ test("kontrol pemutar: skip, putar/jeda, ulangi, kecepatan, tutup", async ({ pag
     region.getByRole("button", { name: /Kecepatan 1 kali\. Ketuk untuk mengubah\./ }),
   ).toBeVisible();
   await expect(region.getByRole("button", { name: "Tutup pemutar" })).toBeVisible();
+});
+
+test("Putar Surah: otomatis maju ke ayat berikutnya (queue surah)", async ({ page }) => {
+  const requested: string[] = [];
+  await page.route("**/everyayah.com/data/**/*.mp3", async (route) => {
+    requested.push(route.request().url());
+    const body = route.request().url().endsWith("/001002.mp3")
+      ? readFileSync(FIXTURE_2)
+      : readFileSync(FIXTURE);
+    await route.fulfill({ status: 200, contentType: "audio/mpeg", body });
+  });
+
+  await page.goto("/surah/1");
+
+  await page.getByRole("button", { name: "Putar Surah" }).click();
+
+  const region = page.getByRole("region", { name: "Pemutar audio" });
+  await expect(region).toBeVisible();
+  // Mode queue: tombol "Berhenti Surah" muncul saat pemutar sedang aktif.
+  await expect(page.getByRole("button", { name: "Berhenti Surah" })).toBeVisible();
+
+  // Auto-advance: setelah ayat 1 berakhir, permintaan ke ayat 2 muncul.
+  await expect.poll(() => requested.includes(AUDIO_URL_2), { timeout: 8000 }).toBe(true);
+  await expect(page.locator("#ayah-2")).toHaveAttribute("data-playing", "true");
+
+  // Berhenti Surah: pemutar tertutup (track di-stop).
+  await page.getByRole("button", { name: "Berhenti Surah" }).click();
+  await expect(region).toBeHidden();
 });
 
 test("Pengaturan Audio: daftar enam Qari dengan Alafasy sebagai default", async ({ page }) => {

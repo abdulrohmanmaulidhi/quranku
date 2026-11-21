@@ -199,5 +199,22 @@ Juga dapat diakses dari label sumber terjemahan di Reader.
 ## F12 — Menghapus data lokal
 
 1. S09 → Data saya → **Hapus data lokal**.
-2. Dialog menjelaskan yang akan dihapus (penanda, posisi terakhir, pengaturan) dan bahwa tindakan ini tidak dapat dibatalkan; tawarkan **Ekspor penanda dulu**.
+2. Dialog menjelaskan yang akan dihapus (penanda, posisi terakhir, pengaturan, dan audio tersimpan) dan bahwa tindakan ini tidak dapat dibatalkan; tawarkan **Ekspor penanda dulu**.
 3. Konfirmasi → data dihapus; kembali ke Beranda kondisi kunjungan pertama.
+
+---
+
+## F13 — Putar Surah (F1.2)
+
+Journey: putar semua ayat surah dengan maju otomatis.
+
+| Langkah | Layar | Catatan |
+| ------- | ----- | ------- |
+| 1 | S03 Reader | Tombol **Putar Surah** di header surah (aktif saat aktif). |
+| 2 | S03 Reader + S12 | Pemutar dimulai dari ayat 1; tombol Berhenti Surah muncul saat aktif. |
+| 3 | S03 | Auto-advance ke ayat berikut setelah ayat 1 selesai (prefetch sebelumnya agar jeda antar-ayat pendek). |
+| 4 | S03 Reader | Pemain terus maju hingga akhir surah; di sana pemain pause (status paused). |
+| 5 | S12 | Klik **Berhenti Surah** (header) → pemutar tutup (token posisi naik diputus agar tidak lanjut ke track berikutnya). |
+| 6 | S03 | Klik **Putar Surah** lagi → surah mulai dari ayat 1 ulang. |
+
+Klik tombol putar audio tiap ayat atau **X** di pemutar: keduanya tetap berfungsi (memutar satu ayat / menutup pemutar).
