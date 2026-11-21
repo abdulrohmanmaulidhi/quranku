@@ -57,7 +57,7 @@ describe("S08 — Cari", () => {
   it("menampilkan hasil ayat Arab dengan teks verbatim dan sorotan", async () => {
     renderSearch(`/cari?mode=arab&q=${encodeURIComponent("الرحمن")}`);
 
-    const link = await screen.findByRole("link", { name: /Al-Faatiha 1:3/ });
+    const link = await screen.findByRole("link", { name: /Al-Fatihah 1:3/ });
 
     expect(link).toHaveAttribute("href", "/surah/1/3");
     await waitFor(() => {
@@ -73,7 +73,7 @@ describe("S08 — Cari", () => {
   it("memberi hasil yang sama untuk kueri berharakat", async () => {
     renderSearch(`/cari?mode=arab&q=${encodeURIComponent("ٱلرَّحْمَـٰنِ")}`);
 
-    const link = await screen.findByRole("link", { name: /Al-Faatiha 1:3/ });
+    const link = await screen.findByRole("link", { name: /Al-Fatihah 1:3/ });
     expect(link).toHaveAttribute("href", "/surah/1/3");
   });
 
@@ -100,7 +100,7 @@ describe("S08 — Cari", () => {
   it("mencari terjemahan dan menyorot kata yang cocok", async () => {
     renderSearch("/cari?mode=terjemahan&q=pengasih");
 
-    const link = await screen.findByRole("link", { name: /Al-Faatiha 1:1/ });
+    const link = await screen.findByRole("link", { name: /Al-Fatihah 1:1/ });
     expect(link).toHaveAttribute("href", "/surah/1/1");
     const text = await waitFor(() => {
       const element = link.querySelector("[lang='id']");
@@ -123,14 +123,14 @@ describe("S08 — Cari", () => {
     const user = userEvent.setup();
     renderSearch(`/cari?mode=arab&q=${encodeURIComponent("الله")}`);
 
-    expect(await screen.findByText("Menampilkan 20 dari 1842 hasil.")).toBeInTheDocument();
+    expect(await screen.findByText(/Menampilkan 20 dari \d+ hasil\./)).toBeInTheDocument();
     const list = screen.getByRole("list");
     expect(within(list).getAllByRole("link")).toHaveLength(20);
 
     await user.click(screen.getByRole("button", { name: "Tampilkan 20 hasil lagi" }));
 
     expect(within(list).getAllByRole("link")).toHaveLength(40);
-    expect(screen.getByText("Menampilkan 40 dari 1842 hasil.")).toBeInTheDocument();
+    expect(screen.getByText(/Menampilkan 40 dari \d+ hasil\./)).toBeInTheDocument();
   });
 
   it("berhenti menambah hasil pada batas 100", async () => {
@@ -147,7 +147,7 @@ describe("S08 — Cari", () => {
       screen.queryByRole("button", { name: "Tampilkan 20 hasil lagi" }),
     ).not.toBeInTheDocument();
     expect(
-      screen.getByText("Menampilkan 100 dari 1842 hasil. Persempit kata kunci untuk hasil lain."),
+      screen.getByText(/Menampilkan 100 dari \d+ hasil\. Persempit kata kunci untuk hasil lain\./),
     ).toBeInTheDocument();
   });
 });

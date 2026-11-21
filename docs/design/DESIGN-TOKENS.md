@@ -57,7 +57,7 @@ Aturan:
 
 | Token              | Nilai (kandidat, diputuskan lewat uji)                              |
 | ------------------ | ------------------------------------------------------------------- |
-| `font.arabic`      | `"Amiri Quran", "Scheherazade New", "Noto Naskh Arabic", serif`     |
+| `font.arabic`      | `"Hafs 20", "Noto Naskh Arabic", "Amiri Quran", serif`              |
 | `font.translation` | `"Literata", "Source Serif 4", Georgia, serif`                      |
 | `font.ui`          | `"Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif` |
 

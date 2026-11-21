@@ -53,7 +53,8 @@ describe("berkas terjemahan per surah", () => {
 
 describe("unduhan offline", () => {
   it("menyertakan berkas terjemahan, indeks pencarian, dan sumbernya", () => {
-    expect(OFFLINE_DATA_PATHS).toHaveLength(235);
+    expect(OFFLINE_DATA_PATHS).toHaveLength(236);
+    expect(OFFLINE_DATA_PATHS).toContain("basmalah.json");
     expect(OFFLINE_DATA_PATHS).toContain("search/translation.json");
     expect(OFFLINE_DATA_PATHS).toContain("tr/indonesian_affairs/001.json");
     expect(OFFLINE_DATA_PATHS).toContain("tr/indonesian_affairs/114.json");

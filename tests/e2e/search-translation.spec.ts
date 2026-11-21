@@ -19,7 +19,7 @@ test("pencarian terjemahan menyorot kata dan membuka Reader dengan terjemahan ta
 
   await page.goto(`/cari?mode=terjemahan&q=${encodeURIComponent("pengasih")}`);
 
-  const result = page.getByRole("link", { name: /Al-Faatiha 1:1/ });
+  const result = page.getByRole("link", { name: /Al-Fatihah 1:1/ });
   await expect(result).toBeVisible();
 
   const translation = result.locator("[lang='id']");
@@ -46,7 +46,7 @@ test("pencarian terjemahan mengabaikan imbuhan umum", async ({ page }) => {
   await expect(
     page.getByRole("status").getByText(/^Menampilkan 20 dari \d+ hasil\.$/),
   ).toBeVisible();
-  await expect(page.getByRole("link", { name: /Al-Baqara 2:235/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Al-Baqarah 2:235/ })).toBeVisible();
 
   await expect(
     page.getByText(/mengabaikan huruf besar\/kecil, diakritik, dan imbuhan/),
@@ -59,12 +59,12 @@ test("hasil pencarian bertambah 20 per klik hingga batas 100", async ({ page }) 
   const status = page.getByRole("status").filter({ hasText: "hasil" });
   const rows = page.locator("ol a");
 
-  await expect(status).toHaveText("Menampilkan 20 dari 1842 hasil.");
+  await expect(status).toHaveText(/Menampilkan 20 dari \d+ hasil\./);
   await expect(rows).toHaveCount(20);
 
   const more = page.getByRole("button", { name: "Tampilkan 20 hasil lagi" });
   await more.click();
-  await expect(status).toHaveText("Menampilkan 40 dari 1842 hasil.");
+  await expect(status).toHaveText(/Menampilkan 40 dari \d+ hasil\./);
   await expect(rows).toHaveCount(40);
 
   for (let click = 0; click < 3; click += 1) {
@@ -74,7 +74,7 @@ test("hasil pencarian bertambah 20 per klik hingga batas 100", async ({ page }) 
   await expect(rows).toHaveCount(100);
   await expect(more).toHaveCount(0);
   await expect(status).toHaveText(
-    "Menampilkan 100 dari 1842 hasil. Persempit kata kunci untuk hasil lain.",
+    /Menampilkan 100 dari \d+ hasil\. Persempit kata kunci untuk hasil lain\./,
   );
 });
 

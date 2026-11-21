@@ -115,7 +115,7 @@ Setiap layar wajib punya state: **memuat, terisi, kosong, error, offline/sebagia
 **Aturan**
 
 - Arab selalu RTL, tanpa pemotongan, harakat utuh.
-- Basmalah pada surah 2–114 (kecuali 9) ditampilkan sebagai baris tersendiri di bawah petunjuk baca, dari potongan teks asli; ayat 1 menampilkan sisa teksnya tanpa karakter yang hilang. Salin dan bagikan tetap memakai teks ayat utuh (D-012). Surah 1 menampilkan basmalah sebagai ayat 1; surah 9 tanpa basmalah.
+- Basmalah pada surah 2–114 (kecuali 9) ditampilkan sebagai baris tersendiri di bawah petunjuk baca, diambil verbatim dari 1:1 (`basmalah.json`); ayat 1 tidak dipotong (D-012/D-042). Surah 1 menampilkan basmalah sebagai ayat 1; surah 9 tanpa basmalah.
 - Deep link ke ayat 1 menggulir ke atas halaman agar basmalah tetap terlihat.
 - Terjemahan ditampilkan verbatim; atribusi ada di S10 dan dapat dijangkau dari kaki Reader. Catatan kaki dibuka per ayat lewat panel lipat.
 - Tidak ada iklan, rekomendasi, atau pop-up di dalam konten.

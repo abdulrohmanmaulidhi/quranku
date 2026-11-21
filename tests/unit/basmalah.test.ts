@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { splitBasmalah } from "@/features/quran/basmalah";
-import { normalizeForSearch } from "@/lib/search/normalize";
+import { parseBasmalah } from "@/lib/data/parse";
+import { readDataJson, readSurahText } from "./helpers";
 
-const SOURCE_FILE = join(process.cwd(), "data", "source", "quran-uthmani.txt");
+const CSV_FILE = join(process.cwd(), "data", "source", "quran-hafs.csv");
 
 interface SourceAyah {
   surah: number;
@@ -13,55 +13,46 @@ interface SourceAyah {
 }
 
 function readSource(): SourceAyah[] {
-  return readFileSync(SOURCE_FILE, "utf8")
+  return readFileSync(CSV_FILE, "utf8")
     .split("\n")
-    .map((line) => line.trimEnd())
-    .filter((line) => line.length > 0 && !line.startsWith("#"))
+    .slice(1)
+    .filter((line) => line.length > 0)
     .map((line) => {
-      const [surah, ayah, ...text] = line.split("|");
-      return { surah: Number(surah), ayah: Number(ayah), text: text.join("|") };
+      const [, surah, ayah, text] = line.split('","');
+      return { surah: Number(surah), ayah: Number(ayah), text: text.replace(/"$/, "") };
     });
 }
 
 const source = readSource();
-const firstAyahs = new Map(
-  source.filter((ayah) => ayah.ayah === 1).map((ayah) => [ayah.surah, ayah.text]),
-);
-const fatihah = firstAyahs.get(1);
-if (!fatihah) throw new Error("Data 1:1 tidak ditemukan.");
+const sourceAyah = (surah: number, ayah: number) =>
+  source.find((row) => row.surah === surah && row.ayah === ayah);
 
-describe("pemisahan basmalah untuk tampilan", () => {
-  it("membagi 112 surah tanpa mengubah satu karakter pun", () => {
-    for (const [surah, text] of firstAyahs) {
-      if (surah === 1 || surah === 9) continue;
-
-      const split = splitBasmalah(surah, 1, text);
-      expect(split, `surah ${surah}`).not.toBeNull();
-
-      const { basmalah, rest } = split as { basmalah: string; rest: string };
-      expect(basmalah.split(" "), `surah ${surah}`).toHaveLength(4);
-      expect(`${basmalah} ${rest}`, `surah ${surah}`).toBe(text);
-      expect(normalizeForSearch(basmalah), `surah ${surah}`).toBe(normalizeForSearch(fatihah));
-    }
+describe("basmalah", () => {
+  it("berisi 6.236 ayat pada sumber", () => {
+    expect(source).toHaveLength(6236);
   });
 
-  it("tidak memisah surah 1 karena basmalah adalah ayat 1", () => {
-    expect(splitBasmalah(1, 1, fatihah)).toBeNull();
+  it("diambil verbatim dari 1:1", () => {
+    const basmalah = parseBasmalah(readDataJson("basmalah.json"));
+    expect(basmalah.text).toBe(sourceAyah(1, 1)?.text);
+    expect(basmalah.text.split(" ")).toHaveLength(4);
   });
 
-  it("tidak memisah surah 9 yang tidak memiliki basmalah", () => {
-    const atTaubah = firstAyahs.get(9);
-    expect(atTaubah).toBeDefined();
-    expect(splitBasmalah(9, 1, atTaubah as string)).toBeNull();
+  it("tidak dipotong dari ayat 1 surah lain", () => {
+    const baqarah = readSurahText(2);
+    expect(baqarah.ayahs[0]?.text).toBe(sourceAyah(2, 1)?.text);
+    expect(baqarah.ayahs[0]?.text).not.toContain(sourceAyah(1, 1)?.text as string);
+    expect(baqarah.ayahs[0]?.text).toBe("الٓمٓ");
   });
 
   it("tidak menyentuh basmalah di tengah ayat", () => {
-    const anNaml = source.find((ayah) => ayah.surah === 27 && ayah.ayah === 30);
-    expect(anNaml).toBeDefined();
-    expect(splitBasmalah(27, 30, (anNaml as SourceAyah).text)).toBeNull();
+    const anNaml = readSurahText(27);
+    expect(anNaml.ayahs[29]?.text).toBe(sourceAyah(27, 30)?.text);
+    expect(anNaml.ayahs[29]?.text).toContain(sourceAyah(1, 1)?.text as string);
   });
 
-  it("menolak ayat pertama yang hanya berisi empat kata", () => {
-    expect(splitBasmalah(2, 1, fatihah)).toBeNull();
+  it("surah 9 tidak memiliki basmalah di awal ayat", () => {
+    const atTaubah = readSurahText(9);
+    expect(atTaubah.ayahs[0]?.text).not.toContain(sourceAyah(1, 1)?.text as string);
   });
 });

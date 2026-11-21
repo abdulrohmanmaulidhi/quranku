@@ -1,6 +1,7 @@
 import type {
   Ayah,
   AyahRef,
+  Basmalah,
   Juz,
   Manifest,
   Revelation,
@@ -54,6 +55,7 @@ export function parseManifest(value: unknown): Manifest {
   assert(isRecord(value.source), "Manifest.source tidak valid.");
   assert(isRecord(value.source.text), "Manifest.source.text tidak valid.");
   assert(isRecord(value.source.metadata), "Manifest.source.metadata tidak valid.");
+  assert(isRecord(value.source.names), "Manifest.source.names tidak valid.");
   assert(isRecord(value.source.translation), "Manifest.source.translation tidak valid.");
 
   const sourceInfo = (source: Record<string, unknown>) => ({
@@ -77,6 +79,7 @@ export function parseManifest(value: unknown): Manifest {
     source: {
       text: sourceInfo(value.source.text),
       metadata: sourceInfo(value.source.metadata),
+      names: sourceInfo(value.source.names),
       translation: sourceInfo(value.source.translation),
     },
     copyrightNotice: requireString(value.copyrightNotice, "copyrightNotice"),
@@ -93,6 +96,13 @@ export function parseManifest(value: unknown): Manifest {
 const parseRevelation = (value: unknown): Revelation => {
   assert(value === "Meccan" || value === "Medinan", "Jenis wahyu tidak valid.");
   return value;
+};
+
+const parseAliases = (value: unknown, index: number): string[] => {
+  assert(Array.isArray(value), `surah[${index}].nameAliases harus berupa larik.`);
+  return value.map((alias, position) =>
+    requireString(alias, `surah[${index}].nameAliases[${position}]`),
+  );
 };
 
 export function parseSurahs(value: unknown): Surah[] {
@@ -114,6 +124,7 @@ export function parseSurahs(value: unknown): Surah[] {
       n,
       name: requireString(entry.name, `surah[${index}].name`),
       nameLatin: requireString(entry.nameLatin, `surah[${index}].nameLatin`),
+      nameAliases: parseAliases(entry.nameAliases, index),
       nameEnglish: requireString(entry.nameEnglish, `surah[${index}].nameEnglish`),
       revelation,
       revelationId,
@@ -216,4 +227,9 @@ export function parseSurahTranslation(
   });
 
   return { surah: expectedSurah, ayahs };
+}
+
+export function parseBasmalah(value: unknown): Basmalah {
+  assert(isRecord(value), "Data basmalah tidak valid.");
+  return { text: requireString(value.text, "basmalah.text") };
 }

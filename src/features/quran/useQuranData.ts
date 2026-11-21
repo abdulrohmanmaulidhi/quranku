@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import {
+  loadBasmalah,
   loadJuz,
   loadManifest,
   loadSurahs,
   loadSurahText,
   loadSurahTranslation,
 } from "@/lib/data/client";
-import type { Juz, Manifest, Surah, SurahText, SurahTranslation } from "@/lib/data/types";
+import type { Basmalah, Juz, Manifest, Surah, SurahText, SurahTranslation } from "@/lib/data/types";
 
 export type AsyncState<T> =
   { status: "loading" } | { status: "success"; data: T } | { status: "error"; error: Error };
@@ -71,6 +72,10 @@ export function useSurahs(): AsyncResource<Surah[]> {
 
 export function useManifest(): AsyncResource<Manifest> {
   return useAsyncResource(loadManifest, "manifest");
+}
+
+export function useBasmalah(): AsyncResource<Basmalah> {
+  return useAsyncResource(loadBasmalah, "basmalah");
 }
 
 export function useJuz(surahs: Surah[] | null, enabled = true): AsyncResource<Juz[]> {

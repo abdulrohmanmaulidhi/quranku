@@ -17,7 +17,6 @@ import { JumpToDialog } from "@/components/quran/JumpToDialog";
 import { ReadingSettings } from "@/components/quran/ReadingSettings";
 import { SurahHeader } from "@/components/quran/SurahHeader";
 import type { ArabicSize } from "@/components/quran/ArabicText";
-import { splitBasmalah } from "@/features/quran/basmalah";
 import type { TranslationSize } from "@/features/library/useTranslationSize";
 import { useArabicSize } from "@/features/library/useArabicSize";
 import { useTranslationSize } from "@/features/library/useTranslationSize";
@@ -25,6 +24,7 @@ import { useTranslationVisible } from "@/features/library/useTranslationVisible"
 import { useBookmarksForSurah } from "@/features/library/useLibrary";
 import {
   useSurahs,
+  useBasmalah,
   useSurahText,
   useSurahTranslation,
   type AsyncResource,
@@ -297,6 +297,7 @@ function ReaderContent({
   showTranslation,
 }: ReaderContentProps) {
   const online = useOnlineStatus();
+  const basmalah = useBasmalah();
   const bookmarks = useBookmarksForSurah(surah.n);
   const lastSaved = useRef<string>("");
   const [selected, setSelected] = useState<number | null>(null);
@@ -478,8 +479,7 @@ function ReaderContent({
   const selectedReference =
     selected !== null ? formatReference(surah.nameLatin, surah.n, selected) : "";
 
-  const firstAyah = text.data.ayahs[0];
-  const basmalahSplit = firstAyah ? splitBasmalah(surah.n, firstAyah.n, firstAyah.text) : null;
+  const showBasmalah = surah.n !== 1 && surah.n !== 9 && basmalah.status === "success";
 
   return (
     <PageContainer width="reader">
@@ -487,9 +487,9 @@ function ReaderContent({
 
       <p className={styles.hint}>Ketuk ayat untuk membuka aksi.</p>
 
-      {basmalahSplit ? (
+      {showBasmalah ? (
         <p className={styles.basmalah} dir="rtl" lang="ar" data-basmalah>
-          {basmalahSplit.basmalah}
+          {basmalah.data.text}
         </p>
       ) : null}
 
@@ -529,7 +529,6 @@ function ReaderContent({
             targeted={targetAyah === ayah.n}
             bookmarked={bookmarks.bookmarked.has(ayah.n)}
             arabicSize={arabicSize}
-            arabicText={basmalahSplit && ayah.n === 1 ? basmalahSplit.rest : undefined}
             translationSize={translationSize}
             translation={
               showTranslation && translation.status === "success"

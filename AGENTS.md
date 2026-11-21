@@ -4,12 +4,12 @@ PWA local-first untuk membaca Al-Qur'an (Vite + React + TypeScript). **Release 1
 
 ## Aturan (jangan dilanggar)
 
-1. **Teks Arab (Tanzil Uthmani) tidak boleh diubah, dipotong, diringkas, atau diketik ulang.** Keluaran build harus identik dengan sumber. Normalisasi hanya untuk indeks pencarian, tidak pernah untuk tampilan.
+1. **Teks Arab (Uthmani Hafs 20, KFGQPC) tidak boleh diubah, dipotong, diringkas, atau diketik ulang.** Keluaran build harus identik dengan sumber. Normalisasi hanya untuk indeks pencarian, tidak pernah untuk tampilan. Font Hafs 20 tidak boleh diubah atau di-subset.
 2. **Jangan menambah** backend, server database, autentikasi, Redis, atau layanan pihak ketiga tanpa keputusan tertulis di dokumen.
 3. **Jangan menghasilkan** teks Al-Qur'an, terjemahan, atau tafsir dengan AI.
 4. **Tanpa iklan**, pop-up, atau elemen gamifikasi (streak, peringkat) di aplikasi.
 5. **Privasi:** data pengguna hanya di perangkat. Jangan menambah analitik yang merekam teks pencarian atau riwayat baca perorangan.
-6. **Lisensi:** atribusi Tanzil dan QuranEnc wajib tampil. Terjemahan Indonesia mengikuti D-003 (QuranEnc, tujuh syarat); teks dan catatan kaki tidak boleh diubah.
+6. **Lisensi:** atribusi KFGQPC (teks dan font), QuranEnc (terjemahan dan nama surah), dan Tanzil (metadata) wajib tampil. Terjemahan Indonesia mengikuti D-003 (QuranEnc, tujuh syarat); teks dan catatan kaki tidak boleh diubah. Lihat D-042.
 7. Jangan mengedit `data/source/` atau `public/data/` secara manual. `public/data/` dihasilkan oleh skrip build-data.
 
 ## Prioritas dokumen bila ada konflik

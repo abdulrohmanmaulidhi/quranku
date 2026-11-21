@@ -4,7 +4,7 @@ Dokumen ini menjelaskan normalisasi yang dipakai **hanya untuk pencarian**. Tida
 
 ## Prinsip
 
-1. Teks Al-Qur'an yang ditampilkan selalu berasal dari `public/data/v2/ar/XXX.json` dan identik dengan sumber Tanzil.
+1. Teks Al-Qur'an yang ditampilkan selalu berasal dari `public/data/v3/ar/XXX.json` dan identik dengan sumber Hafs 20.
 2. Indeks pencarian menyimpan referensi `(surah, ayat)` dan teks ternormalisasi, bukan teks asli.
 3. Normalisasi yang sama dipakai oleh skrip build dan aplikasi melalui `src/lib/search/normalize.mjs`. Jangan membuat salinan algoritme di tempat lain.
 4. Sorotan hasil pencarian hanya membungkus karakter asli dengan `<mark>`; isi teks tidak berubah.
@@ -12,10 +12,10 @@ Dokumen ini menjelaskan normalisasi yang dipakai **hanya untuk pencarian**. Tida
 ## Alur
 
 ```text
-data/source/quran-uthmani.txt
+data/source/quran-hafs.csv
         │
         ▼
-scripts/build-data.mjs ── normalizeForSearch ──► public/data/v2/search/arabic.json
+scripts/build-data.mjs ── normalizeForSearch ──► public/data/v3/search/arabic.json
         │
         └── ar/XXX.json (teks verbatim)
 

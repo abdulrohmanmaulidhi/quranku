@@ -37,7 +37,7 @@ export function SideNav() {
         <Link to="/sumber" className={styles.footerLink}>
           Sumber &amp; atribusi
         </Link>
-        <p className={styles.footerNote}>Teks Arab: Tanzil (CC BY 3.0)</p>
+        <p className={styles.footerNote}>Teks Arab: KFGQPC Hafs 20</p>
       </div>
     </aside>
   );

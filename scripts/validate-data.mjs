@@ -9,8 +9,9 @@ if (errors.length) {
   process.exitCode = 1;
 } else {
   console.log("validate-data: OK");
-  console.log(`  ${SOURCE_INFO.text.file}: Tanzil Uthmani v${SOURCE_INFO.text.version}`);
+  console.log(`  ${SOURCE_INFO.text.file}: ${SOURCE_INFO.text.name} v${SOURCE_INFO.text.version}`);
   console.log(`  ${SOURCE_INFO.metadata.file}: metadata v${SOURCE_INFO.metadata.version}`);
+  console.log(`  ${SOURCE_INFO.names.file}: nama surah QuranEnc`);
   console.log(`  ${TRANSLATION_FILE}: ${data.translation.title} v${data.translation.version}`);
   console.log(`  ${data.surahs.length} surah, ${data.ayahs.length} ayat, ${data.juz.length} juz`);
   console.log("  checksum SHA-256 cocok; urutan dan jumlah per surah cocok");

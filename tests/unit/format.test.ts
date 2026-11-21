@@ -22,7 +22,7 @@ describe("formatNumber", () => {
 describe("formatReference", () => {
   it("memakai format QS. Nama Surah Nomor:Ayat", () => {
     expect(formatReference("Al-Kahf", 18, 10)).toBe("QS. Al-Kahf 18:10");
-    expect(formatReference("Al-Faatiha", 1, 1)).toBe("QS. Al-Faatiha 1:1");
+    expect(formatReference("Al-Fatihah", 1, 1)).toBe("QS. Al-Fatihah 1:1");
   });
 });
 

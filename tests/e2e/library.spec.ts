@@ -44,7 +44,7 @@ test("penanda tersimpan setelah muat ulang, lalu dapat dihapus dan diurungkan", 
   page,
 }) => {
   await page.goto("/surah/1");
-  await expect(page.getByRole("heading", { level: 1, name: "Al-Faatiha" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Al-Fatihah" })).toBeVisible();
 
   await page.getByRole("button", { name: "Pilih ayat 1", exact: true }).click();
   await page.getByRole("button", { name: "Aksi ayat 1", exact: true }).click();
@@ -54,17 +54,17 @@ test("penanda tersimpan setelah muat ulang, lalu dapat dihapus dan diurungkan", 
   await expect(page.locator("#ayah-1").getByText("Ditandai")).toBeAttached();
 
   await page.goto("/penanda");
-  await expect(page.getByText("QS. Al-Faatiha 1:1")).toBeVisible();
+  await expect(page.getByText("QS. Al-Fatihah 1:1")).toBeVisible();
   await expect(page.getByText(readSurahTranslation(1).ayahs[0]!.text)).toBeVisible();
 
   await page.reload();
-  await expect(page.getByText("QS. Al-Faatiha 1:1")).toBeVisible();
+  await expect(page.getByText("QS. Al-Fatihah 1:1")).toBeVisible();
 
-  await page.getByRole("button", { name: "Hapus penanda QS. Al-Faatiha 1:1" }).click();
+  await page.getByRole("button", { name: "Hapus penanda QS. Al-Fatihah 1:1" }).click();
   await expect(page.getByText("Belum ada penanda")).toBeVisible();
 
   await page.getByRole("button", { name: "Urungkan" }).click();
-  await expect(page.getByText("QS. Al-Faatiha 1:1")).toBeVisible();
+  await expect(page.getByText("QS. Al-Fatihah 1:1")).toBeVisible();
 });
 
 test("beranda menawarkan lanjutkan membaca dari posisi terakhir", async ({ page }) => {

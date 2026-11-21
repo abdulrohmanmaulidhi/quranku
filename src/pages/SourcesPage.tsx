@@ -64,9 +64,12 @@ export function SourcesPage() {
                 Teks Al-Qur&apos;an
               </h2>
               <p className={styles.paragraph}>
-                Teks Al-Qur&apos;an (Uthmani) bersumber dari Tanzil Project (tanzil.net), versi{" "}
-                {manifest.data.source.text.version}, berlisensi Creative Commons Attribution 3.0.
-                Teks ditampilkan tanpa perubahan.
+                Teks Al-Qur&apos;an (Uthmani) bersumber dari paket Hafs 20 yang disediakan{" "}
+                <ExternalLinkText href="https://quranenc.com/en/home">
+                  QuranEnc.com
+                </ExternalLinkText>
+                , yaitu teks Uthmani Hafs versi {manifest.data.source.text.version} dari King Fahd
+                Glorious Quran Printing Complex (KFGQPC). Teks ditampilkan tanpa perubahan.
               </p>
               <dl className={styles.details}>
                 <div className={styles.detailRow}>
@@ -89,7 +92,7 @@ export function SourcesPage() {
                 </div>
               </dl>
               <p className={styles.links}>
-                <ExternalLinkText href={manifest.data.source.text.url}>tanzil.net</ExternalLinkText>
+                <ExternalLinkText href={manifest.data.source.text.url}>Hafs 20</ExternalLinkText>
                 <a
                   className={styles.external}
                   href={dataUrl("COPYRIGHT.txt")}
@@ -110,7 +113,12 @@ export function SourcesPage() {
               <p className={styles.paragraph}>
                 Nama surah, jumlah ayat, klasifikasi Makkiyah/Madaniyah, dan batas juz diambil dari{" "}
                 {manifest.data.source.metadata.name} versi {manifest.data.source.metadata.version}.
-                Data ini tidak mengubah teks ayat.
+                Nama surah Latin memakai{" "}
+                <ExternalLinkText href={manifest.data.source.names.url}>
+                  QuranEnc.com
+                </ExternalLinkText>
+                , dengan diakritik dihilangkan agar mudah dibaca di antarmuka. Data ini tidak
+                mengubah teks ayat.
               </p>
             </section>
 
@@ -127,16 +135,17 @@ export function SourcesPage() {
                   </a>
                 </li>
                 <li>
-                  <span className={styles.fontName}>Noto Naskh Arabic</span> — teks Arab. Lisensi
-                  SIL Open Font License.{" "}
-                  <a className={styles.external} href="/fonts/licenses/Noto-Naskh-Arabic-OFL.txt">
+                  <span className={styles.fontName}>Hafs 20</span> — teks Arab. Font Uthmani Hafs
+                  v20 dari King Fahd Glorious Quran Printing Complex (KFGQPC), dipakai bersama teks
+                  yang cocok. Lisensi KFGQPC mengizinkan pemakaian dan distribusi tanpa perubahan.{" "}
+                  <a className={styles.external} href="/fonts/licenses/KFGQPC-Hafs.txt">
                     Berkas lisensi
                   </a>
                 </li>
               </ul>
               <p className={styles.note}>
-                Pemilihan font Arab masih sementara sampai pengujian di perangkat nyata selesai
-                (D-006).
+                Teks dan font Hafs 20 dipakai berpasangan; font ini tidak diubah atau di-subset
+                sesuai lisensinya.
               </p>
             </section>
 

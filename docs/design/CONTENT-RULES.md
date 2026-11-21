@@ -12,7 +12,7 @@ Dokumen ini mengatur bagaimana konten Al-Qur'an dan teks antarmuka ditampilkan. 
 
 ## 1. Integritas teks Al-Qur'an
 
-1. Teks Arab bersumber dari **Tanzil Uthmani v1.1** dan ditampilkan **apa adanya**. Lisensi sumber melarang perubahan teks.
+1. Teks Arab bersumber dari **Uthmani Hafs 20** (KFGQPC, paket QuranEnc) dan ditampilkan **apa adanya**. Teks dan fontnya dipakai berpasangan; font tidak boleh diubah atau di-subset (D-042).
 2. Teks Arab **tidak** diketik ulang, diedit, diringkas, atau dihasilkan AI. Di desain, selalu disalin dari berkas sumber.
 3. Teks Arab tidak boleh:
    - dipotong (`text-overflow: ellipsis`, `line-clamp`, dll.),
@@ -30,7 +30,7 @@ Dokumen ini mengatur bagaimana konten Al-Qur'an dan teks antarmuka ditampilkan. 
 | Tafsir (ditunda)        | Panel terpisah dengan penulis dan sumber                                  |
 
 7. Dilarang menampilkan teks buatan AI sebagai teks Al-Qur'an, terjemahan, atau tafsir.
-8. Basmalah: tampil sebagai baris header untuk surah 2–114 (kecuali 9) sesuai D-012. Teksnya diambil apa adanya dari ayat 1; data tersimpan tidak diubah.
+8. Basmalah: tampil sebagai baris header untuk surah 2–114 (kecuali 9) sesuai D-012/D-042. Teksnya diambil apa adanya dari 1:1 (`basmalah.json`); ayat 1 surah lain tidak dipotong.
 
 ## 2. Atribusi dan lisensi
 
@@ -38,9 +38,9 @@ Atribusi wajib tampil di S10 (Sumber & Atribusi) dan dapat dijangkau dari Reader
 
 ### 2.1 Teks Al-Qur'an
 
-> Teks Al-Qur'an (Uthmani) bersumber dari Tanzil Project (tanzil.net), versi 1.1, berlisensi Creative Commons Attribution 3.0. Teks ditampilkan tanpa perubahan.
+> Teks Al-Qur'an (Uthmani Hafs) bersumber dari paket Hafs 20 yang disediakan QuranEnc.com, yaitu teks Uthmani Hafs versi 20 dari King Fahd Glorious Quran Printing Complex (KFGQPC). Teks ditampilkan tanpa perubahan; fontnya dipakai tanpa modifikasi sesuai lisensi KFGQPC.
 
-_(Periksa syarat lengkap di tanzil.net sebelum rilis dan sesuaikan redaksi bila diperlukan.)_
+_(Berkas lisensi font: `public/fonts/licenses/KFGQPC-Hafs.txt`.)_
 
 ### 2.2 Terjemahan
 
@@ -70,7 +70,7 @@ Contoh keluaran salin ayat:
 [terjemahan]
 
 QS. Al-Kahfi 18:10
-Sumber: Tanzil (teks Arab), [nama terjemahan]
+Sumber: KFGQPC Hafs 20 via QuranEnc (teks Arab), [nama terjemahan]
 ```
 
 ## 4. Gaya dan nada teks antarmuka
@@ -132,7 +132,7 @@ Putuskan pilihan akhir "Penanda" vs "Bookmark" lewat uji pembaca (D-010).
 
 ## 9. Daftar periksa konten sebelum rilis
 
-- [ ] Atribusi Tanzil tampil dan akurat.
+- [ ] Atribusi KFGQPC dan QuranEnc tampil dan akurat.
 - [ ] Terjemahan: izin jelas dan atribusi terisi.
 - [ ] Teks Arab di build identik dengan berkas sumber (uji checksum/jumlah: 114 surah, 6.236 ayat).
 - [ ] Tidak ada teks Arab yang terpotong di layar mana pun.

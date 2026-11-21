@@ -101,7 +101,7 @@ describe("S07 — Penanda", () => {
     );
 
     expect(await screen.findByText("QS. Al-Kahf 18:10")).toBeInTheDocument();
-    expect(screen.getByText("QS. Al-Faatiha 1:1")).toBeInTheDocument();
+    expect(screen.getByText("QS. Al-Fatihah 1:1")).toBeInTheDocument();
     expect(screen.getByText("2 ayat ditandai")).toBeInTheDocument();
 
     const links = screen.getAllByRole("link");
@@ -117,7 +117,7 @@ describe("S07 — Penanda", () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByText("QS. Al-Faatiha 1:1")).toBeInTheDocument();
+    expect(await screen.findByText("QS. Al-Fatihah 1:1")).toBeInTheDocument();
     expect(await screen.findByText(readSurahTranslation(1).ayahs[0]!.text)).toBeInTheDocument();
   });
 

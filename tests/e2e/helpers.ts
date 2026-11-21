@@ -45,9 +45,7 @@ export function readSurahTranslation(surah: number): SurahTranslation {
  * Dipakai untuk memastikan pemisahan tampilan tidak menghilangkan karakter.
  */
 export async function renderedFirstAyah(page: Page): Promise<string> {
-  return page.evaluate(() => {
-    const basmalah = document.querySelector("[data-basmalah]")?.textContent ?? "";
-    const ayah = document.querySelector("#ayah-1 [dir='rtl']")?.textContent ?? "";
-    return [basmalah, ayah].filter(Boolean).join(" ");
-  });
+  // Basmalah adalah header tersendiri dan bukan bagian ayat 1 pada teks Hafs,
+  // jadi yang dibandingkan hanya teks ayatnya.
+  return page.evaluate(() => document.querySelector("#ayah-1 [dir='rtl']")?.textContent ?? "");
 }

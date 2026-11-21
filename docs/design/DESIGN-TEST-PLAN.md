@@ -12,7 +12,7 @@ Ada tiga uji, dilakukan berurutan:
 - **B. Evaluasi varian Reader** (menentukan arah layout)
 - **C. Uji kegunaan dengan calon pembaca**
 
-> **Aturan emas:** teks Arab di kanvas desain **disalin dari berkas Tanzil**, tidak pernah diketik ulang. Salah satu huruf atau harakat saja membuat hasil uji tidak sah.
+> **Aturan emas:** teks Arab di kanvas desain **disalin dari `data/source/quran-hafs.csv`**, tidak pernah diketik ulang. Salah satu huruf atau harakat saja membuat hasil uji tidak sah.
 
 ---
 

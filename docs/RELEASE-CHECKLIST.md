@@ -5,7 +5,7 @@ dan isi tanggal serta nama pemeriksa. Gate otomatis harus lulus pada commit
 yang akan dirilis; jangan merilis dari working tree yang kotor.
 
 **Versi aplikasi:** `package.json` → `version`
-**Versi dataset:** `public/data/v2/manifest.json` → `version` dan `checksum`
+**Versi dataset:** `public/data/v3/manifest.json` → `version` dan `checksum`
 **Commit:** `git rev-parse --short HEAD`
 
 ## 1. Gate otomatis
@@ -18,7 +18,7 @@ yang akan dirilis; jangan merilis dari working tree yang kotor.
 | Format         | `pnpm format:check`   | Semua berkas sesuai Prettier             | ☐      |
 | Unit           | `pnpm test`           | Semua lulus                              | ☐      |
 | E2E            | `pnpm test:e2e`       | Semua lulus, termasuk axe                | ☐      |
-| Build          | `pnpm build`          | `verify:output` OK, 235 berkas data      | ☐      |
+| Build          | `pnpm build`          | `verify:output` OK, 236 berkas data      | ☐      |
 | Lighthouse     | `pnpm lighthouse`     | Aksesibilitas ≥ 0,95, tanpa galat serius | ☐      |
 
 `pnpm build` menjalankan `validate:data`, `build:data`, dan `verify:output`
@@ -32,9 +32,9 @@ secara berurutan. `public/data` dihasilkan ulang dan tidak di-commit.
 | Zoom 200%               | Teks tidak terpotong, tombol tetap 44×44 px                        | ☐      |
 | Tema terang dan gelap   | Semua layar utama, termasuk fokus keyboard                        | ☐      |
 | Keyboard                | Tab mencapai semua kontrol, fokus terlihat, Escape menutup dialog | ☐      |
-| Teks Arab               | Tetap RTL, tanpa harakat hilang, tanpa letter-spacing             | ☐      |
+| Teks Arab               | Tetap RTL, harakat Hafs 20 utuh, tanpa letter-spacing             | ☐      |
 | Target sentuh           | Semua kontrol ≥ 44×44 px                                          | ☐      |
-| Atribusi                | Tanzil dan QuranEnc tampil di Reader dan Sumber & Atribusi        | ☐      |
+| Atribusi                | KFGQPC, QuranEnc, dan Tanzil tampil di Reader dan Sumber & Atribusi | ☐    |
 | PWA offline             | Muat ulang saat offline, baca surah tersimpan, cari tetap jalan   | ☐      |
 | Ajakan pasang (D-040)   | Chromium: muncul setelah ayat 5, "Nanti" hilang 14 hari; iOS: instruksi di Pengaturan | ☐ |
 
@@ -42,7 +42,7 @@ secara berurutan. `public/data` dihasilkan ulang dan tidak di-commit.
 
 | Uji                                    | Perangkat          | Status |
 | -------------------------------------- | ------------------ | ------ |
-| Font Arab A4 (D-006): harakat dan tanda waqaf terbaca | Android, iOS | ☐ |
+| Font Arab A4 (D-042): Hafs 20, harakat dan tanda waqaf terbaca | Android, iOS | ☐ |
 | Instalasi PWA dari peramban dan peluncuran `standalone` | Android, iOS, desktop | ☐ |
 | Offline setelah instalasi, mode pesawat            | Android, iOS        | ☐ |
 | Pembacaan dengan TalkBack dan VoiceOver            | Android, iOS        | ☐ |
@@ -65,7 +65,7 @@ Rilis disajikan sebagai berkas statis; rollback tidak menyentuh data pengguna.
 2. Build ulang dari commit tersebut sehingga service worker memakai hash aset
    lama. Naikkan `DATASET_VERSION` (`src/lib/data/version.ts` dan
    `scripts/lib/source.mjs`) hanya bila skema data ikut berubah.
-3. Pastikan `public/data/v2/manifest.json` kembali ke versi dataset lama bila
+3. Pastikan `public/data/v3/manifest.json` kembali ke versi dataset lama bila
    skema data berubah; cache data berversi (`quranku-data-v*`) akan dibersihkan
    otomatis oleh service worker.
 4. Verifikasi: beranda terbuka, Reader menampilkan surah 1, pencarian Arab

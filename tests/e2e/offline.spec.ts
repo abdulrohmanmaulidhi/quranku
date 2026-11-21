@@ -21,7 +21,7 @@ test("data tersimpan dapat dipakai untuk membaca dan mencari tanpa jaringan", as
     const cache = await caches.open(name);
     return (await cache.keys()).length;
   }, cacheName);
-  expect(cached).toBeGreaterThanOrEqual(235);
+  expect(cached).toBeGreaterThanOrEqual(236);
 
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready;
@@ -34,7 +34,7 @@ test("data tersimpan dapat dipakai untuk membaca dan mencari tanpa jaringan", as
     waitUntil: "domcontentloaded",
   });
 
-  const result = page.getByRole("link", { name: /Al-Faatiha 1:3/ });
+  const result = page.getByRole("link", { name: /Al-Fatihah 1:3/ });
   await expect(result).toBeVisible();
   await expect(result.locator("[dir='rtl']")).toHaveText(fatihah.ayahs[2]!.text);
 
@@ -42,12 +42,12 @@ test("data tersimpan dapat dipakai untuk membaca dan mencari tanpa jaringan", as
     waitUntil: "domcontentloaded",
   });
 
-  const translationResult = page.getByRole("link", { name: /Al-Faatiha 1:1/ });
+  const translationResult = page.getByRole("link", { name: /Al-Fatihah 1:1/ });
   await expect(translationResult).toBeVisible();
   await expect(translationResult.locator("[lang='id']")).toContainText("Pengasih");
 
   await page.goto("/surah/2", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("heading", { level: 1, name: "Al-Baqara" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Al-Baqarah" })).toBeVisible();
   expect(await renderedFirstAyah(page)).toBe(baqarah.ayahs[0]!.text);
   await expect(page.locator("#ayah-1").getByText(baqarahTranslation.ayahs[0]!.text)).toBeVisible();
 });

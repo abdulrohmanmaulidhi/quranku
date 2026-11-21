@@ -17,7 +17,7 @@ describe("salin ayat", () => {
     const copied = buildAyahCopy(surah, ayahText);
     expect(copied.startsWith(`${ayahText.text}\n\n`)).toBe(true);
     expect(copied).toContain("QS. Al-Kahf 18:10");
-    expect(copied).toContain("Sumber: Tanzil (teks Arab)");
+    expect(copied).toContain("Sumber: KFGQPC Hafs 20 via QuranEnc (teks Arab)");
     expect(copied).not.toContain("\u0640");
   });
 
@@ -28,7 +28,7 @@ describe("salin ayat", () => {
       ayahText.text,
       translation.text,
       "QS. Al-Kahf 18:10",
-      "Sumber: Tanzil (teks Arab), QuranEnc (terjemahan)",
+      "Sumber: KFGQPC Hafs 20 via QuranEnc (teks Arab), QuranEnc (terjemahan)",
     ]);
   });
 });

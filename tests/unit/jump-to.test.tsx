@@ -86,7 +86,7 @@ describe("S06 — Lompat ke", () => {
 
     const select = await screen.findByRole("combobox", { name: "Juz" });
     await user.selectOptions(select, "30");
-    expect(screen.getByText("Mulai QS. An-Naba 78:1.")).toBeInTheDocument();
+    expect(screen.getByText("Mulai QS. An-Naba' 78:1.")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Buka juz" }));
     expect(onNavigate).toHaveBeenCalledWith(78, 1);

@@ -11,8 +11,8 @@ export function buildAyahCopy(surah: Surah, ayah: Ayah, translation?: Translatio
   parts.push(buildReferenceCopy(surah, ayah));
   parts.push(
     translation
-      ? "Sumber: Tanzil (teks Arab), QuranEnc (terjemahan)"
-      : "Sumber: Tanzil (teks Arab)",
+      ? "Sumber: KFGQPC Hafs 20 via QuranEnc (teks Arab), QuranEnc (terjemahan)"
+      : "Sumber: KFGQPC Hafs 20 via QuranEnc (teks Arab)",
   );
   return parts.join("\n\n");
 }

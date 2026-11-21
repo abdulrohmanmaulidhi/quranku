@@ -1,2 +1,11 @@
 @import "@fontsource-variable/inter/wght.css";
-@import "@fontsource/noto-naskh-arabic/arabic-400.css";
+
+/* Teks Hafs 20 harus dipakai bersama fontnya. Font tidak di-subset: lisensi
+   KFGQPC melarang modifikasi, dan berkas aslinya sudah 103 KB. */
+@font-face {
+  font-family: "Hafs 20";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/Hafs_20.woff2") format("woff2");
+}

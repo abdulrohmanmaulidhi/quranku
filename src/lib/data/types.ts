@@ -5,6 +5,8 @@ export interface Surah {
   n: number;
   name: string;
   nameLatin: string;
+  /** Ejaan lain untuk pencarian, mis. nama Tanzil. */
+  nameAliases: string[];
   nameEnglish: string;
   revelation: Revelation;
   revelationId: RevelationLabel;
@@ -32,6 +34,11 @@ export interface Ayah {
 export interface SurahText {
   surah: number;
   ayahs: Ayah[];
+}
+
+/** Teks basmalah dari 1:1, dipakai sebagai header surah 2–114 kecuali 9. */
+export interface Basmalah {
+  text: string;
 }
 
 export interface TranslationAyah {
@@ -66,6 +73,7 @@ export interface Manifest {
   source: {
     text: SourceInfo;
     metadata: SourceInfo;
+    names: SourceInfo;
     translation: SourceInfo;
   };
   copyrightNotice: string;

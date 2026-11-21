@@ -4,7 +4,7 @@ PWA local-first untuk membaca Al-Qur'an tanpa gangguan. Tanpa akun, tanpa iklan,
 
 ## Fitur
 
-- Baca 114 surah / 6.236 ayat dari teks **Tanzil Uthmani v1.1** tanpa perubahan.
+- Baca 114 surah / 6.236 ayat dari teks **Uthmani Hafs 20** (KFGQPC, via QuranEnc) tanpa perubahan.
 - Deep link ayat `/surah/:surah/:ayah`, penanda, posisi baca, serta pengaturan ukuran teks Arab dan terjemahan.
 - Terjemahan Indonesia (Kementerian Agama RI via QuranEnc) dengan catatan kaki dan atribusi sumber, dapat disembunyikan.
 - Pencarian surah (nama Latin, nama Arab, nomor), pencarian ayat Arab yang mengabaikan harakat, dan pencarian terjemahan Indonesia.
@@ -57,19 +57,20 @@ pnpm validate:data && pnpm build:data && pnpm verify:output
 
 ## Data dan lisensi
 
-- Teks Arab: [Tanzil Project](https://tanzil.net/) — Uthmani v1.1, CC BY 3.0. Teks ditampilkan verbatim; atribusi tampil di aplikasi.
+- Teks Arab: paket **Hafs 20** dari [QuranEnc.com](https://quranenc.com/) — teks Uthmani Hafs v20 dan font KFGQPC. Teks ditampilkan verbatim; font tidak diubah atau di-subset sesuai lisensi KFGQPC.
+- Nama surah: QuranEnc.com, dinormalkan untuk tampilan.
 - Metadata surah/juz: berkas metadata Tanzil.
 - Terjemahan Indonesia: **Kementerian Agama RI** via [QuranEnc.com](https://quranenc.com/), versi 1.0.1. Diterbitkan ulang sesuai QuranEnc Terms and Policies; teks dan catatan kaki tidak diubah.
-- Ikon antarmuka: Lucide (ISC). Font: Inter dan Noto Naskh Arabic.
+- Ikon antarmuka: Lucide (ISC). Font: Inter dan KFGQPC Hafs 20.
 
 Berkas data mentah ada di `data/source/` dan tidak boleh diubah. `public/data/` dihasilkan oleh skrip dan tidak disimpan di git.
 
 ## Struktur singkat
 
 ```text
-data/source/        sumber Tanzil dan terjemahan QuranEnc (jangan diedit)
+data/source/        sumber Hafs 20, nama surah, metadata, dan terjemahan (jangan diedit)
 scripts/            validasi, build data, verifikasi
-public/data/v2/     keluaran build (gitignored)
+public/data/v3/     keluaran build (gitignored)
 src/app/            router, provider, layout
 src/pages/          Beranda, Indeks, Reader, Cari, Penanda, Pengaturan
 src/features/       data Quran, pencarian, offline, library

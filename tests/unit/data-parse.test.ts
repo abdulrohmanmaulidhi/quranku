@@ -5,10 +5,11 @@ import { readJuz, readManifest, readSurahs, readSurahText } from "./helpers";
 const surahs = readSurahs();
 
 describe("parseManifest", () => {
-  it("menerima manifest dataset v2", () => {
+  it("menerima manifest dataset v3", () => {
     const manifest = parseManifest(readManifest());
     expect(manifest.counts).toEqual({ surahs: 114, ayahs: 6236, juz: 30 });
-    expect(manifest.source.text.license).toBe("Creative Commons Attribution 3.0");
+    expect(manifest.source.text.license).toBe("KFGQPC Font License");
+    expect(manifest.source.names.name).toContain("QuranEnc");
     expect(manifest.source.translation.name).toContain("QuranEnc.com");
   });
 
@@ -39,7 +40,8 @@ describe("parseSurahs", () => {
     const parsed = parseSurahs(surahs);
     expect(parsed).toHaveLength(114);
     expect(parsed.reduce((sum, surah) => sum + surah.ayahCount, 0)).toBe(6236);
-    expect(parsed[0]?.nameLatin).toBe("Al-Faatiha");
+    expect(parsed[0]?.nameLatin).toBe("Al-Fatihah");
+    expect(parsed[0]?.nameAliases).toContain("Al-Faatiha");
     expect(parsed[17]?.nameLatin).toBe("Al-Kahf");
   });
 

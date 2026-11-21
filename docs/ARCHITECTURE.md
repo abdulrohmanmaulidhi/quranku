@@ -47,7 +47,7 @@ quran-pwa/
 ├── README.md
 ├── docs/                     # dokumen produk, arsitektur, desain
 ├── data/
-│   └── source/               # berkas mentah Tanzil (tidak diubah, tidak dikirim ke pengguna)
+│   └── source/               # berkas mentah QuranEnc/KFGQPC + metadata Tanzil (tidak diubah)
 ├── scripts/                  # build-data, validate-data
 ├── public/
 │   ├── data/                 # DIHASILKAN oleh build-data (jangan edit manual)
@@ -80,7 +80,8 @@ quran-pwa/
 
 ### 4.1 Sumber
 
-- Teks Arab: **Tanzil Uthmani v1.1** (CC BY 3.0, tidak boleh diubah).
+- Teks Arab: **Uthmani Hafs 20** dari paket KFGQPC yang disediakan QuranEnc.com, beserta font `Hafs_20.woff2` (D-042). Teks dan font dipakai berpasangan dan tidak diubah.
+- Nama surah Latin: **QuranEnc.com** (`sowar_names?iso_code=id`), dinormalkan untuk tampilan (diakritik dibuang, backtick menjadi apostrof).
 - Metadata (juz, sajdah, halaman): file metadata Tanzil. Verifikasi isinya setelah diunduh.
 - Terjemahan Indonesia: **QuranEnc.com**, edisi `indonesian_affairs` (Kementerian Agama RI), boleh diterbitkan ulang dengan tujuh syarat. Lihat `DESIGN-DECISIONS.md` D-003.
 
@@ -97,15 +98,16 @@ data/source/*  →  scripts/validate-data  →  scripts/build-data  →  public/
 3. **Manifest**: mencatat versi dataset, sumber, lisensi, tanggal pengambilan, dan checksum SHA-256 tiap berkas.
 4. **CI** menjalankan validasi dan membandingkan checksum. Build gagal jika ada ketidakcocokan.
 
-**Status:** `validate:data`, `build:data`, dan `verify:output` sudah tersedia (lihat `scripts/README.md`). Dataset v2 dibangun dari `quran-uthmani.txt` (Tanzil Uthmani 1.1), `quran-data.js` (metadata 1.0), dan `tr/indonesian_affairs.json` (QuranEnc, Kemenag). Indeks pencarian Arab dan berkas terjemahan per surah dihasilkan saat build.
+**Status:** `validate:data`, `build:data`, dan `verify:output` sudah tersedia (lihat `scripts/README.md`). Dataset v3 dibangun dari `quran-hafs.csv` (Hafs 20), `surah-names-id.json` (QuranEnc), `quran-data.js` (metadata 1.0), dan `tr/indonesian_affairs.json` (QuranEnc, Kemenag). Indeks pencarian Arab dan berkas terjemahan per surah dihasilkan saat build.
 
 ### 4.3 Tata letak berkas keluaran
 
 ```text
-public/data/v2/
+public/data/v3/
 ├── manifest.json                 # versi, sumber, lisensi, checksum
-├── COPYRIGHT.txt                 # blok hak cipta Tanzil, disalin verbatim
-├── surahs.json                   # metadata 114 surah
+├── COPYRIGHT.txt                 # atribusi KFGQPC, QuranEnc, dan metadata Tanzil
+├── basmalah.json                 # teks 1:1 untuk header surah 2–114 kecuali 9
+├── surahs.json                   # metadata 114 surah + nama tampilan dan alias
 ├── juz.json                      # pemetaan juz (jika terverifikasi)
 ├── ar/
 │   ├── 001.json … 114.json       # teks Arab per surah
@@ -308,7 +310,7 @@ Deploy ke Cloudflare Pages dilakukan di luar workflow ini (cabang utama) sampai 
 ### Sudah berjalan
 
 - Fondasi Vite + React + TypeScript, router, tata letak, token desain, tema terang/gelap.
-- Pipeline data Tanzil Uthmani v1.1: validasi, build, verifikasi checksum, 114 surah, 6.236 ayat, 30 juz.
+- Pipeline data Hafs 20 (dataset v3): validasi CSV, build, verifikasi checksum, 114 surah, 6.236 ayat, 30 juz.
 - S01 Beranda (termasuk kartu "Lanjutkan membaca"), S02 Indeks Surah/Juz.
 - S03 Reader dengan deep link ayat, penanda, pengaturan ukuran Arab, salin referensi/ayat, bagikan lewat Web Share API, basmalah sebagai baris tampilan (D-012), dan atribusi.
 - S06 "Lompat ke": dialog dengan tab Surah & Ayat dan Juz; validasi rentang ayat, keadaan memuat/galat untuk juz, dan navigasi ke awal juz.

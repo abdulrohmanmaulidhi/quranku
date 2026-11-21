@@ -96,7 +96,7 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 ### D-006 — Font Arab
 
 - **Tanggal:** 2026-11-19
-- **Status:** Diputuskan
+- **Status:** Diganti oleh D-042 (2026-11-21). Font Arab kini Hafs 20; alasan penolakan di bawah berlaku untuk teks Tanzil, bukan teks Hafs 20.
 - **Konteks:** Teks Arab dirender dengan Noto Naskh Arabic (SIL OFL, 52 KB woff2). Kandidat lain di `DESIGN-TEST-PLAN.md` A2: Amiri Quran, Scheherazade New, dan KFGQPC Uthmanic Script HAFS (typeface mushaf Madinah).
 - **Opsi yang dipertimbangkan:** (a) tetap Noto Naskh Arabic, (b) KFGQPC Uthmanic Script HAFS.
 - **Keputusan:** Noto Naskh Arabic dipertahankan untuk Release 1. KFGQPC Uthmanic Script HAFS sudah dicoba dan dibatalkan: seluruh 68 codepoint data tersedia di `cmap`-nya, tetapi tanda `۟` (U+06DF, 3.988 kemunculan) dirender sebagai cakram penuh dengan cincin putus-putus yang menyatu menjadi gumpalan pada 24–28 px, sementara Noto menggambarnya sebagai lingkaran berongga yang ringan. Berkas HAFS juga menambah 291 KB precache dan lisensinya melarang subset maupun konversi, sehingga tidak ada ruang optimasi ukuran.
@@ -107,6 +107,7 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 
 ### D-012 — Basmalah
 
+- **Status:** Sebagian diganti oleh D-042 (2026-11-21). Pemotongan `splitBasmalah` dihapus; header memakai `basmalah.json` dari 1:1. Temuan di bawah berlaku untuk teks Tanzil.
 - **Masalah:** pada sebagian berkas teks, basmalah bisa ikut tertulis di awal ayat pertama sebuah surah (kecuali Al-Fatihah dan At-Taubah). Perlu dicek pada berkas yang diunduh.
 - **Temuan (2026-11-15, Tanzil Uthmani v1.1):** basmalah menyatu di awal ayat 1 pada 113 surah. 111 surah memakai bentuk yang sama persis dengan 1:1; surah 95 dan 97 memakai bentuk dengan shadda pada ba; surah 9 tidak memiliki basmalah; pada surah 1 basmalah adalah ayat 1 itu sendiri. Rincian di `data/source/SOURCES.md` §4.
 - **Dampak pada build:** `build-data` menyalin teks apa adanya dan tidak memotong basmalah. Header basmalah di `SurahHeader` belum dapat diisi tanpa memilih opsi (b) atau (c).
@@ -144,7 +145,7 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 ### D-017 — Atribusi Tanzil di semua varian Reader
 
 - **Tanggal:** 2026-11-13
-- **Status:** Diputuskan
+- **Status:** Diganti oleh D-042 (2026-11-21). Baris footer kini "Teks Arab: KFGQPC Hafs 20".
 - **Konteks:** `CONTENT-RULES.md` mewajibkan atribusi Tanzil tampil; sebelumnya hanya ada di S10 dan footer Reader A.
 - **Keputusan:** setiap varian Reader (A, B, C, 320 px, 200%) menampilkan satu baris footer "Teks Arab: Tanzil (CC BY 3.0)" dengan tautan "Sumber & Atribusi" menuju S10, di akhir konten surah.
 - **Alasan:** kewajiban lisensi harus terlihat tanpa membuka Pengaturan.
@@ -179,7 +180,7 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 ### D-020 — Nama latin surah
 
 - **Tanggal:** 2026-11-15 · diputuskan 2026-11-19
-- **Status:** Diputuskan
+- **Status:** Diganti oleh D-042 (2026-11-21). Nama tampilan memakai QuranEnc yang dinormalkan, bukan daftar Kemenag.
 - **Konteks:** `surahs.json` v1 memakai `nameLatin` dari metadata Tanzil (mis. "Al-Kahf", "Al-Faatiha"), sedangkan desain dan `CONTENT-RULES.md` memakai transliterasi Indonesia (mis. "Al-Kahfi", "Al-Fatihah").
 - **Opsi yang dipertimbangkan:** (a) tampilkan `nameLatin` Tanzil apa adanya, (b) tambahkan tabel nama Indonesia terkurasi di lapisan data atau UI, (c) ganti sumber metadata.
 - **Keputusan:** Opsi (b) dengan ejaan Kemenag sebagai satu-satunya sumber tampilan. Tidak ada pengaturan pengguna: nama surah adalah identitas konten, bukan preferensi. Ejaan Tanzil tetap diterima sebagai alias pencarian. Daftar Kemenag yang terverifikasi belum tersedia, sehingga pemetaan belum diimplementasikan; ejaan tidak boleh dikarang.
@@ -426,6 +427,24 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 - **Alasan:** menaikkan daya temu tanpa menambah ukuran unduhan, tanpa mengubah indeks, dan tanpa ketergantungan baru. Stemmer penuh akan menambah ratusan KB kamus untuk manfaat yang belum terbukti.
 - **Dampak (desain, konten, teknis):** `src/lib/search/affixes.ts`, `features/quran/search.ts` (opsi `stem`), `lib/search/normalize.mjs` (`findHighlightRanges` menerima varian tambahan), `TranslationResultRow`, petunjuk mode Terjemahan di S08, unit test `search-affixes`/`search-translation-stem`, E2E `search-translation.spec.ts`.
 - **Ditinjau ulang bila:** muncul keluhan presisi (hasil tidak relevan) atau dibutuhkan pencarian lintas makna/tafsir.
+
+### D-042 — Satu platform konten: QuranEnc + Hafs 20
+
+- **Tanggal:** 2026-11-21
+- **Status:** Diputuskan
+- **Konteks:** D-020 menggantung karena daftar nama Kemenag belum tersedia, dan teks Arab masih dari Tanzil sementara terjemahan dari QuranEnc. QuranEnc ternyata menyediakan tiga artefak yang dibutuhkan: paket `Hafs_20.zip` (teks Uthmani Hafs 20 + font KFGQPC), terjemahan `indonesian_affairs`, dan `sowar_names?iso_code=id`. Pemilik produk memilih memakai semuanya agar teks, terjemahan, dan nama berasal dari satu platform.
+- **Opsi yang dipertimbangkan:** (a) tetap Tanzil + Noto Naskh, nama Kemenag; (b) pindah teks dan font ke Hafs 20, nama Kemenag; (c) pindah teks, font, terjemahan, dan nama ke QuranEnc (dipilih).
+- **Keputusan:** Opsi (c).
+  - **Teks Arab:** `Quran_text.csv` dari `https://quranenc.com/downloads/assets/Hafs_20.zip`, disimpan verbatim sebagai `data/source/quran-hafs.csv` (6.236 baris). Dataset naik ke v3.
+  - **Font:** `Hafs_20.woff2` (103 KB) di `public/fonts/`, tanpa subset. Lisensi KFGQPC mengizinkan pemakaian, penyalinan, dan distribusi, tetapi melarang perubahan dan subset; berkas lisensi disimpan di `public/fonts/licenses/KFGQPC-Hafs.txt`.
+  - **Basmalah:** Hafs 20 tidak menyalin basmalah ke ayat 1. `splitBasmalah` dihapus; build menghasilkan `basmalah.json` dari 1:1 dan reader menampilkannya sebagai header untuk surah 2–114 kecuali 9.
+  - **Nama surah:** `sowar_names?iso_code=id` disimpan verbatim di `data/source/surah-names-id.json`; nama tampilan = diakritik dibuang, backtick menjadi apostrof. Ejaan Tanzil disimpan di `nameAliases` untuk pencarian.
+  - **Atribusi:** KFGQPC (teks dan font), QuranEnc (terjemahan dan nama), Tanzil (metadata) — di S10, footer, dan teks salin/bagikan.
+- **Alasan:** satu platform menyederhanakan asal-usul konten dan menyelaraskan teks dengan terjemahan. Teks Hafs 20 juga tidak memuat `U+06DF`, tanda yang membuat KFGQPC HAFS ditolak di D-006.
+- **Bukti (Fase 0, 2026-11-21):** render 1:1–1:7, 2:1, 9:1, 27:30, 112:1–2, dan 114:1–2 dengan `Hafs_20.woff2` pada 24/26/28 px, lebar 320 px, terang dan gelap, serta 200%. `U+06E1` (37.148 kemunculan) terbaca sebagai sukun, harakat tidak bertumpuk, dan tidak ada klip vertikal. Render Chromium (Pixel 5 dan desktop), belum di perangkat fisik.
+- **Dampak (desain, konten, teknis):** `scripts/lib/source.mjs` (parser CSV, `DATASET_VERSION` 3, sumber baru), `build-data`, `verify-output` (berkas ke-236 `basmalah.json`), `surahs.json` (`nameLatin` + `nameAliases`), `parse.ts`/`types.ts`/`client.ts` (`Basmalah`, `useBasmalah`), `ReaderPage`, `AyahCard` (prop `arabicText` dihapus), `fonts.css`/`tokens.css`, `cache.ts`, `SourcesPage`, `CONTENT-RULES`, tes unit/E2E, dan dokumen arsitektur.
+- **Catatan lisensi:** paket Hafs 20 tidak memuat berkas lisensi teks terpisah; teks diatribusikan ke KFGQPC dan QuranEnc. Terjemahan tetap tunduk pada tujuh syarat QuranEnc (D-003).
+- **Ditinjau ulang bila:** KFGQPC/QuranEnc mengubah syarat, font Hafs 20 gagal di perangkat nyata, atau tersedia edisi teks resmi berlisensi lebih jelas.
 
 ---
 

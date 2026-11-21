@@ -23,7 +23,7 @@ test("teks Arab memakai atribut RTL dan font Arab tanpa spasi huruf", async ({ p
     };
   });
 
-  expect(styles.fontFamily).toContain("Noto Naskh Arabic");
+  expect(styles.fontFamily).toContain("Hafs 20");
   expect(styles.fontWeight).toBe("400");
   expect(styles.fontStyle).toBe("normal");
   expect(styles.letterSpacing).toBe("normal");
@@ -70,7 +70,7 @@ test("setiap ayat surah 18 dirender persis seperti data", async ({ page }) => {
 
   const first = page.locator("#ayah-1 [dir='rtl']");
   const last = page.locator("#ayah-110 [dir='rtl']");
-  await expect(first).toHaveText(kahf.ayahs[0]!.text.split(" ").slice(4).join(" "));
+  await expect(first).toHaveText(kahf.ayahs[0]!.text);
   expect(await renderedFirstAyah(page)).toBe(kahf.ayahs[0]!.text);
   await last.scrollIntoViewIfNeeded();
   await expect(last).toHaveText(kahf.ayahs[109]!.text);

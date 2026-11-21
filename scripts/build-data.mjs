@@ -5,12 +5,15 @@ import {
   DATASET_DIR,
   DATASET_VERSION,
   METADATA_FILE,
+  NAMES_FILE,
   OUTPUT_ROOT,
   SOURCE_INFO,
   TEXT_FILE,
   TRANSLATION_DIR,
   TRANSLATION_FILE,
   ayahsBySurah,
+  basmalahText,
+  copyrightNotice,
   listFiles,
   loadSource,
   translationNotice,
@@ -34,12 +37,7 @@ const surahs = data.surahs.map(({ startIndex, ...surah }) => surah);
 const grouped = ayahsBySurah(data.ayahs);
 
 const files = new Map();
-const noticeStart = data.textRaw.indexOf("# PLEASE DO NOT REMOVE");
-if (noticeStart === -1) {
-  console.error("build-data: blok hak cipta Tanzil tidak ditemukan");
-  process.exit(1);
-}
-files.set("COPYRIGHT.txt", `${data.textRaw.slice(noticeStart).trimEnd()}\n`);
+files.set("COPYRIGHT.txt", copyrightNotice());
 files.set(
   "manifest.json",
   json({
@@ -49,6 +47,7 @@ files.set(
     source: {
       text: { ...SOURCE_INFO.text, sha256: data.hashes[TEXT_FILE] },
       metadata: { ...SOURCE_INFO.metadata, sha256: data.hashes[METADATA_FILE] },
+      names: { ...SOURCE_INFO.names, sha256: data.hashes[NAMES_FILE] },
       translation: { ...translationSourceInfo(data), sha256: data.hashes[TRANSLATION_FILE] },
     },
     copyrightNotice: "COPYRIGHT.txt",
@@ -58,6 +57,8 @@ files.set(
 );
 files.set("surahs.json", json(surahs));
 files.set("juz.json", json(data.juz));
+// Basmalah bukan bagian ayat 1 pada surah 2–114, jadi disimpan sekali dari 1:1.
+files.set("basmalah.json", json({ text: basmalahText(data.ayahs) }));
 
 for (const surah of surahs) {
   const ayahs = (grouped.get(surah.n) ?? []).map((row) => ({ n: row.ayah, text: row.text }));

@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { clearDataCache } from "@/lib/data/client";
 import { db } from "@/lib/db/db";
 import { ReaderPage } from "@/pages/ReaderPage";
-import { readDataFileForUrl, readSurahText } from "./helpers";
+import { readDataFileForUrl, readDataJson, readSurahText } from "./helpers";
 
 vi.mock("@/lib/useDocumentTitle", () => ({
   useDocumentTitle: () => undefined,
@@ -50,17 +50,18 @@ describe("S03 — Reader", () => {
     renderReader("/surah/18");
 
     expect(await screen.findByRole("heading", { level: 1, name: "Al-Kahf" })).toBeInTheDocument();
-    const source = kahf.ayahs[0]?.text ?? "";
-    const words = source.split(" ");
-    const basmalah = document.querySelector("[data-basmalah]");
+    const basmalah = await waitFor(() => {
+      const element = document.querySelector("[data-basmalah]");
+      if (!element) throw new Error("basmalah belum tampil");
+      return element;
+    });
     const target = document.querySelector("#ayah-1 [dir='rtl']");
 
-    expect(basmalah?.textContent).toBe(words.slice(0, 4).join(" "));
-    expect(basmalah?.previousElementSibling).toBe(
+    expect(basmalah.textContent).toBe(readDataJson<{ text: string }>("basmalah.json").text);
+    expect(basmalah.previousElementSibling).toBe(
       screen.getByText("Ketuk ayat untuk membuka aksi."),
     );
-    expect(target?.textContent).toBe(words.slice(4).join(" "));
-    expect(`${basmalah?.textContent} ${target?.textContent}`).toBe(source);
+    expect(target?.textContent).toBe(kahf.ayahs[0]?.text);
     expect(target).toHaveAttribute("lang", "ar");
     expect(screen.getByText("Makkiyah · 110 ayat")).toBeInTheDocument();
   });
@@ -69,7 +70,7 @@ describe("S03 — Reader", () => {
     renderReader("/surah/1");
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: "Al-Faatiha" }),
+      await screen.findByRole("heading", { level: 1, name: "Al-Fatihah" }),
     ).toBeInTheDocument();
     expect(document.querySelector("[data-basmalah]")).toBeNull();
     expect(document.querySelector("#ayah-1 [dir='rtl']")?.textContent).toBe(

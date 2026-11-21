@@ -40,7 +40,7 @@ test("bagikan ayat lewat Web Share API dengan teks verbatim", async ({ page }) =
   expect(shared?.title).toBe("QS. Al-Kahf 18:10");
   expect(shared?.text).toContain(kahf.ayahs[9]!.text);
   expect(shared?.text).toContain("QS. Al-Kahf 18:10");
-  expect(shared?.text).toContain("Sumber: Tanzil (teks Arab)");
+  expect(shared?.text).toContain("Sumber: KFGQPC Hafs 20 via QuranEnc (teks Arab)");
   expect(shared?.url).toMatch(/\/surah\/18\/10$/);
 });
 

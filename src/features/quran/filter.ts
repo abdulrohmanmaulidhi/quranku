@@ -4,6 +4,7 @@ import { normalizeForSearch } from "@/lib/search/normalize";
 function surahSearchTerms(surah: Surah): string[] {
   return [
     normalizeForSearch(surah.nameLatin),
+    ...surah.nameAliases.map(normalizeForSearch),
     normalizeForSearch(surah.name),
     String(surah.n),
     String(surah.n).padStart(3, "0"),
@@ -27,6 +28,7 @@ export function filterJuz(juz: readonly Juz[], surahs: readonly Surah[], query: 
       String(entry.juz),
       normalizeForSearch(`juz ${entry.juz}`),
       start ? normalizeForSearch(start.nameLatin) : "",
+      ...(start ? start.nameAliases.map(normalizeForSearch) : []),
       start ? normalizeForSearch(start.name) : "",
     ];
     return terms.some((term) => term.includes(needle));

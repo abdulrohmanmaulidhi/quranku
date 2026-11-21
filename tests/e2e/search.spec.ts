@@ -19,7 +19,7 @@ test("pencarian Arab menemukan ayat, menyorot kata, dan membuka Reader tepat di 
 }) => {
   await page.goto(`/cari?mode=arab&q=${encodeURIComponent("الرحمن")}`);
 
-  const result = page.getByRole("link", { name: /Al-Faatiha 1:3/ });
+  const result = page.getByRole("link", { name: /Al-Fatihah 1:3/ });
   await expect(result).toBeVisible();
 
   const arabic = result.locator("[dir='rtl']");
@@ -36,13 +36,13 @@ test("pencarian Arab menemukan ayat, menyorot kata, dan membuka Reader tepat di 
 test("pencarian Arab mengabaikan harakat", async ({ page }) => {
   await page.goto(`/cari?mode=arab&q=${encodeURIComponent("ٱلرَّحْمَـٰنِ")}`);
 
-  await expect(page.getByRole("link", { name: /Al-Faatiha 1:3/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Al-Fatihah 1:3/ })).toBeVisible();
 });
 
 test("pencarian Arab memakai teks ayat verbatim dari data surah", async ({ page }) => {
   await page.goto(`/cari?mode=arab&q=${encodeURIComponent("الرحمن")}`);
 
-  const result = page.getByRole("link", { name: /Al-Faatiha 1:3/ });
+  const result = page.getByRole("link", { name: /Al-Fatihah 1:3/ });
   await expect(result.locator("[dir='rtl']")).toHaveText(fatihah.ayahs[2]!.text);
 });
 

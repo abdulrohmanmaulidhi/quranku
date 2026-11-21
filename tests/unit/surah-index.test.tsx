@@ -45,7 +45,7 @@ describe("S02 — Indeks Surah", () => {
     renderIndex();
 
     expect(screen.getByRole("heading", { level: 1, name: "Quran" })).toBeInTheDocument();
-    expect(await screen.findByText("Al-Faatiha")).toBeInTheDocument();
+    expect(await screen.findByText("Al-Fatihah")).toBeInTheDocument();
     expect(await screen.findByText("114 surah ditemukan.")).toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
@@ -54,12 +54,12 @@ describe("S02 — Indeks Surah", () => {
     const user = userEvent.setup();
     renderIndex();
 
-    await screen.findByText("Al-Faatiha");
+    await screen.findByText("Al-Fatihah");
     const search = screen.getByRole("searchbox", { name: "Cari surah atau juz" });
     await user.type(search, "kahf");
 
     expect(await screen.findByText("Al-Kahf")).toBeInTheDocument();
-    expect(screen.queryByText("Al-Faatiha")).not.toBeInTheDocument();
+    expect(screen.queryByText("Al-Fatihah")).not.toBeInTheDocument();
     expect(screen.getByText("1 surah ditemukan.")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Hapus pencarian" }));
@@ -70,7 +70,7 @@ describe("S02 — Indeks Surah", () => {
     const user = userEvent.setup();
     renderIndex();
 
-    await screen.findByText("Al-Faatiha");
+    await screen.findByText("Al-Fatihah");
     await user.type(screen.getByRole("searchbox"), "surah-yang-tidak-ada");
 
     expect(await screen.findByText("Tidak ada hasil")).toBeInTheDocument();
@@ -81,13 +81,13 @@ describe("S02 — Indeks Surah", () => {
     const user = userEvent.setup();
     renderIndex();
 
-    await screen.findByText("Al-Faatiha");
+    await screen.findByText("Al-Fatihah");
     await user.click(screen.getByRole("tab", { name: "Juz" }));
 
     expect(await screen.findByText("Juz 1")).toBeInTheDocument();
-    expect(screen.getByText("Mulai QS. Al-Faatiha 1:1")).toBeInTheDocument();
+    expect(screen.getByText("Mulai QS. Al-Fatihah 1:1")).toBeInTheDocument();
     expect(screen.getByText("30 juz ditemukan.")).toBeInTheDocument();
-    expect(screen.queryByText("Al-Faatiha")).not.toBeInTheDocument();
+    expect(screen.queryByText("Al-Fatihah")).not.toBeInTheDocument();
   });
 
   it("mempertahankan tab Juz dan kata kunci dari URL", async () => {

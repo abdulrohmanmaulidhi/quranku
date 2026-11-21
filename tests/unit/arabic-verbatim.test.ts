@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { parseSurahText } from "@/lib/data/parse";
 import { readSurahs, readSurahText } from "./helpers";
 
-const SOURCE_FILE = join(process.cwd(), "data", "source", "quran-uthmani.txt");
+const SOURCE_FILE = join(process.cwd(), "data", "source", "quran-hafs.csv");
 
 interface SourceAyah {
   surah: number;
@@ -15,15 +15,11 @@ interface SourceAyah {
 function readSource(): SourceAyah[] {
   return readFileSync(SOURCE_FILE, "utf8")
     .split("\n")
-    .map((line) => line.trimEnd())
-    .filter((line) => line.length > 0 && !line.startsWith("#"))
+    .slice(1)
+    .filter((line) => line.length > 0)
     .map((line) => {
-      const [surah, ayah, ...text] = line.split("|");
-      return {
-        surah: Number(surah),
-        ayah: Number(ayah),
-        text: text.join("|"),
-      };
+      const [, surah, ayah, text] = line.split('","');
+      return { surah: Number(surah), ayah: Number(ayah), text: text.replace(/"$/, "") };
     });
 }
 
@@ -35,7 +31,7 @@ describe("teks Arab verbatim", () => {
     expect(source).toHaveLength(6236);
   });
 
-  it("setiap ayat pada public/data identik dengan sumber Tanzil", () => {
+  it("setiap ayat pada public/data identik dengan sumber Hafs 20", () => {
     const sourceByKey = new Map(source.map((ayah) => [`${ayah.surah}:${ayah.ayah}`, ayah.text]));
     let checked = 0;
 
@@ -56,7 +52,8 @@ describe("teks Arab verbatim", () => {
     const fatihah = parseSurahText(readSurahText(1), 1, 7);
     const baqarah = parseSurahText(readSurahText(2), 2, 286);
 
-    expect(fatihah.ayahs[0]?.text).toBe("بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ");
-    expect(baqarah.ayahs[0]?.text.startsWith("بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ الٓمٓ")).toBe(true);
+    expect(fatihah.ayahs[0]?.text).toBe(source[0]?.text);
+    expect(fatihah.ayahs[0]?.text.startsWith("بِسۡمِ")).toBe(true);
+    expect(baqarah.ayahs[0]?.text).toBe("الٓمٓ");
   });
 });

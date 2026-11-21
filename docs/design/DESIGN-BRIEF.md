@@ -32,7 +32,7 @@ Keberhasilan desain diukur dari **kenyamanan membaca dan kemudahan menemukan aya
 | Offline sejak kunjungan pertama               | Perlu indikator status offline yang tidak mengganggu dan pesan jelas jika data belum siap. |
 | Bisa di-install ke layar utama                | Desain harus nyaman dalam mode standalone (tanpa address bar), dengan _safe area_.         |
 | Sinkronisasi antar perangkat belum ada        | Sediakan ekspor/impor penanda (berkas JSON) di Pengaturan.                                 |
-| Teks Arab tidak boleh diubah (lisensi Tanzil) | Desain tidak boleh memotong, mengurutkan ulang, atau memodifikasi teks Arab.               |
+| Teks Arab tidak boleh diubah (lisensi KFGQPC)  | Desain tidak boleh memotong, mengurutkan ulang, atau memodifikasi teks Arab.               |
 
 ## 3. Pengguna
 
@@ -110,7 +110,7 @@ Detail tiap layar ada di `SCREEN-SPECS.md`.
 | --- | ------------------------------------------------------------------- | --------------- | ---------------------------- |
 | Q1  | Terjemahan Indonesia mana yang dipakai dan apakah lisensinya jelas? | Konten          | Terbuka                      |
 | Q2  | Font Arab final (Amiri Quran, Scheherazade New, dll.)               | Desain          | Diputuskan lewat uji         |
-| Q3  | Penanganan basmalah di awal surah pada data sumber                  | Konten + Desain | Perlu verifikasi file Tanzil |
+| Q3  | Penanganan basmalah di awal surah pada data sumber                  | Konten + Desain | Selesai: D-012/D-042 |
 | Q4  | Gaya nomor ayat: angka Arab-Indic atau Latin                        | Desain          | Diuji                        |
 | Q5  | Pencarian di navigasi bawah mobile atau di dalam tab Quran/Beranda  | Desain          | Diuji                        |
 | Q6  | Nama produk dan identitas merek                                     | Produk          | Ditunda                      |
@@ -132,7 +132,7 @@ Detail tiap layar ada di `SCREEN-SPECS.md`.
 ## 12. Urutan kerja yang disarankan
 
 1. Pasang token ke FigCraft (warna terang/gelap, tipografi, jarak).
-2. Siapkan teks uji Arab (salin dari berkas Tanzil, **jangan diketik ulang**).
+2. Siapkan teks uji Arab (salin dari `quran-hafs.csv`, **jangan diketik ulang**).
 3. Rancang **3 varian layar Reader**, lalu nilai memakai rubrik di `DESIGN-TEST-PLAN.md`.
 4. Putuskan varian, catat di `DESIGN-DECISIONS.md`.
 5. Rancang layar lain mengikuti `SCREEN-SPECS.md`, termasuk semua state.

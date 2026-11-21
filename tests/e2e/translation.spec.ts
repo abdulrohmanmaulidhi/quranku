@@ -10,7 +10,7 @@ test("terjemahan tampil secara bawaan, catatan kaki dapat dibuka, dan pilihan te
 }) => {
   await page.goto("/surah/1");
 
-  await expect(page.getByRole("heading", { level: 1, name: "Al-Faatiha" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Al-Fatihah" })).toBeVisible();
   await expect(page.getByRole("link", { name: "detail sumber" })).toHaveCount(0);
   await expect(page.locator("#ayah-4").getByText(verse.text)).toBeVisible();
   await expect(page.locator("#ayah-4 details p")).toHaveText(verse.footnotes);
@@ -25,7 +25,7 @@ test("terjemahan tampil secara bawaan, catatan kaki dapat dibuka, dan pilihan te
   await expect(page.locator("#ayah-4").getByText(verse.text)).toHaveCount(0);
 
   await page.reload();
-  await expect(page.getByRole("heading", { level: 1, name: "Al-Faatiha" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Al-Fatihah" })).toBeVisible();
   await expect(page.locator("#ayah-4").getByText(verse.text)).toHaveCount(0);
 });
 
@@ -34,7 +34,7 @@ test("S10 menampilkan atribusi dan versi terjemahan QuranEnc", async ({ page }) 
 
   await expect(page.getByText(/Ministry of Religious Affairs/)).toBeVisible();
   await expect(page.getByText("1.0.1", { exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: /QuranEnc\.com/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /QuranEnc\.com/ }).first()).toBeVisible();
   await expect(page.getByRole("link", { name: /Syarat pemakaian/ })).toBeVisible();
 });
 
@@ -65,7 +65,7 @@ test("ukuran teks terjemahan tersimpan setelah muat ulang", async ({ page }) => 
     .toBeGreaterThan(sizeBefore);
 
   await page.reload();
-  await expect(page.getByRole("heading", { level: 1, name: "Al-Faatiha" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Al-Fatihah" })).toBeVisible();
   await page.getByRole("button", { name: "Pengaturan baca" }).click();
   dialog = page.getByRole("dialog", { name: "Pengaturan baca" });
   await expect(

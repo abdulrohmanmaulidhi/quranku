@@ -27,7 +27,7 @@ describe("filterSurahs", () => {
   it("mencari berdasarkan nama Latin tanpa peka huruf besar", () => {
     const results = filterSurahs(surahs, "al-kahf");
     expect(results.map((surah) => surah.nameLatin)).toContain("Al-Kahf");
-    expect(results.map((surah) => surah.nameLatin)).not.toContain("Al-Faatiha");
+    expect(results.map((surah) => surah.nameLatin)).not.toContain("Al-Fatihah");
   });
 
   it("mencari berdasarkan nomor surah", () => {

@@ -8,12 +8,13 @@ export const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const SOURCE_DIR = join(ROOT, "data", "source");
 export const OUTPUT_ROOT = join(ROOT, "public", "data");
 
-export const TEXT_FILE = "quran-uthmani.txt";
+export const TEXT_FILE = "quran-hafs.csv";
 export const METADATA_FILE = "quran-data.js";
+export const NAMES_FILE = "surah-names-id.json";
 export const CHECKSUMS_FILE = "CHECKSUMS.txt";
 
 // Harus sama dengan src/lib/data/version.ts.
-export const DATASET_VERSION = "2";
+export const DATASET_VERSION = "3";
 export const DATASET_DIR = join(OUTPUT_ROOT, `v${DATASET_VERSION}`);
 
 export const TRANSLATION_KEY = "indonesian_affairs";
@@ -23,11 +24,11 @@ export const TRANSLATION_DIR = `tr/${TRANSLATION_KEY}`;
 export const SOURCE_INFO = {
   text: {
     file: TEXT_FILE,
-    name: "Tanzil Quran Text (Uthmani)",
-    version: "1.1",
-    license: "Creative Commons Attribution 3.0",
-    url: "https://tanzil.net/download/",
-    retrievedAt: "2026-11-15",
+    name: "QuranEnc — Uthmani Hafs Text (KFGQPC Hafs 20)",
+    version: "20",
+    license: "KFGQPC Font License",
+    url: "https://quranenc.com/downloads/assets/Hafs_20.zip",
+    retrievedAt: "2026-11-21",
   },
   metadata: {
     file: METADATA_FILE,
@@ -37,7 +38,29 @@ export const SOURCE_INFO = {
     url: "https://tanzil.net/res/text/metadata/quran-data.js",
     retrievedAt: "2026-11-15",
   },
+  names: {
+    file: NAMES_FILE,
+    name: "QuranEnc Indonesian Surah Names",
+    version: "1.0",
+    license: "QuranEnc Terms and Policies",
+    url: "https://quranenc.com/api/v1/translations/sowar_names?iso_code=id",
+    retrievedAt: "2026-11-21",
+  },
 };
+
+/**
+ * Nama surah Latin ditampilkan tanpa diakritik. Backtick pada data QuranEnc
+ * (`An-Nisā`) dipetakan ke apostrof. Normalisasi ini hanya untuk tampilan;
+ * nama asli tetap tersimpan di `data/source/surah-names-id.json`.
+ */
+export function normalizeSurahName(value) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/`/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 /**
  * Entri manifest untuk sumber terjemahan. Diturunkan dari berkas mentah agar
@@ -79,8 +102,45 @@ export function translationNotice(data) {
   ].join("\n");
 }
 
+/**
+ * Blok atribusi yang dikirim bersama dataset. Menggantikan blok hak cipta
+ * Tanzil karena teks Arab kini berasal dari paket Hafs 20.
+ */
+export function copyrightNotice() {
+  return [
+    "# --------------------------------------------------------------------",
+    "#",
+    "#  Quran Text",
+    `#  Name: ${SOURCE_INFO.text.name}`,
+    `#  Version: ${SOURCE_INFO.text.version}`,
+    `#  Font: KFGQPC Uthmanic Hafs v${SOURCE_INFO.text.version} (see public/fonts/licenses/KFGQPC-Hafs.txt)`,
+    `#  Source: QuranEnc.com (${SOURCE_INFO.text.url})`,
+    `#  Retrieved: ${SOURCE_INFO.text.retrievedAt}`,
+    "#",
+    "#  Surah names",
+    `#  Name: ${SOURCE_INFO.names.name}`,
+    `#  Source: QuranEnc.com (${SOURCE_INFO.names.url})`,
+    "#",
+    "#  Metadata",
+    `#  Name: ${SOURCE_INFO.metadata.name} v${SOURCE_INFO.metadata.version}`,
+    `#  License: ${SOURCE_INFO.metadata.license}`,
+    "#",
+    "#  Teks Arab ditampilkan verbatim; tidak ada karakter yang diubah,",
+    "#  dipotong, atau diketik ulang.",
+    "#",
+    "# --------------------------------------------------------------------",
+    "",
+  ].join("\n");
+}
+
 export function sha256(input) {
   return createHash("sha256").update(input).digest("hex");
+}
+
+/** Basmalah diambil dari ayat 1 surah 1, bukan dipotong dari ayat lain. */
+export function basmalahText(ayahs) {
+  const first = ayahs.find((row) => row.surah === 1 && row.ayah === 1);
+  return first ? first.text : "";
 }
 
 export function readChecksums() {
@@ -96,27 +156,101 @@ export function readChecksums() {
   return entries;
 }
 
+function parseCsvLine(line) {
+  const fields = [];
+  let field = "";
+  let quoted = false;
+
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line[index];
+    if (quoted) {
+      if (char === '"' && line[index + 1] === '"') {
+        field += '"';
+        index += 1;
+      } else if (char === '"') {
+        quoted = false;
+      } else {
+        field += char;
+      }
+    } else if (char === '"') {
+      quoted = true;
+    } else if (char === ",") {
+      fields.push(field);
+      field = "";
+    } else {
+      field += char;
+    }
+  }
+
+  fields.push(field);
+  return fields;
+}
+
+const CSV_HEADER = '"id","sura","aya","uthmani"';
+
 function parseAyahs(rawText) {
   const ayahs = [];
   const errors = [];
   const lines = rawText.split("\n");
 
+  if ((lines[0] ?? "").trim() !== CSV_HEADER) {
+    errors.push(`Header CSV harus ${CSV_HEADER}`);
+  }
+
   lines.forEach((line, index) => {
-    if (line === "" || line.startsWith("#")) return;
-    const match = /^(\d+)\|(\d+)\|(.+)$/.exec(line);
-    if (!match) {
-      errors.push(`Baris ${index + 1}: format bukan surah|ayat|teks`);
+    if (index === 0 || line === "") return;
+    const fields = parseCsvLine(line);
+    if (fields.length !== 4) {
+      errors.push(`Baris ${index + 1}: ${fields.length} kolom, harus 4`);
+      return;
+    }
+    const [id, surah, ayah, text] = fields;
+    if (!/^\d+$/.test(id) || !/^\d+$/.test(surah) || !/^\d+$/.test(ayah)) {
+      errors.push(`Baris ${index + 1}: id/surah/ayah bukan angka`);
       return;
     }
     ayahs.push({
-      surah: Number(match[1]),
-      ayah: Number(match[2]),
-      text: match[3],
+      id: Number(id),
+      surah: Number(surah),
+      ayah: Number(ayah),
+      text,
       line: index + 1,
     });
   });
 
   return { ayahs, errors };
+}
+
+function parseSurahNames(rawNames) {
+  const errors = [];
+  let doc;
+  try {
+    doc = JSON.parse(rawNames);
+  } catch {
+    errors.push(`${NAMES_FILE}: JSON tidak valid`);
+    return { names: null, errors };
+  }
+  if (!doc || typeof doc !== "object" || Array.isArray(doc)) {
+    errors.push(`${NAMES_FILE}: struktur tidak valid`);
+    return { names: null, errors };
+  }
+
+  const names = [];
+  for (let n = 1; n <= 114; n += 1) {
+    const value = doc[String(n)];
+    if (typeof value !== "string" || !value.trim()) {
+      errors.push(`${NAMES_FILE}: nama surah ${n} kosong`);
+      names.push("");
+      continue;
+    }
+    names.push(normalizeSurahName(value));
+  }
+
+  if (Object.keys(doc).length !== 114) {
+    errors.push(`${NAMES_FILE}: ${Object.keys(doc).length} entri ≠ 114`);
+  }
+
+  return { names, errors };
 }
 
 function parseQuranData(rawMeta) {
@@ -137,14 +271,19 @@ function parseQuranData(rawMeta) {
   };
 }
 
-export function buildSurahs(surahsRaw) {
+export function buildSurahs(surahsRaw, names = []) {
   const rows = surahsRaw.slice(1).filter((row) => Array.isArray(row) && row.length >= 8);
   return rows.map((row, index) => {
     const [start, ayahCount, order, rukus, name, nameLatin, nameEnglish, revelation] = row;
+    // Nama tampilan dari QuranEnc; nama Tanzil tetap tersedia sebagai alias
+    // pencarian agar ejaan lama ("Al-Baqara") tetap menemukan surah.
+    const display = names[index] || nameLatin;
+    const aliases = [nameLatin].filter((alias) => alias && alias !== display);
     return {
       n: index + 1,
       name,
-      nameLatin,
+      nameLatin: display,
+      nameAliases: aliases,
       nameEnglish,
       revelation,
       revelationId: revelation === "Meccan" ? "Makkiyah" : "Madaniyah",
@@ -205,9 +344,11 @@ function parseTranslation(raw) {
 export function loadSource({ verifyChecksums = true, requireTranslation = true } = {}) {
   const textRaw = readFileSync(join(SOURCE_DIR, TEXT_FILE), "utf8");
   const metaRaw = readFileSync(join(SOURCE_DIR, METADATA_FILE), "utf8");
+  const namesRaw = readFileSync(join(SOURCE_DIR, NAMES_FILE), "utf8");
   const hashes = {
     [TEXT_FILE]: sha256(textRaw),
     [METADATA_FILE]: sha256(metaRaw),
+    [NAMES_FILE]: sha256(namesRaw),
   };
 
   // Pengambilan terjemahan pertama kali tidak boleh bergantung pada berkas
@@ -222,7 +363,8 @@ export function loadSource({ verifyChecksums = true, requireTranslation = true }
 
   const { ayahs, errors: lineErrors } = parseAyahs(textRaw);
   const meta = parseQuranData(metaRaw);
-  const surahs = buildSurahs(meta.surahsRaw);
+  const { names, errors: nameErrors } = parseSurahNames(namesRaw);
+  const surahs = buildSurahs(meta.surahsRaw, names ?? []);
   const juz = buildJuz(meta.juzRaw, surahs);
   const translation =
     translationRaw === null ? { doc: null, errors: [] } : parseTranslation(translationRaw);
@@ -251,6 +393,7 @@ export function loadSource({ verifyChecksums = true, requireTranslation = true }
   return {
     textRaw,
     metaRaw,
+    namesRaw,
     translationRaw,
     hashes,
     ayahs,
@@ -259,6 +402,7 @@ export function loadSource({ verifyChecksums = true, requireTranslation = true }
     translation: translation.doc,
     translationErrors: translation.errors,
     lineErrors,
+    nameErrors,
     checksumErrors,
     metaInfo: { version: meta.version, license: meta.license },
   };
@@ -274,20 +418,25 @@ export function ayahsBySurah(ayahs) {
 }
 
 export function validateDataset(data) {
-  const errors = [...data.lineErrors, ...data.checksumErrors];
+  const errors = [...data.lineErrors, ...data.nameErrors, ...data.checksumErrors];
 
   if (data.textRaw.includes("\r")) errors.push("Teks sumber memakai CRLF; harus LF");
-  if (!data.textRaw.includes("Tanzil Quran Text (Uthmani, Version 1.1)")) {
-    errors.push("Blok hak cipta/versi Tanzil Uthmani 1.1 tidak ditemukan");
-  }
-  if (!data.textRaw.includes("# PLEASE DO NOT REMOVE OR CHANGE THIS COPYRIGHT BLOCK")) {
-    errors.push("Blok hak cipta Tanzil tidak ditemukan");
-  }
-  if (!data.textRaw.includes("Creative Commons Attribution 3.0")) {
-    errors.push("Pernyataan lisensi CC BY 3.0 tidak ditemukan di teks sumber");
-  }
   if (data.metaInfo.version !== "1.0") {
     errors.push(`Versi metadata ${data.metaInfo.version ?? "tidak diketahui"} ≠ 1.0`);
+  }
+
+  data.ayahs.forEach((ayah, index) => {
+    if (ayah.id !== index + 1) {
+      errors.push(`Baris ${ayah.line}: id ${ayah.id} ≠ ${index + 1}`);
+    }
+  });
+
+  const names = data.surahs.map((surah) => surah.nameLatin);
+  if (new Set(names).size !== names.length) errors.push("Nama surah tampilan tidak unik");
+  for (const surah of data.surahs) {
+    if (!/^[A-Za-z' -]+$/.test(surah.nameLatin)) {
+      errors.push(`Surah ${surah.n}: nama tampilan mengandung karakter tak dikenal`);
+    }
   }
 
   if (data.surahs.length !== 114) {

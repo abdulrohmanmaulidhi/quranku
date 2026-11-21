@@ -25,7 +25,8 @@ describe("indeks pencarian Arab", () => {
     const results = searchAyahs(entries, "الرحمن", 10);
 
     expect(results.length).toBeGreaterThan(0);
-    expect(results[0]).toMatchObject({ surah: 1, ayah: 3 });
+    expect(results[0]).toMatchObject({ surah: 55, ayah: 1 });
+    expect(results.some((result) => result.surah === 1 && result.ayah === 3)).toBe(true);
     for (const result of results) {
       expect(byReference.get(`${result.surah}:${result.ayah}`)).toContain("الرحمن");
     }

@@ -235,7 +235,7 @@ Do not use streaks or activity metrics to rank users or imply a measure of faith
 
 ## 13. Dependencies and Open Questions
 
-- Which Quran text source and exact edition will be used? _(decided: Tanzil Uthmani 1.1, D-002)_
+- Which Quran text source and exact edition will be used? _(decided: Uthmani Hafs 20 via QuranEnc, D-042)_
 - Which Indonesian translation(s) are licensed for the intended use? _(decided: Kemenag via QuranEnc, D-003)_
 - Which tafsir collections are in scope, and what are their terms?
 - Which reciters and audio hosting sources are permitted?

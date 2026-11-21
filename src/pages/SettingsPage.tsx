@@ -342,7 +342,7 @@ export function SettingsPage() {
               <span className={styles.linkBody}>
                 <span className={styles.settingLabel}>Sumber &amp; Atribusi</span>
                 <span className={styles.settingDescription}>
-                  Tanzil, terjemahan QuranEnc, lisensi, dan versi data
+                  KFGQPC Hafs 20, terjemahan QuranEnc, lisensi, dan versi data
                 </span>
               </span>
               <span className={styles.chevron}>

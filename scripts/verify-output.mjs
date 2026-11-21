@@ -5,11 +5,14 @@ import {
   DATASET_DIR,
   DATASET_VERSION,
   METADATA_FILE,
+  NAMES_FILE,
   SOURCE_INFO,
   TEXT_FILE,
   TRANSLATION_DIR,
   TRANSLATION_FILE,
   ayahsBySurah,
+  basmalahText,
+  copyrightNotice,
   listFiles,
   loadSource,
   readJson,
@@ -43,14 +46,15 @@ const expectedManifest = {
   source: {
     text: { ...SOURCE_INFO.text, sha256: source.hashes[TEXT_FILE] },
     metadata: { ...SOURCE_INFO.metadata, sha256: source.hashes[METADATA_FILE] },
+    names: { ...SOURCE_INFO.names, sha256: source.hashes[NAMES_FILE] },
     translation: { ...translationSourceInfo(source), sha256: source.hashes[TRANSLATION_FILE] },
   },
   copyrightNotice: "COPYRIGHT.txt",
   textPolicy: "Teks Arab disalin verbatim dari data/source; tidak ada normalisasi atau pemotongan.",
 };
 
-const noticeStart = source.textRaw.indexOf("# PLEASE DO NOT REMOVE");
-const expectedNotice = noticeStart === -1 ? "" : `${source.textRaw.slice(noticeStart).trimEnd()}\n`;
+const expectedNotice = copyrightNotice();
+const expectedBasmalah = { text: basmalahText(source.ayahs) };
 
 const expectedSearchIndex = {
   schemaVersion: 1,
@@ -72,6 +76,7 @@ const expectedFiles = new Set([
   "manifest.json",
   "surahs.json",
   "juz.json",
+  "basmalah.json",
   "COPYRIGHT.txt",
   "search/arabic.json",
   "search/translation.json",
@@ -98,6 +103,7 @@ for (const file of expectedFiles) {
 check("manifest.json", readJson(join(DATASET_DIR, "manifest.json")), expectedManifest);
 check("surahs.json", readJson(join(DATASET_DIR, "surahs.json")), surahs);
 check("juz.json", readJson(join(DATASET_DIR, "juz.json")), source.juz);
+check("basmalah.json", readJson(join(DATASET_DIR, "basmalah.json")), expectedBasmalah);
 check(
   "search/arabic.json",
   readJson(join(DATASET_DIR, "search", "arabic.json")),

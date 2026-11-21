@@ -1,12 +1,13 @@
 import {
   DataError,
+  parseBasmalah,
   parseJuz,
   parseManifest,
   parseSurahText,
   parseSurahTranslation,
   parseSurahs,
 } from "./parse";
-import type { Juz, Manifest, Surah, SurahText, SurahTranslation } from "./types";
+import type { Basmalah, Juz, Manifest, Surah, SurahText, SurahTranslation } from "./types";
 import { dataUrl } from "./url";
 import { TRANSLATION_KEY } from "./version";
 
@@ -52,6 +53,10 @@ export async function loadSurahs(): Promise<Surah[]> {
 
 export async function loadJuz(surahs: Surah[]): Promise<Juz[]> {
   return parseJuz(await fetchJson("juz.json"), surahs);
+}
+
+export async function loadBasmalah(): Promise<Basmalah> {
+  return parseBasmalah(await fetchJson("basmalah.json"));
 }
 
 export async function loadSurahText(surah: number, ayahCount: number): Promise<SurahText> {

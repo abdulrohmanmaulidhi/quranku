@@ -14,6 +14,7 @@ export const OFFLINE_DATA_PATHS: readonly string[] = [
   "manifest.json",
   "surahs.json",
   "juz.json",
+  "basmalah.json",
   "COPYRIGHT.txt",
   "search/arabic.json",
   "search/translation.json",

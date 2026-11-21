@@ -42,7 +42,7 @@ test("lompat ke awal juz lewat tab Juz", async ({ page }) => {
   await dialog.getByRole("tab", { name: "Juz" }).click();
   await dialog.getByRole("combobox", { name: "Juz" }).selectOption("30");
 
-  await expect(dialog.getByText("Mulai QS. An-Naba 78:1.")).toBeVisible();
+  await expect(dialog.getByText("Mulai QS. An-Naba' 78:1.")).toBeVisible();
   await dialog.getByRole("button", { name: "Buka juz" }).click();
 
   await expect(page).toHaveURL(/\/surah\/78\/1$/);

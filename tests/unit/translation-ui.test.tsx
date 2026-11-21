@@ -97,7 +97,7 @@ describe("terjemahan di Reader", () => {
     renderAt("/surah/1");
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: "Al-Faatiha" }),
+      await screen.findByRole("heading", { level: 1, name: "Al-Fatihah" }),
     ).toBeInTheDocument();
     expect(screen.queryByText(fatihah.ayahs[0]!.text)).not.toBeInTheDocument();
   });
@@ -135,10 +135,10 @@ describe("atribusi terjemahan di S10", () => {
     renderAt("/pengaturan/sumber");
 
     expect(await screen.findByText(/Ministry of Religious Affairs/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /QuranEnc\.com/ })).toHaveAttribute(
-      "href",
-      "https://quranenc.com/en/home",
-    );
+    const quranEncLinks = screen.getAllByRole("link", { name: /QuranEnc\.com/ });
+    expect(
+      quranEncLinks.some((link) => link.getAttribute("href") === "https://quranenc.com/en/home"),
+    ).toBe(true);
     expect(screen.getByText("1.0.1")).toBeInTheDocument();
     expect(screen.getByText("QuranEnc Terms and Policies")).toBeInTheDocument();
     expect(
