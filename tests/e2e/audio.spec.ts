@@ -81,6 +81,48 @@ test("Putar Surah: otomatis maju ke ayat berikutnya (queue surah)", async ({ pag
   await expect(region).toBeHidden();
 });
 
+test("Retry selangkah saat EveryAyah sementara gagal (404, F2.1)", async ({ page }) => {
+  let attempts = 0;
+  await page.route("**/everyayah.com/data/**/*.mp3", async (route) => {
+    attempts += 1;
+    if (attempts === 1) {
+      await route.fulfill({ status: 404, body: "" });
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: "audio/mpeg",
+      body: readFileSync(FIXTURE),
+    });
+  });
+
+  await page.goto("/surah/1");
+  await page.getByRole("button", { name: "Putar Surah" }).click();
+
+  const region = page.getByRole("region", { name: "Pemutar audio" });
+  await expect(region).toBeVisible();
+  await expect.poll(() => attempts, { timeout: 8000 }).toBeGreaterThanOrEqual(2);
+  await expect(page.locator("#ayah-1")).toHaveAttribute("data-playing", "true");
+});
+
+test("Volume: tombol mute muncul, label status aktif saat diklik", async ({ page }) => {
+  await page.goto("/surah/1");
+  await page.getByRole("button", { name: "Putar Surah" }).click();
+  await expect(page.getByRole("region", { name: "Pemutar audio" })).toBeVisible();
+
+  const volume = page.getByRole("button", { name: "Matikan suara" });
+  await expect(volume).toBeVisible();
+
+  await volume.click();
+  const muted = page.getByRole("button", { name: "Suara dimatikan" });
+  await expect(muted).toBeVisible();
+  await expect(muted).toHaveAttribute("aria-pressed", "true");
+
+  await muted.click();
+  await expect(volume).toBeVisible();
+  await expect(volume).toHaveAttribute("aria-pressed", "false");
+});
+
 test("Pengaturan Audio: daftar enam Qari dengan Alafasy sebagai default", async ({ page }) => {
   await page.goto("/pengaturan");
 

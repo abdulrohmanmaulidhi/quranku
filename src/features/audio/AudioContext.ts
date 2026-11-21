@@ -14,6 +14,8 @@ export interface AudioContextValue {
   reciter: Reciter;
   /** Nomor surah yang sedang dimainkan dengan "Putar Surah"; null kalau tidak. */
   surahMode: number | null;
+  volume: number;
+  muted: boolean;
   isCurrent: (surah: number, ayah: number) => boolean;
   isSurahPlaying: (surah: Surah) => boolean;
   toggleTrack: (track: AudioTrack) => void;
@@ -24,6 +26,8 @@ export interface AudioContextValue {
   stop: () => void;
   setRate: (rate: AudioRate) => void;
   setRepeat: (repeat: RepeatMode) => void;
+  setVolume: (volume: number) => void;
+  toggleMute: () => void;
   getElement: () => HTMLAudioElement | null;
 }
 
@@ -41,6 +45,8 @@ const defaultValue: AudioContextValue = {
   rate: 1,
   repeat: "off",
   surahMode: null,
+  volume: 1,
+  muted: false,
   reciter: getReciter(DEFAULT_RECITER_ID),
   isCurrent: () => false,
   isSurahPlaying: () => false,
@@ -52,6 +58,8 @@ const defaultValue: AudioContextValue = {
   stop: noop,
   setRate: noop,
   setRepeat: noop,
+  setVolume: noop,
+  toggleMute: noop,
   getElement: () => null,
 };
 

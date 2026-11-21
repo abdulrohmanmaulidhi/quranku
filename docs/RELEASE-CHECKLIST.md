@@ -34,6 +34,8 @@ secara berurutan. `public/data` dihasilkan ulang dan tidak di-commit.
 | Keyboard                | Tab mencapai semua kontrol, fokus terlihat, Escape menutup dialog | ☐      |
 | Teks Arab               | Tetap RTL, harakat Hafs 20 utuh, tanpa letter-spacing             | ☐      |
 | Target sentuh           | Semua kontrol ≥ 44×44 px                                          | ☐      |
+| Volume mute             | Pemutar: tombol mute (Matikan suara / Suara dimatikan), `aria-pressed` aktif saat mute | ☐ |
+| Retry EveryAyah         | Simulasi timeout EveryAyah di devtools; retry 3× dengan `audio.src` ulang | ☐ |
 | Atribusi                | KFGQPC, QuranEnc, dan Tanzil tampil di Reader dan Sumber & Atribusi | ☐    |
 | PWA offline             | Muat ulang saat offline, baca surah tersimpan, cari tetap jalan   | ☐      |
 | Ajakan pasang (D-040)   | Chromium: muncul setelah ayat 5, "Nanti" hilang 14 hari; iOS: instruksi di Pengaturan | ☐ |

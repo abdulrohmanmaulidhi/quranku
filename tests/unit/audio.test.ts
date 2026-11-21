@@ -15,6 +15,7 @@ import {
   isEndOfSurah,
   nextAyah,
   nextInSurah,
+  normalizeVolume,
   previousAyah,
   repeatLabel,
 } from "@/features/audio/playback";
@@ -132,6 +133,17 @@ describe("playback", () => {
     expect(repeatLabel("one")).toBe("ulangi ayat");
     expect(repeatLabel("surah")).toBe("ulangi surah");
     expect(repeatLabel("off")).toBe("tanpa ulangan");
+  });
+});
+
+describe("normalizeVolume", () => {
+  it("menormalisasi ke [0, 1]; non-angka → 1", () => {
+    expect(normalizeVolume(0.5)).toBe(0.5);
+    expect(normalizeVolume(1)).toBe(1);
+    expect(normalizeVolume(0)).toBe(0);
+    expect(normalizeVolume(-0.5)).toBe(0);
+    expect(normalizeVolume(2)).toBe(1);
+    expect(normalizeVolume(Number.NaN)).toBe(1);
   });
 });
 

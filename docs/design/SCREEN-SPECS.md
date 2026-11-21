@@ -307,7 +307,7 @@ Teks atribusi baku ada di `CONTENT-RULES.md`.
 **Layout**
 
 - Posisi: bilah tetap di bawah (bagian S03), tersedia ruang di atasnya; di layar 320–1023 px pada mode Reader di bawah nav (termasuk safe-area), di layar ≥1024 px paling bawah (di bawah nav); gunakan varian `--player-height`/`--player-offset` dari `tokens.css`.
-- Isi, dari atas ke bawah: bilah progres 3 px, bar progres, judul `Nama Surah · Ayat X` + nama Qari + durasi `m:ss / m:ss`, tombol lewati sebelum (nonaktif pada ayat pertama), tombol putar/jeda (warna `accent` saat menyala), tombol lewati berikutnya (nonaktif pada ayat terakhir), tombol ulangan (siklus: tanpa → ulangi surah → ulangi ayat), tombol kecepatan (siklus: 0,75× → 1× → 1,25× → 1,5×, terisi 1).
+- Isi, dari atas ke bawah: bilah progres 3 px, bar progres, judul `Nama Surah · Ayat X` + nama Qari + durasi `m:ss / m:ss`, tombol lewati sebelum (nonaktif pada ayat pertama), tombol putar/jeda (warna `accent` saat menyala), tombol lewati berikutnya (nonaktif pada ayat terakhir), tombol ulangan (siklus: tanpa → ulangi surah → ulangi ayat), tombol kecepatan (siklus: 0,75× → 1× → 1,25× → 1,5×, terisi 1), tombol volume (Volume2/VolumeX dengan `filled={muted}`, `aria-pressed` saat mute; F2.2).
 - Di setiap ayat pada Reader: tombol putar audio, ditandai saat menyala (`.audioActive`).
 
 **Perilaku**
@@ -315,14 +315,16 @@ Teks atribusi baku ada di `CONTENT-RULES.md`.
 - Urutan: ayat berikut di dalam surah; kembali ke ayat 1 setelah ayat terakhir; repeat off/surah/one; rate 0.75/1/1.25/1.5.
 - **Queue surah (F1.2):** tombol **Putar Surah** di header surah (S03) memulai surah dari ayat 1, maju otomatis (auto-advance), dan berhenti di akhir surah. Saat queue aktif, lewati/mundur dan X berlaku seperti normal; X menutup pemutar (token posisi naik diputus sebelum `ended` diproses agar tidak mengawali track berikutnya).
 - Prefetches antar-ayat dikonsumsi pada koneksi hemat data.
+- **Retry streaming (F2.1):** `start()`: `for (attempt 1..3) { await audio.play(); }`; di rejection non-NotAllowedError → `audio.src = source; await sleep(500 × attempt)`; final → `setStatus("paused")` + `setError("Audio tidak dapat diputar.")`. `onError` diberi guard `retryingRef` (tidak error sementara selama retry).
 - Media Session: judul `Nama Surah · Ayat X`, artis nama Qari, ikon; aksi putar, jeda, lewati, mundur, stop, `seekto` (ganti posisi melalui `seekTime`/`seekOffset`); **posisi dan durasi disinkronkan** ke sesi (`setPositionState`: `duration`, `position`, `playbackRate`); status `playing`/`paused`.
+- Volume: `AudioProvider` efek `[volume, muted]` → `audio.volume`/`audio.muted`; `setVolume` clamped via `normalizeVolume`.
 - Offset: `--player-offset` (7rem di bawah nav; 0px di layar besar); `Snackbar`, `BackToTop`, dan `InstallPrompt` menyesuaikan posisi ini; BottomNav dengan mode Reader berada di atas bilah pemutar.
 
 **State**
 
 | State     | Perilaku                                                                                              |
 | --------- | ------------------------------------------------------------------------------------------------------ |
-| Memuat    | Spin loader di tombol putar, subtitle "Memuat audio…", bar progres bila metadata datang                 |
+| Memuat    | Spin loader, play button `aria-label="Memuat audio…"`, subtitle "Memuat audio…", bar progres bila metadata datang |
 | Putar     | Ikon Pause, posisi dari elemen audio via `timeupdate`                                                   |
 | Jeda      | Ikon Play                                                                                               |
 | Error     | Teks jelas ("Audio tidak dapat diputar." / "Audio tidak dapat diunduh. Periksa koneksi Anda."), opsi Coba lagi |
@@ -331,8 +333,9 @@ Teks atribusi baku ada di `CONTENT-RULES.md`.
 **Aksesibilitas (D-044/S12)**
 
 - role="region" dengan aria-label "Pemutar audio"; progressbar "Kemajuan ayat".
-- Tombol putar/jeda 44×44 px (`--touch-target`), fokus visible, aria-label sesuai status.
+- Tombol putar/jeda 44×44 px (`--touch-target`), fokus visible, aria-label sesuai status; saat loading aria-label "Memuat audio…".
 - Ulangan dibaca: "Ulangan: tanpa ulangan. Ketuk untuk mengubah."; kecepatan: "Kecepatan 1 kali. Ketuk untuk mengubah."
+- Volume: "Matikan suara"/"Suara dimatikan" + `aria-pressed` saat mute; `sr-only` announcement "Memutar/Memuat {surah}, ayat {ayah}." (F2.2).
 - Riwayat isi disimpan dengan aria-live="polite".
 
 **Atribusi (D-044)**

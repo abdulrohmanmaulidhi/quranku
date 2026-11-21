@@ -1,7 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AudioContext, type AudioContextValue, type AudioStatus } from "./AudioContext";
 import { AUDIO_CACHE_NAME, matchCachedAudio } from "./audioCache";
-import { isEndOfSurah, nextAyah, nextInSurah, previousAyah, type AudioTrack } from "./playback";
+import {
+  isEndOfSurah,
+  nextAyah,
+  nextInSurah,
+  normalizeVolume,
+  previousAyah,
+  type AudioTrack,
+} from "./playback";
 import type { Surah } from "@/lib/data/types";
 import { audioUrl, getReciter } from "./reciters";
 import { useAudioSettings } from "./useAudioSettings";
@@ -29,6 +36,12 @@ function connectionInfo(): NetworkInformation | undefined {
   return (navigator as Navigator & { connection?: NetworkInformation }).connection;
 }
 
+const sleep = (milliseconds: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+/** Berapa kali mencoba ulang pemutaran sebelum memberi error (F2.1). */
+const MAX_AUDIO_RETRIES = 3;
+
 export function AudioProvider({ children }: { children: ReactNode }) {
   const { reciterId, rate, setRate, repeat, setRepeat } = useAudioSettings();
   const reciter = useMemo(() => getReciter(reciterId), [reciterId]);
@@ -37,6 +50,8 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<AudioStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const [surahMode, setSurahMode] = useState<number | null>(null);
+  const [volume, setVolumeState] = useState(1);
+  const [muted, setMutedState] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const trackRef = useRef<AudioTrack | null>(null);
@@ -45,6 +60,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const rateRef = useRef(rate);
   const tokenRef = useRef(0);
   const objectUrlRef = useRef<string | null>(null);
+  const retryingRef = useRef(false);
   const prefetchRef = useRef<AbortController | null>(null);
   const previousReciterRef = useRef(reciterId);
   const surahModeRef = useRef<number | null>(null);
@@ -66,6 +82,20 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     const audio = audioRef.current;
     if (audio) audio.playbackRate = rate;
   }, [rate]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.volume = volume;
+      audio.muted = muted;
+    }
+  }, [volume, muted]);
+
+  const setVolume = useCallback((next: number) => {
+    setVolumeState(normalizeVolume(next));
+  }, []);
+
+  const toggleMute = useCallback(() => setMutedState((current) => !current), []);
 
   const releaseObjectUrl = useCallback(() => {
     if (objectUrlRef.current) {
@@ -108,17 +138,38 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
       audio.src = source;
       audio.playbackRate = rateRef.current;
+      retryingRef.current = true;
 
-      try {
-        await audio.play();
-      } catch (playError) {
-        if (token !== tokenRef.current) return;
-        setStatus("paused");
-        setError(
-          playError instanceof DOMException && playError.name === "NotAllowedError"
-            ? "Ketuk putar untuk memulai audio."
-            : "Audio tidak dapat diputar.",
-        );
+      for (let attempt = 1; attempt <= MAX_AUDIO_RETRIES; attempt += 1) {
+        if (token !== tokenRef.current) {
+          if (source.startsWith("blob:")) URL.revokeObjectURL(source);
+          return;
+        }
+        try {
+          await audio.play();
+          retryingRef.current = false;
+          return;
+        } catch (playError) {
+          if (token !== tokenRef.current) {
+            if (source.startsWith("blob:")) URL.revokeObjectURL(source);
+            return;
+          }
+          if (playError instanceof DOMException && playError.name === "NotAllowedError") {
+            setStatus("paused");
+            setError("Ketuk putar untuk memulai audio.");
+            retryingRef.current = false;
+            return;
+          }
+          if (attempt === MAX_AUDIO_RETRIES) {
+            setStatus("paused");
+            setError("Audio tidak dapat diputar.");
+            retryingRef.current = false;
+            return;
+          }
+          // Coba ulang sebagai langkah pertama — EveryAyah sering timeout di sibuk.
+          audio.src = source;
+          await sleep(500 * attempt);
+        }
       }
     },
     [reciterId, releaseObjectUrl],
@@ -189,6 +240,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     prefetchRef.current?.abort();
     prefetchRef.current = null;
     trackRef.current = null;
+    retryingRef.current = false;
     setSurahMode(null);
     const audio = audioRef.current;
     if (audio) {
@@ -425,6 +477,8 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       repeat,
       reciter,
       surahMode,
+      volume,
+      muted,
       isCurrent,
       isSurahPlaying,
       toggleTrack,
@@ -435,6 +489,8 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       stop,
       setRate,
       setRepeat,
+      setVolume,
+      toggleMute,
       getElement: () => audioRef.current,
     }),
     [
@@ -445,6 +501,8 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       repeat,
       reciter,
       surahMode,
+      volume,
+      muted,
       isCurrent,
       isSurahPlaying,
       toggleTrack,
@@ -455,6 +513,8 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       stop,
       setRate,
       setRepeat,
+      setVolume,
+      toggleMute,
     ],
   );
 
@@ -476,6 +536,9 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         }}
         onEnded={handleEnded}
         onError={() => {
+          // Selama retry (F2.1), jangan langsung error — retry loop yang
+          // atas yang menentukan status error akhir.
+          if (retryingRef.current) return;
           const audio = audioRef.current;
           setStatus("error");
           setError(mediaErrorMessage(audio?.error ?? null));

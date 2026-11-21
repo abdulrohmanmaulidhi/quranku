@@ -1,5 +1,16 @@
 import { useEffect, useState } from "react";
-import { Loader2, Pause, Play, Repeat, Repeat1, SkipBack, SkipForward, X } from "lucide-react";
+import {
+  Loader2,
+  Pause,
+  Play,
+  Repeat,
+  Repeat1,
+  SkipBack,
+  SkipForward,
+  Volume2,
+  VolumeX,
+  X,
+} from "lucide-react";
 import { useMatch } from "react-router-dom";
 import { IconButton } from "@/components/ui/IconButton";
 import { Icon } from "@/components/ui/Icon";
@@ -22,6 +33,8 @@ export function PlayerBar() {
     stop,
     setRate,
     setRepeat,
+    muted,
+    toggleMute,
     getElement,
   } = useAudio();
   const isReader = useMatch("/surah/:surah/*") !== null;
@@ -58,13 +71,12 @@ export function PlayerBar() {
     };
   }, [getElement, track, trackKey]);
 
-  const announcement = track ? `Memutar ${track.surahName}, ayat ${track.ayah}.` : "";
-
   if (!track) return null;
 
   const percent = duration > 0 ? Math.min(100, Math.max(0, (current / duration) * 100)) : 0;
   const playing = status === "playing";
   const loading = status === "loading";
+  const announcement = `${loading ? "Memuat audio" : "Memutar"} ${track.surahName}, ayat ${track.ayah}.`;
 
   const statusText =
     error ?? `${reciter.name} · ${formatDuration(current)} / ${formatDuration(duration)}`;
@@ -116,7 +128,7 @@ export function PlayerBar() {
           <button
             type="button"
             className={styles.play}
-            aria-label={playing ? "Jeda" : "Putar"}
+            aria-label={loading ? "Memuat audio…" : playing ? "Jeda" : "Putar"}
             onClick={toggle}
           >
             {loading ? (
@@ -140,6 +152,15 @@ export function PlayerBar() {
             onClick={() => setRate(cycleRate(rate))}
           >
             <span className={styles.rate}>{rate}×</span>
+          </button>
+          <button
+            type="button"
+            className={styles.option}
+            aria-label={muted ? "Suara dimatikan" : "Matikan suara"}
+            aria-pressed={muted}
+            onClick={toggleMute}
+          >
+            <Icon icon={muted ? VolumeX : Volume2} size={20} filled={muted} />
           </button>
         </div>
       </div>

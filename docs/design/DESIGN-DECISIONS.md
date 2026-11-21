@@ -486,6 +486,29 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 - **Catatan:** Nilai `seekTime`/`seekOffset` belum teruji di browser nyata; implementasi defensif dan tidak mengganggu play/pause.
 
 ---
+
+### D-047 — Retry streaming EveryAyah (F2.1)
+
+- **Tanggal:** 2026-11-21
+- **Status:** Diputuskan
+- **Konteks:** review EveryAyah (D-044) mencatat ~30% timeout di burst load. Retry hanya pada unduhan Cache Storage, sedangkan streaming pemutar fail-fast → user mendengar error atau jeda kosong saat sibuk.
+- **Opsi yang dipertimbangkan:** (a) retry streaming `audio.play()` 3× dengan backoff `500ms × attempt` + `audio.src` ulang; (b) rehost audio (perdana tidak boleh, per PRD); (c) tanggapi error kustom.
+- **Keputusan:** Opsi (a). `AudioProvider.start()`: `for (attempt 1..3) { await audio.play(); }`; di rejection non-NotAllowedError → `audio.src = source; await sleep(500 × attempt)`; final → `setStatus("paused")` + `setError("Audio tidak dapat diputar.")`. NotAllowedError tetap immediate. `onError` diberi guard `retryingRef` (tidak error sementara selama retry).
+- **Alasan:** burst EveryAyah flaky; retry sederhana murah & tidak ganti sumber; timeout sering transien.
+- **Dampak (desain, konten, teknis):** `AudioProvider`, e2e `audio.spec.ts` (tes 404-retry, F2.1).
+- **Bukti:** e2e "Retry selangkah saat EveryAyah sementara gagal".
+
+### D-048 — Volume control dan loading label (F2.2, A11y)
+
+- **Tanggal:** 2026-11-21
+- **Status:** Diputuskan
+- **Konteks:** Pemutar tidak punya volume; dan play/pause button saat loading punya spinner tapi label "Putar" — tidak jelas bagi screen reader.
+- **Opsi yang dipertimbangkan:** (a) tombol mute (Volume2/VolumeX, `filled={muted}`) label "Matikan suara"/"Suara dimatikan" + `aria-pressed`; (b) label play saat loading → "Memuat audio…" + `announcement` sr-only; (c) tidak volume.
+- **Keputusan:** (a)+(b). `AudioContext`: `volume`, `muted`, `setVolume`, `toggleMute`; `AudioProvider`: efek `[volume, muted]` → `audio.volume/audio.muted` + clamp via `normalizeVolume`. `PlayerBar`: volume button di controls row; play button `aria-label` loading → "Memuat audio…".
+- **Alasan:** MVP user expectation: volume seharusnya ada; a11y: label loading menghindari ambiguous state.
+- **Dampak (desain, konten, teknis):** `AudioContext`, `AudioProvider`, `PlayerBar`, unit `normalizeVolume`, e2e volume + loading.
+- **Bukti:** e2e "Volume: tombol mute muncul, label status aktif saat diklik".
+
 ## Templat entri baru
 
 ```

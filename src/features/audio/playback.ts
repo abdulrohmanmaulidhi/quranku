@@ -45,6 +45,12 @@ export function isEndOfSurah(track: AudioTrack): boolean {
   return track.ayah >= track.ayahCount;
 }
 
+/** Menormalisasi nilai volume ke [0, 1]. Non-angka/negatif/di atas 1 → bawaan. */
+export function normalizeVolume(value: number): number {
+  if (!Number.isFinite(value)) return 1;
+  return Math.min(1, Math.max(0, value));
+}
+
 /** Ayat berikut dalam surah yang sama; wrap ke ayat 1 setelah terakhir. */
 export function nextInSurah(track: AudioTrack): AudioTrack {
   if (track.ayah >= track.ayahCount) return { ...track, ayah: 1 };
