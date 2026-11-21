@@ -283,7 +283,6 @@ Deploy ke Cloudflare Pages dilakukan di luar workflow ini (cabang utama) sampai 
 
 | Kebutuhan                      | Rencana                                                                                                          |
 | ------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| Audio                          | CDN eksternal berlisensi; pemutar di klien; tidak di-cache dulu                                                  |
 | Tafsir dan terjemahan tambahan | Berkas data tambahan per sumber dengan label dan lisensi                                                         |
 | Akun dan sinkronisasi          | Tambahkan backend **terpisah**. Data pengguna sudah terpisah dari data referensi, jadi reader tidak perlu diubah |
 | Aplikasi native                | Evaluasi setelah PWA terbukti; PWA sudah dapat dipasang                                                          |
@@ -323,7 +322,10 @@ Deploy ke Cloudflare Pages dilakukan di luar workflow ini (cabang utama) sampai 
 - Unduhan offline otomatis setelah idle (kecuali `Save-Data`), cache berversi `quranku-data-v1`, penanganan kuota/jaringan, dan pembersihan cache lama.
 - Dexie v1: `bookmarks`, `position`, `settings`, `meta`; tema, posisi baca, dan ukuran Arab tersimpan di perangkat.
 - Terjemahan Indonesia QuranEnc (Kemenag) di dataset v2: berkas per surah, catatan kaki, manifest, dan verifikasi checksum (D-003).
-- Unit test (Vitest) dan E2E (Playwright) untuk navigasi, teks Arab verbatim, RTL, 320 px, target sentuh, tema, axe, penanda, posisi baca, ukuran Arab, ekspor/impor, berbagi, pencarian Arab dan terjemahan, PWA, dan offline.
+- Pemutar audio (D-044): audio dialirkan dari EveryAyah (MP3 64 kbps), enam Qari dengan alafasy sebagai default, putar per ayat dengan auto-advance, repeat off/surah/one, rates 0,75/1/1,25/1,5, Media Session, dan tombol putar per ayat pada Reader.
+- Per-surah offline: Cache Storage `quranku-audio-v1` dengan unduhan konkurensi 3 dan 3 percobaan; audio tidak di-bundle dan tidak dimasukkan ke `OFFLINE_DATA_PATHS`.
+- Qari segar (EveryAyah, D-044): rangkaian Qari lengkap dari 1:1, stream langsung dari jaringan, atribusi EveryAyah dicantumkan di S10 dan pemutar, dan saat memutar/mengunduh server EveryAyah melihat IP dan ayat yang diminta (lihat `data/source/SOURCES.md` §6).
+- Unit test (Vitest) dan E2E (Playwright) untuk navigasi, teks Arab verbatim, RTL, 320 px, target sentuh, tema, axe, penanda, posisi baca, ukuran Arab, ekspor/impor, berbagi, pencarian Arab dan terjemahan, PWA, offline, dan audio.
 - CI GitHub Actions (quality, E2E, Lighthouse) dan konfigurasi `lighthouserc.json`.
 
 ### Belum dikerjakan

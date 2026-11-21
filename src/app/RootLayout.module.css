@@ -11,7 +11,7 @@
 
 .main {
   flex: 1;
-  padding-bottom: calc(var(--nav-height) + var(--safe-bottom));
+  padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + var(--player-offset));
 }
 
 .main:focus {
@@ -19,7 +19,7 @@
 }
 
 .reader {
-  padding-bottom: var(--space-4);
+  padding-bottom: calc(var(--space-4) + var(--player-offset));
 }
 
 .fallback {
@@ -38,6 +38,6 @@
   }
 
   .main {
-    padding-bottom: 0;
+    padding-bottom: var(--player-offset);
   }
 }

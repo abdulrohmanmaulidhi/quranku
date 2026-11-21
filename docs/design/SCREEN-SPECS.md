@@ -107,10 +107,12 @@ Setiap layar wajib punya state: **memuat, terisi, kosong, error, offline/sebagia
 - Header surah.
 - Petunjuk "Ketuk ayat untuk membuka aksi.", lalu basmalah pembuka sebagai baris tersendiri sebelum daftar ayat (D-012).
 - Daftar ayat. Tiap ayat: penanda nomor ayat, teks Arab (RTL), terjemahan, tombol **Aksi** (S04) dan ikon penanda.
+- Tombol putar audio tiap ayat; ayat yang sedang diputar atau sedang memuat ditandai dengan latar tebal `accent-subtle` (`.audioActive`).
 - Penanda "terakhir dibaca" (sorotan `accent-subtle`).
 - Navigasi surah sebelumnya/berikutnya di akhir daftar.
 - Indikator progres tipis di bawah bilah atas; lebarnya mengikuti posisi gulir.
 - Tombol **Kembali ke atas** (panah atas) di kanan bawah, muncul setelah satu layar tergulir.
+- **Pemutar audio** (bilah tetap di bawah): kontrol sebelum/lewati/putar per ayat, tombol ulangan, tombol kecepatan, nama Qari, dan bilah progres memuat; siap di atas area teks dan di bawah nav pada layar sempit, atas nav pada layar besar, paling bawah (di bawah nav dan safe-area) pada Reader.
 
 **Aturan**
 
@@ -145,7 +147,7 @@ Setiap layar wajib punya state: **memuat, terisi, kosong, error, offline/sebagia
 - Salin referensi saja (mis. "QS. Al-Kahfi 18:10")
 - Bagikan (jika _Web Share API_ tersedia)
 
-**Ditunda:** putar audio, catatan, tafsir.
+**Ditunda:** catatan, tafsir.
 
 | State        | Perilaku                                                      |
 | ------------ | ------------------------------------------------------------- |
@@ -247,7 +249,7 @@ Setiap layar wajib punya state: **memuat, terisi, kosong, error, offline/sebagia
 - **Tampilan:** tema, ukuran teks Arab, ukuran terjemahan, tampilkan terjemahan.
 - **Bacaan:** tidak ada — detail sumber tidak diulang di Pengaturan.
 - **Bahasa:** Indonesia (pilihan lain ditunda).
-- **Data saya:** ekspor penanda (berkas JSON), impor penanda, data offline (status, unduh, hapus salinan), hapus data lokal (dialog konfirmasi).
+- **Data saya:** ekspor penanda (berkas JSON), impor penanda, data offline (status, unduh, hapus salinan), hapus salinan audio tersimpan, hapus data lokal (dialog konfirmasi).
 - **Aplikasi:** pasang aplikasi (tombol prompt di Chromium) atau instruksi "Bagikan → Tambah ke Layar Utama" di iOS; status "Aplikasi terpasang" saat berjalan `standalone` (D-040).
 - **Tentang:** Sumber & Atribusi (S10, satu-satunya pintu ke detail sumber), versi aplikasi, versi dataset, kebijakan privasi.
 
@@ -295,3 +297,46 @@ Teks atribusi baku ada di `CONTENT-RULES.md`.
 | ----------------------- | ---------------------------------------------------------------- |
 | Penyiapan gagal         | "Tidak dapat menyiapkan mode offline. Coba lagi saat terhubung." |
 | Ruang penyimpanan penuh | Pesan jelas dengan saran membebaskan ruang                       |
+
+---
+
+## S12 — Pemutar audio (Qari)
+
+**Tujuan:** putar audio murattal per ayat tanpa perubahan teks, dengan mode segar dan dukungan offline.
+
+**Layout**
+
+- Posisi: bilah tetap di bawah (bagian S03), tersedia ruang di atasnya; di layar 320–1023 px pada mode Reader di bawah nav (termasuk safe-area), di layar ≥1024 px paling bawah (di bawah nav); gunakan varian `--player-height`/`--player-offset` dari `tokens.css`.
+- Isi, dari atas ke bawah: bilah progres 3 px, bar progres, judul `Nama Surah · Ayat X` + nama Qari + durasi `m:ss / m:ss`, tombol lewati sebelum (nonaktif pada ayat pertama), tombol putar/jeda (warna `accent` saat menyala), tombol lewati berikutnya (nonaktif pada ayat terakhir), tombol ulangan (siklus: tanpa → ulangi surah → ulangi ayat), tombol kecepatan (siklus: 0,75× → 1× → 1,25× → 1,5×, terisi 1).
+- Di setiap ayat pada Reader: tombol putar audio, ditandai saat menyala (`.audioActive`).
+
+**Perilaku**
+
+- Urutan: ayat berikut di dalam surah; kembali ke ayat 1 setelah ayat terakhir; repeat off/surah/one; rate 0.75/1/1.25/1.5.
+- Prefetches antar-ayat dikonsumsi pada koneksi hemat data.
+- Media Session: judul `Nama Surah · Ayat X`, artis nama Qari, ikon; aksi putar, jeda, lewati, mundur, stop; status `playing`/`paused`.
+- Tombol X menutup pemutar (token posisi naik diputus sebelum `ended` diproses agar tidak mengawali track berikutnya).
+- Offset: `--player-offset` (7rem di bawah nav; 0px di layar besar); `Snackbar`, `BackToTop`, dan `InstallPrompt` menyesuaikan posisi ini; BottomNav dengan mode Reader berada di atas bilah pemutar.
+
+**State**
+
+| State     | Perilaku                                                                                              |
+| --------- | ------------------------------------------------------------------------------------------------------ |
+| Memuat    | Spin loader di tombol putar, subtitle "Memuat audio…", bar progres bila metadata datang                 |
+| Putar     | Ikon Pause, posisi dari elemen audio via `timeupdate`                                                   |
+| Jeda      | Ikon Play                                                                                               |
+| Error     | Teks jelas ("Audio tidak dapat diputar." / "Audio tidak dapat diunduh. Periksa koneksi Anda."), opsi Coba lagi |
+| Offline   | Stream dari EveryAyah; bila cache ada untuk ayat ini, dialirkan dari Cache Storage                      |
+
+**Aksesibilitas (D-044/S12)**
+
+- role="region" dengan aria-label "Pemutar audio"; progressbar "Kemajuan ayat".
+- Tombol putar/jeda 44×44 px (`--touch-target`), fokus visible, aria-label sesuai status.
+- Ulangan dibaca: "Ulangan: tanpa ulangan. Ketuk untuk mengubah."; kecepatan: "Kecepatan 1 kali. Ketuk untuk mengubah."
+- Riwayat isi disimpan dengan aria-live="polite".
+
+**Atribusi (D-044)**
+
+- Nama Qari dipakai tanpa perubahan dari sumber.
+- EveryAyah.com dicantumkan di S10 (Sumber & Atribusi) dan boleh dijangkau dari Reader.
+- Saat memutar/mengunduh, server EveryAyah melihat IP dan ayat yang diminta.

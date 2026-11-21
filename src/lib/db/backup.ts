@@ -1,5 +1,7 @@
 import { db } from "./db";
 import type { ReadingPositionRecord } from "./db";
+import { isReciterId } from "../../features/audio/reciters";
+import { isAudioRate, isRepeatMode } from "../../features/audio/playback";
 
 export const BACKUP_APP = "quran-pwa";
 export const BACKUP_SCHEMA_VERSION = 1;
@@ -39,6 +41,9 @@ function isValidSetting(key: string, value: unknown): boolean {
   if (key === "reader.translationSize") {
     return typeof value === "string" && VALID_TRANSLATION_SIZES.has(value);
   }
+  if (key === "audio.reciter") return isReciterId(value);
+  if (key === "audio.rate") return isAudioRate(value);
+  if (key === "audio.repeat") return isRepeatMode(value);
   return false;
 }
 

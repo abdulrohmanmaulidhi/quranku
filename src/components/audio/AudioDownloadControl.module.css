@@ -1,0 +1,22 @@
+.control {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--space-3);
+}
+
+.status {
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: center;
+  color: var(--color-text-secondary);
+  font-size: var(--text-ui-caption);
+  line-height: var(--leading-ui-caption);
+  text-align: center;
+}
+
+.error {
+  color: var(--color-danger);
+}

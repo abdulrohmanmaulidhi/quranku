@@ -114,4 +114,15 @@ Semua komponen memakai _variables_ dari `DESIGN-TOKENS.md` dan dibuat dengan _au
 
 - Beri nama lapisan dan komponen konsisten agar mudah dipetakan ke kode.
 - Cantumkan anotasi: urutan fokus, label aksesibel, level heading.
-- Komponen yang hanya relevan untuk fitur ditunda (audio, tafsir, catatan, target) **tidak** dibuat sekarang.
+- Komponen yang hanya relevan untuk fitur yang ditunda (tafsir, catatan, target) **tidak** dibuat sekarang.
+
+## 10. Komponen audio (D-044)
+
+| Komponen | Deskripsi | Varian | State | Dipakai di |
+| -------- | --------- | ------ | ----- | ---------- |
+| `PlayerBar` | Bilah tetap pemutar per ayat: kemajuan memuat/streaming, stop, skip, putar/jeda, ulangi, kecepatan | — | D, P, F | Reader (S12) |
+| `AyahCard` | Tombol putar audio per ayat + sorotan ayat aktif (`.audioActive`, `data-playing`) | D, P | — | Reader (S03, S12) |
+| `ReciterPicker` | Pilihan radio Qari (enam, default alafasy) | — | D, P | Pengaturan (S09) |
+| `AudioDownloadControl` | Unduhan per-surah ke Cache Storage; state checking/idle/ready/error/downloading | — | D, P, F | Reader (S12) |
+
+Catatan implementasi: audio **tidak** di-bundle, dialirkan dari EveryAyah.com selama memutar; EveryAyah melihat IP dan ayat yang diminta. Unduhan per-surah menggunakan Cache Storage `quranku-audio-v1` (bukan `OFFLINE_DATA_PATHS`), konkurensi 3 dengan 3 percobaan, dan ayat yang gagal ditampilkan di kontrol.

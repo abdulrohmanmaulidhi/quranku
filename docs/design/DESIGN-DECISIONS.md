@@ -446,6 +446,21 @@ Catat setiap keputusan desain di sini agar tidak mengulang perdebatan yang sama.
 - **Catatan lisensi:** paket Hafs 20 tidak memuat berkas lisensi teks terpisah; teks diatribusikan ke KFGQPC dan QuranEnc. Terjemahan tetap tunduk pada tujuh syarat QuranEnc (D-003).
 - **Ditinjau ulang bila:** KFGQPC/QuranEnc mengubah syarat, font Hafs 20 gagal di perangkat nyata, atau tersedia edisi teks resmi berlisensi lebih jelas.
 
+### D-044 — Pemutar audio Al-Qur'an segar (EveryAyah)
+
+- **Tanggal:** 2026-11-21
+- **Status:** Diputuskan
+- **Konteks:** D-042 menetapkan asal teks dan terjemahan, tetapi belum ada sumber audio Al-Qur'an segar. Data dari QuranEnc ternyata tidak mengandung perekaman murattal (hanya terjemahan berbahasa). Tekanan pengguna agar implementasi dieksekusi segera.
+- **Opsi yang dipertimbangkan:** (a) server konten Al-Qur'an versi rendering skrip (verses.quran.com, audio 128 kbps); (b) EveryAyah.com per-ayat (64 kbps, rangkaian Qari); (c) rehost audio di CDN sendiri; (d) tetap tanpa audio.
+- **Keputusan:** Opsi (b). Setiap Ayah dibuktikan: rangkaian utuh dari 1:1 hingga 2:255 (validasi dengan FFprobe), CORS `Access-Control-Allow-Origin: *`, dukungan `Range`, `max-age ≈ 25.600.000`, dan 10 juta tampilan per bulan. Akibatnya, audio diputar dari jaringan dan diunduh per-surah ke Cache Storage (lihat `audioCache.ts`); tidak ada rehost.
+  - **Rekiter:** enam Qari di 64 kbps: Mishary Rashid Alafasy (`alafasy`, default), Abdul Basit (`abdulbasit`), Mahmoud Khalil Al-Husary (`husary`), Abdur-Rahman As-Sudais (`sudais`), Maher Al-Muaiqly (`maher`), Saud Ash-Shuraym (`shuraym`). Ukuran satu ayat diukur dari sampel: 70–120 KB.
+  - **Sumber audio:** EveryAyah, `https://everyayah.com/data/{folder}/{surah:3}{ayah:3}.mp3`.
+  - **Atribusi:** setiap Qari dicantumkan di pemutar dan di Sumber & Atribusi, dengan rujukan EveryAyah.
+- **Alasan:** rangkaian per-Qari lengkap dari 1:1, perekaman tidak diubah sejak dibuat, harga ringan, dan dukungan offline standar. Penyimpanan lokal penuh per-surah menghormati "user choice" di dokumen Release 1.
+- **Dampak (desain, konten, teknis):** `src/features/audio/*`, `src/components/audio/*`, `src/components/quran/AyahCard.*`, `SurahHeader`, `SettingsPage` (Audio tilawah), `SourcesPage` (Sumber audio), `backup.ts` (`audio.*`), `tests/unit/audio.test.ts`, `tests/e2e/audio.spec.ts` dengan fixture MP3.
+- **Ditinjau ulang bila:** EveryAyah kehilangan rangkaian Qari 64 kbps, syaratnya berubah, atau ada pemutar utama baru.
+- **Bukti:** validasi berkas EveryAyah (`200`, `audio/mpeg`, ukuran menjadi bener); simulasi `audioUrl()`; ukuran satu surah (36 ≈ 27 MB); ukuran Al-Qur'an 64 kbps (Alafasy ≈ 0,73 GB, Abdul Basit ≈ 0,64 GB); CORS `*`, `Range`, `max-age`.
+
 ---
 
 ## Templat entri baru

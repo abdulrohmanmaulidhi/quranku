@@ -1,7 +1,7 @@
 .bar {
   position: fixed;
   right: var(--space-3);
-  bottom: calc(var(--space-4) + var(--safe-bottom));
+  bottom: calc(var(--space-4) + var(--safe-bottom) + var(--player-offset));
   left: var(--space-3);
   z-index: 60;
   display: flex;

@@ -1,8 +1,9 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   BookMarked,
   ChevronRight,
   Download,
+  Headphones,
   Monitor,
   Moon,
   ShieldCheck,
@@ -17,7 +18,9 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Icon } from "@/components/ui/Icon";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Snackbar } from "@/components/ui/Snackbar";
+import { ReciterPicker } from "@/components/audio/ReciterPicker";
 import { useThemePreference } from "@/app/ThemeContext";
+import { clearAudioCache, getAudioCacheCount } from "@/features/audio/audioCache";
 import { useOfflineData } from "@/features/offline/OfflineContext";
 import { promptInstall, useInstallState } from "@/features/pwa/install";
 import { buildBackup, importBackup, parseBackup } from "@/lib/db/backup";
@@ -46,6 +49,17 @@ export function SettingsPage() {
   const [toast, setToast] = useState<Toast | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [audioCount, setAudioCount] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    void getAudioCacheCount().then((count) => {
+      if (!cancelled) setAudioCount(count);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleThemeChange = (value: string) => {
     const next: ThemePreference =
@@ -107,12 +121,31 @@ export function SettingsPage() {
     setBusy(true);
     try {
       await clearUserData();
+      await clearAudioCache();
+      setAudioCount(0);
       localStorage.removeItem("quranku.theme");
       setPreference("system");
       setConfirmClear(false);
       setToast({ message: "Data lokal dihapus.", tone: "success" });
     } catch {
       setToast({ message: "Data lokal belum dapat dihapus.", tone: "error" });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleClearAudio = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const removed = await clearAudioCache();
+      setAudioCount(0);
+      setToast({
+        message: removed > 0 ? "Audio tersimpan dihapus." : "Belum ada audio tersimpan.",
+        tone: "success",
+      });
+    } catch {
+      setToast({ message: "Audio tersimpan belum dapat dihapus.", tone: "error" });
     } finally {
       setBusy(false);
     }
@@ -176,6 +209,43 @@ export function SettingsPage() {
                 onChange={handleThemeChange}
               />
             </div>
+          </div>
+        </section>
+
+        <section className={styles.section} aria-labelledby="audio-heading">
+          <h2 id="audio-heading" className={styles.sectionTitle}>
+            Audio tilawah
+          </h2>
+          <div className={styles.card}>
+            <div className={styles.setting}>
+              <div className={styles.settingText}>
+                <span className={styles.settingLabel}>Qari</span>
+                <span className={styles.settingDescription}>
+                  Suara yang dipakai saat memutar ayat. Audio dialirkan dari EveryAyah.
+                </span>
+              </div>
+            </div>
+            <ReciterPicker />
+            {audioCount > 0 ? (
+              <button
+                type="button"
+                className={styles.actionRow}
+                onClick={() => {
+                  void handleClearAudio();
+                }}
+                disabled={busy}
+              >
+                <span className={styles.linkIcon}>
+                  <Icon icon={Headphones} size={20} />
+                </span>
+                <span className={styles.linkBody}>
+                  <span className={styles.settingLabel}>Hapus audio tersimpan</span>
+                  <span className={styles.settingDescription}>
+                    {audioCount} berkas audio di perangkat ini
+                  </span>
+                </span>
+              </button>
+            ) : null}
           </div>
         </section>
 
@@ -286,7 +356,7 @@ export function SettingsPage() {
               <span className={styles.linkBody}>
                 <span className={styles.settingLabel}>Hapus data lokal</span>
                 <span className={styles.settingDescription}>
-                  Penanda, posisi terakhir, dan pengaturan di perangkat ini
+                  Penanda, posisi terakhir, pengaturan, dan audio tersimpan di perangkat ini
                 </span>
               </span>
             </button>
@@ -380,8 +450,8 @@ export function SettingsPage() {
         description={
           <>
             <p>
-              Penanda, posisi terakhir dibaca, dan pengaturan akan dihapus dari perangkat ini.
-              Tindakan ini tidak dapat dibatalkan.
+              Penanda, posisi terakhir dibaca, pengaturan, dan audio tersimpan akan dihapus dari
+              perangkat ini. Tindakan ini tidak dapat dibatalkan.
             </p>
             <p>Data Quran yang tersimpan tetap tersedia.</p>
           </>

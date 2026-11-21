@@ -7,9 +7,18 @@ import { PwaUpdatePrompt } from "@/components/layout/PwaUpdatePrompt";
 import { SideNav } from "@/components/layout/SideNav";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { AudioProvider } from "@/features/audio/AudioProvider";
 import styles from "./RootLayout.module.css";
 
 export function RootLayout() {
+  return (
+    <AudioProvider>
+      <RootShell />
+    </AudioProvider>
+  );
+}
+
+function RootShell() {
   const location = useLocation();
   const isReader = useMatch("/surah/:surah/*") !== null;
 

@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/StateView";
 import { Icon } from "@/components/ui/Icon";
 import { useManifest } from "@/features/quran/useQuranData";
+import { RECITERS } from "@/features/audio/reciters";
 import { dataUrl } from "@/lib/data/url";
 import { formatDate } from "@/lib/format/date";
 import { formatNumber } from "@/lib/format/number";
@@ -198,6 +199,37 @@ export function SourcesPage() {
                 Terjemahan bukan Al-Qur&apos;an itu sendiri. Catatan tentang terjemahan dilaporkan
                 ke QuranEnc, tidak diubah di aplikasi ini. Aplikasi tidak menampilkan terjemahan
                 yang dihasilkan AI.
+              </p>
+            </section>
+
+            <section className={styles.section} aria-labelledby="audio-source-heading">
+              <h2 id="audio-source-heading" className={styles.heading}>
+                Audio tilawah
+              </h2>
+              <p className={styles.paragraph}>
+                Rekaman murattal dialirkan langsung dari{" "}
+                <ExternalLinkText href="https://everyayah.com">EveryAyah.com</ExternalLinkText> per
+                ayat, tanpa dihosting ulang oleh Quranku. Berkas memakai format MP3 64 kbps.
+              </p>
+              <ul className={styles.fontList}>
+                {RECITERS.map((reciter) => (
+                  <li key={reciter.id}>
+                    <span className={styles.fontName}>{reciter.name}</span> —{" "}
+                    <span lang="ar" dir="rtl">
+                      {reciter.arabicName}
+                    </span>
+                    , {reciter.style}, {reciter.bitrate} kbps.
+                  </li>
+                ))}
+              </ul>
+              <p className={styles.note}>
+                Audio hanya diputar saat Anda menekan tombol putar. Untuk mendengarkan tanpa
+                jaringan, unduh audio satu surah; berkas disimpan di perangkat dan dapat dihapus
+                kapan saja dari Pengaturan. Nama qari dan sumber ditampilkan di pemutar.
+              </p>
+              <p className={styles.note}>
+                Saat memutar atau mengunduh audio, alamat IP dan ayat yang diminta terlihat oleh
+                server EveryAyah. Riwayat bacaan Anda tidak dikirim ke mana pun.
               </p>
             </section>
 

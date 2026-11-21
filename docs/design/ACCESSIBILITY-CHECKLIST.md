@@ -19,6 +19,7 @@ Gunakan checklist ini di tiga titik: saat **mendesain** (di FigCraft), saat **im
 - [ ] Batas input dan kontrol memiliki kontras ≥ 3:1 (`color.border-strong`).
 - [ ] Informasi tidak disampaikan hanya lewat warna (penanda aktif, ayat terakhir dibaca, error memakai ikon/teks juga).
 - [ ] Setiap kombinasi warna baru dihitung ulang kontrasnya.
+- [ ] Warna pemutar (bar + icon) memiliki kontras ≥ 3:1 terhadap latar, dan teks/ikon terbaca pada kedua tema.
 
 ### Teks dan tata letak
 
@@ -35,6 +36,14 @@ Gunakan checklist ini di tiga titik: saat **mendesain** (di FigCraft), saat **im
 - [ ] Ikon dekoratif disembunyikan dari pembaca layar.
 
 ## 2. Dapat dioperasikan
+
+### Media (audio)
+
+- [ ] Semua kontrol pemutar dijalankan dengan keyboard dan layar sentuh (putar/jeda/lewati/mundur/stop, ulangan, kecepatan, tutup, dan per-ayat di Reader).
+- [ ] Label aksesibel lengkap (role="region" aria-label "Pemutar audio", tombol dengan aria-label).
+- [ ] Target sentuh pemutar ≥ 44×44 px, bisa difokus dengan outline jelas.
+- [ ] Pembesaran 200% tidak menutupi ayat yang sedang diputar.
+- [ ] Status putar/jeda diumumkan lewat Media Session dan (di Reader) status dalam nomor ayat.
 
 ### Keyboard dan fokus
 
@@ -74,6 +83,8 @@ Gunakan checklist ini di tiga titik: saat **mendesain** (di FigCraft), saat **im
 - [ ] Perubahan status (penanda ditambah/dihapus, offline/online, impor selesai) diumumkan lewat _live region_.
 - [ ] Sheet dan dialog memakai peran yang benar dan memiliki nama aksesibel.
 - [ ] Kontrol ukuran teks memberi tahu nilainya (mis. "Ukuran Arab: 3 dari 5").
+- [ ] Tombol putar pada setiap ayat memiliki label yang jelas (`Putar audio ayat N`); pemutar muncul sebagai `region` saat ada track aktif.
+- [ ] Pilihan Qari di Pengaturan memakai pilihan radio yang jelas: nama, nama Arab, ragam, dan bentuk; pilihan aktif ditandai ikon cek dan status terisi.
 - [ ] Diuji dengan pembaca layar nyata: **TalkBack** (Android) dan **VoiceOver** (iOS), serta satu pembaca layar desktop.
 - [ ] Diperiksa bahwa pembaca layar tidak salah membaca teks Arab (ketersediaan suara Arab bergantung perangkat; catat batasannya).
 

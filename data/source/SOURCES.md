@@ -66,3 +66,18 @@ Berkas berisi 6.236 entri `{surah, ayah, text, footnotes}`. Teks Arab dari respo
 ## 5. Basmalah pada teks Hafs 20
 
 Basmalah **hanya** ada di 1:1. Ayat 1 surah 2–114 tidak memuatnya (2:1 = `الٓمٓ`), dan surah 9 tidak memiliki basmalah. Build menghasilkan `basmalah.json` dari 1:1; header reader memakainya untuk surah 2–114 kecuali 9. Tidak ada pemotongan teks ayat.
+
+## 6. Audio murattal (per-ayat, EveryAyah)
+
+Audio tidak di-bundle; permintaan langsung ke EveryAyah selama memutar. Satu per-surah diunduh ke Cache Storage (lihat `audioCache.ts`) untuk pemutaran tanpa jaringan.
+
+| Qari | Id (settings) | Folder | Bentuk |
+| --- | --- | --- | --- |
+| Mishary Rashid Alafasy | `alafasy` | `Alafasy_64kbps` | MP3 64 kbps · default |
+| Abdul Basit (Abdul Basit Abdul Samad) | `abdulbasit` | `Abdul_Basit_Murattal_64kbps` | MP3 64 kbps |
+| Mahmoud Khalil Al-Husary | `husary` | `Husary_64kbps` | MP3 64 kbps |
+| Abdur-Rahman As-Sudais | `sudais` | `Abdurrahmaan_As-Sudais_64kbps` | MP3 64 kbps |
+| Maher Al-Muaiqly | `maher` | `Maher_AlMuaiqly_64kbps` | MP3 64 kbps |
+| Saud Ash-Shuraym | `shuraym` | `Saood_ash-Shuraym_64kbps` | MP3 64 kbps |
+
+Sumber: `https://everyayah.com/data/{folder}/{surah:3}{ayah:3}.mp3`. Setiap Qari dicantumkan di pemutar dan di Sumber & Atribusi, dengan rujukan EveryAyah. Data pribadi hanya dieksekusi dari perangkat; saat memutar atau mengunduh audio, server EveryAyah melihat IP dan ayah yang diminta (sumber rujukan [D-044](../design/DESIGN-DECISIONS.md#d-044-pemutar-audio-al-quran-segar-everyayah)).

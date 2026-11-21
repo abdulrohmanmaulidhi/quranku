@@ -1,9 +1,19 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
-import { Bookmark, BookmarkCheck, Copy, Ellipsis, Share2 } from "lucide-react";
+import {
+  Bookmark,
+  BookmarkCheck,
+  Copy,
+  Ellipsis,
+  Loader2,
+  Pause,
+  Play,
+  Share2,
+} from "lucide-react";
 import type { Ayah, Surah, TranslationAyah } from "@/lib/data/types";
 import { formatReference } from "@/lib/format/reference";
 import { copyText } from "@/lib/clipboard";
 import { buildAyahCopy, buildReferenceCopy } from "@/features/quran/copy";
+import { useAudio } from "@/features/audio/AudioContext";
 import type { TranslationSize } from "@/features/library/useTranslationSize";
 import { ArabicText, type ArabicSize } from "./ArabicText";
 import { Icon } from "@/components/ui/Icon";
@@ -42,6 +52,10 @@ export function AyahCard({
   const menuRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
   const reference = formatReference(surah.nameLatin, surah.n, ayah.n);
+  const { status: audioStatus, isCurrent, toggleTrack } = useAudio();
+  const isActiveAyah = isCurrent(surah.n, ayah.n);
+  const isPlaying = isActiveAyah && audioStatus === "playing";
+  const isLoading = isActiveAyah && audioStatus === "loading";
 
   useLayoutEffect(() => {
     if (!menuOpen) return;
@@ -117,7 +131,13 @@ export function AyahCard({
     <li
       id={`ayah-${ayah.n}`}
       data-ayah={ayah.n}
-      className={[styles.item, targeted ? styles.targeted : "", selected ? styles.selected : ""]
+      data-playing={isActiveAyah ? "true" : undefined}
+      className={[
+        styles.item,
+        targeted ? styles.targeted : "",
+        selected ? styles.selected : "",
+        isActiveAyah ? styles.audioActive : "",
+      ]
         .filter(Boolean)
         .join(" ")}
       onKeyDown={(event) => {
@@ -136,6 +156,30 @@ export function AyahCard({
             <span className={styles.markerCircle}>{ayah.n}</span>
           </button>
           <span className={styles.reference}>{reference}</span>
+          <button
+            type="button"
+            className={[styles.audio, isActiveAyah ? styles.audioActiveButton : ""]
+              .filter(Boolean)
+              .join(" ")}
+            aria-label={isPlaying ? `Jeda audio ayat ${ayah.n}` : `Putar audio ayat ${ayah.n}`}
+            aria-pressed={isPlaying}
+            onClick={() =>
+              toggleTrack({
+                surah: surah.n,
+                surahName: surah.nameLatin,
+                ayah: ayah.n,
+                ayahCount: surah.ayahCount,
+              })
+            }
+          >
+            {isLoading ? (
+              <span className={styles.audioSpin}>
+                <Icon icon={Loader2} size={16} />
+              </span>
+            ) : (
+              <Icon icon={isPlaying ? Pause : Play} size={16} filled={isPlaying} />
+            )}
+          </button>
           {bookmarked ? (
             <span className={styles.bookmarkMark}>
               <Icon icon={Bookmark} size={14} filled />

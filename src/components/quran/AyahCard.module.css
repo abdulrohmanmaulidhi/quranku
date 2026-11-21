@@ -96,6 +96,70 @@
   line-height: var(--leading-ui-caption);
 }
 
+.audioActive {
+  background: var(--color-accent-subtle);
+}
+
+.audioActive:not(.targeted):not(.selected) {
+  padding-inline: var(--space-3);
+}
+
+.audio {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  margin-block: calc(-1 * var(--space-2));
+  margin-inline-start: auto;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  transition:
+    background-color var(--motion-fast) var(--motion-easing),
+    color var(--motion-fast) var(--motion-easing);
+}
+
+.audio:hover {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+.audio:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+.audioActiveButton {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.audioActiveButton:hover {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.audioSpin {
+  display: flex;
+  animation: audioSpin 900ms linear infinite;
+}
+
+@keyframes audioSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .audioSpin {
+    animation: none;
+  }
+}
+
 .text {
   padding: var(--space-1) 0;
   border-radius: var(--radius-sm);

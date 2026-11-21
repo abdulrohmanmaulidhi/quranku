@@ -52,7 +52,15 @@ Tampilkan nama penerbit, QuranEnc.com, nomor versi, dan tautan di S10. Jangan me
 
 Cantumkan nama font dan lisensinya (mis. SIL OFL) di S10.
 
-### 2.4 Pernyataan
+### 2.4 Audio tilawah
+
+> Rekaman murattal disediakan oleh EveryAyah.com, dan setiap Qari dinyatakan oleh namanya, nama Arabnya, ragamnya, dan bentuknya. Nama dan bentuknya tidak diubah dari sumber.
+
+Tampilkan nama Qari yang sedang diputar di pemutar audio (tombol putar pada setiap ayat dan Pemutar). Cantumkan EveryAyah.com beserta ragam dan bentuknya di S10 (rujukan [D-044](DESIGN-DECISIONS.md#d-044-pemutar-audio-al-quran-segar-everyayah)). Jangan menyebutkan pihak lain sebagai penyedia suara.
+
+Saat memutar atau mengunduh audio, server EveryAyah melihat alamat IP dan ayat yang diminta (lihat [D-044](DESIGN-DECISIONS.md#d-044-pemutar-audio-al-quran-segar-everyayah)); audio tidak dikirim ke pihak lain.
+
+### 2.5 Pernyataan
 
 > Terjemahan bukan Al-Qur'an itu sendiri. Aplikasi ini tidak menggantikan guru atau ulama.
 
